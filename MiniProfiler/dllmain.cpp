@@ -15,7 +15,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
                       LPVOID lpReserved
 )
 {
-	OutputDebugStringA("DllMain");
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
@@ -29,7 +28,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 extern "C" HRESULT STDMETHODCALLTYPE DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
-	OutputDebugStringA("DllGetClassObject");
 	if (ppv == nullptr || rclsid != CLSID_PROFILER)
 	{
 		return E_FAIL;

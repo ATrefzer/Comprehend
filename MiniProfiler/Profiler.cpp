@@ -75,6 +75,18 @@ std::wstring GetThreadId()
 	return tid;
 }
 
+std::wstring GetModuleName(FunctionID functionId)
+{
+	ClassID classId;
+	ModuleID moduleId;
+	mdToken functionToken;
+	g_corProfilerInfo->GetFunctionInfo(functionId, &classId, &moduleId, &functionToken);
+
+	wchar_t name[1000];
+	g_corProfilerInfo->GetModuleInfo(moduleId, NULL, sizeof(name), nullptr, name, NULL);
+	return std::wstring(name);
+}
+
 std::wstring GetFunctionName(FunctionID functionId)
 {
 	wchar_t funcName[4000];
@@ -116,9 +128,10 @@ std::wstring Format(std::wstring prefix, std::wstring& tid, std::wstring& name, 
 	return msg;
 }
 
-bool Ignore(std::wstring & name)
+bool Ignore(std::wstring & moduleName)
 {
-	return name.find_first_of(L"System.") == 0 || name.find_first_of(L"MS.") == 0;
+	
+	return moduleName.find(L"mscorlib.dll") != std::wstring::npos;
 }
 
 void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
@@ -135,10 +148,12 @@ void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo
 
     COR_PRF_FUNCTION_ARGUMENT_INFO* ptr = (COR_PRF_FUNCTION_ARGUMENT_INFO*)pArgumentInfo;*/
 
+	
 	const auto functionId = functionIDOrClientID.functionID;
+	auto moduleName = GetModuleName(functionId);
 	auto name = GetFunctionName(functionId);
 
-	if (Ignore(name))
+	if (Ignore(moduleName))
 	{
 		return;
 	}
@@ -154,8 +169,9 @@ void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo
 void OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	const auto functionId = functionIDOrClientID.functionID;
+	auto moduleName = GetModuleName(functionId);
 	auto name = GetFunctionName(functionId);
-	if (Ignore(name))
+	if (Ignore(moduleName))
 	{
 		return;
 	}
@@ -171,8 +187,9 @@ void OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo
 bool OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	const auto functionId = functionIDOrClientID.functionID;
+	auto moduleName = GetModuleName(functionId);
 	auto name = GetFunctionName(functionId);
-	if (Ignore(name))
+	if (Ignore(moduleName))
 	{
 		return true;
 	}
@@ -185,82 +202,21 @@ bool OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltI
 
 void _stdcall EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	// TODO Registers are not saved when these callbacks are invoked.
+	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
 	OnEnter(functionIDOrClientID, eltInfo);
 }
 
 void _stdcall LeaveFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	// TODO Registers are not saved when these callbacks are invoked.
+	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
 	OnLeave(functionIDOrClientID, eltInfo);
 }
 
 void _stdcall TailCallFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	// TODO Registers are not saved when these callbacks are invoked.
+	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
 	OnTailCall(functionIDOrClientID, eltInfo);
 }
-
-
-/*
-#ifdef _X86_
-#ifdef _WIN32
-void __declspec(naked) EnterNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-	
-    __asm
-    {
-        PUSH EAX
-        PUSH ECX
-        PUSH EDX
-        PUSH [ESP + 16]
-        CALL EnterFunc
-        POP EDX
-        POP ECX
-        POP EAX
-        RET 8
-    }
-}
-
-void __declspec(naked) LeaveNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    __asm
-    {
-        PUSH EAX
-        PUSH ECX
-        PUSH EDX
-        PUSH [ESP + 16]
-        CALL LeaveFunc
-        POP EDX
-        POP ECX
-        POP EAX
-        RET 8
-    }
-}
-
-void __declspec(naked) TailCallNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    __asm
-    {
-        PUSH EAX
-        PUSH ECX
-        PUSH EDX
-        PUSH[ESP + 16]
-        CALL TailCallFunc
-        POP EDX
-        POP ECX
-        POP EAX
-        RET 8
-    }
-}
-#endif
-#elif defined(_AMD64_)
-EXTERN_C void EnterNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-EXTERN_C void LeaveNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-EXTERN_C void TailCallNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-#endif
-*/
-
 
 Profiler::Profiler() : _referenceCounter(0), _corProfilerInfo(nullptr)
 {
