@@ -1,0 +1,5 @@
+LIBRARY "MiniProfiler.Dll"
+
+EXPORTS
+    DllCanUnloadNow PRIVATE
+    DllGetClassObject PRIVATE

@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+/.vs
+/Binaries
+/HelloWorld_x64/bin/Debug
+/HelloWorld_x64/obj
+/Launcher/obj
+/MiniProfiler/Debug
+/MiniProfiler/Release
+/MiniProfiler/x64/Debug
+/HelloWorld_x86/obj
