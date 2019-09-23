@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{240065ff-b6d3-428e-96f4-186aad8e33fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -25,6 +28,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Profiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Exception.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IOutputStream.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\OutputFileStream.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TextFileWriter.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Encodings.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\DataTypes.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IInputStream.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfilerApi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\FilePath.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CallGraphBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,9 +74,33 @@
     <ClCompile Include="Profiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Exception.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\OutputFileStream.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TextFileWriter.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Encodings.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerApi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\FilePath.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="CallGraphBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Profiler.def">
+    <None Include="MiniProfiler_x64.def">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="MiniProfiler_x86.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

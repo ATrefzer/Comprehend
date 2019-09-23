@@ -13,8 +13,7 @@ private:
 
 	LONG _referenceCounter;
 
-	/// Passed in from CLR when Initialize is called
-	ICorProfilerInfo8* _corProfilerInfo;
+	
 
 public:
 	Profiler();
@@ -140,3 +139,5 @@ public:
 	ULONG STDMETHODCALLTYPE AddRef(void) override;
 	ULONG STDMETHODCALLTYPE Release(void) override;
 };
+
+void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);

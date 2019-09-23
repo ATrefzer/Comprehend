@@ -10,4 +10,6 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
+#include <corhlpr.h>
+#include <corprof.h>
 #endif //PCH_H

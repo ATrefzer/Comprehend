@@ -10,7 +10,7 @@ ClassFactory::ClassFactory() : _referenceCounter(0)
 
 ClassFactory::~ClassFactory()
 {
-	OutputDebugStringA("ClassFactory::~ClassFactory");
+	OutputDebugString(L"ClassFactory::~ClassFactory");
 }
 
 HRESULT STDMETHODCALLTYPE ClassFactory::QueryInterface(REFIID riid, void** ppvObject)
@@ -50,6 +50,8 @@ HRESULT STDMETHODCALLTYPE ClassFactory::CreateInstance(IUnknown* pUnkOuter, REFI
 		return CLASS_E_NOAGGREGATION;
 	}
 
+
+    // Any of the profiler callback interfaces ends at this implementation.
 	auto profiler = new Profiler(); // throws bad_alloc
 
 	return profiler->QueryInterface(riid, ppvObject);
