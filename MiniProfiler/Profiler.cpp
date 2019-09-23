@@ -75,13 +75,10 @@ ULONG Profiler::Release()
     return newValue;
 }
 
-// TODO atr resolve
 
 #ifndef WIN32
-#define UINT_PTR_FORMAT "lx"
 #else
 #define PROFILER_CALLTYPE EXTERN_C void STDMETHODCALLTYPE
-#define UINT_PTR_FORMAT "llx"
 #endif
 
 
@@ -169,7 +166,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfoUnk)
     }
 
     DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL |
-        COR_PRF_ENABLE_FRAME_INFO;
+        COR_PRF_ENABLE_FRAME_INFO | COR_PRF_MONITOR_THREADS;
 
     auto api = new ProfilerApi(corProfilerInfo);
     _callTrace = new CallGraphBuilder(L"d:\\output.txt", api);
@@ -327,11 +324,13 @@ HRESULT STDMETHODCALLTYPE Profiler::JITInlining(FunctionID callerId, FunctionID 
 
 HRESULT STDMETHODCALLTYPE Profiler::ThreadCreated(ThreadID threadId)
 {
+    _callTrace->OnThreadCreated(threadId);
     return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE Profiler::ThreadDestroyed(ThreadID threadId)
 {
+    _callTrace->OnThreadDestroyed(threadId);
     return S_OK;
 }
 
