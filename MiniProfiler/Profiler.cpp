@@ -106,8 +106,6 @@ void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo
 void OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 
-
-    
     _callTrace->OnLeave( functionIDOrClientID.functionID);
 }
 
@@ -116,7 +114,58 @@ void OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltI
     _callTrace->OnTailCall(functionIDOrClientID.functionID);
 }
 
-void _stdcall EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+ #ifndef _WIN64
+
+
+void __declspec(naked) EnterNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+{
+    __asm
+    {
+        PUSH EAX
+        PUSH ECX
+        PUSH EDX
+        PUSH[ESP + 16]
+        CALL OnEnter
+        POP EDX
+        POP ECX
+        POP EAX
+        RET 8
+    }
+}
+
+void __declspec(naked) LeaveNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+{
+    __asm
+    {
+        PUSH EAX
+        PUSH ECX
+        PUSH EDX
+        PUSH[ESP + 16]
+        CALL OnLeave
+        POP EDX
+        POP ECX
+        POP EAX
+        RET 8
+    }
+}
+
+void __declspec(naked) TailCallNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+{
+    __asm
+    {
+        PUSH EAX
+        PUSH ECX
+        PUSH EDX
+        PUSH[ESP + 16]
+        CALL OnTailCall
+        POP EDX
+        POP ECX
+        POP EAX
+        RET 8
+    }
+}
+
+ void _stdcall EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     // TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
     OnEnter(functionIDOrClientID, eltInfo);
@@ -133,6 +182,7 @@ void _stdcall TailCallFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_EL
     // TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
     OnTailCall(functionIDOrClientID, eltInfo);
 }
+#endif
 
 Profiler::Profiler() : _referenceCounter(0)
 {

@@ -5,6 +5,7 @@
 #include <string>
 #include <corhlpr.h>
 #include <corprof.h>
+#include <strstream>
 
 
 
@@ -14,21 +15,30 @@ public:
     FunctionID _id;
     std::wstring _moduleName;
     std::wstring _funcName;
+    bool _isHidden;
 
 public:
-    bool Hide()
+
+    bool IsHidden()
     {
-        return _moduleName.find(L"mscorlib.dll") != std::wstring::npos;
+        return _isHidden;
     }
+
+    void SetHidden()
+    {
+        _isHidden = true;
+    }
+ 
+    std::wstring ToString();
 
     FunctionInfo(FunctionID id, std::wstring moduleName, std::wstring funcName)
     {
         _id = id;
         _moduleName = moduleName;
         _funcName = funcName;
+        _isHidden = false;
 
-        //OutputDebugString((std::wstring(L"\r\nName:") + funcName).c_str());
-        OutputDebugString((std::wstring(L"\r\nModuleName:") + moduleName).c_str());
+        
     }
 };
 

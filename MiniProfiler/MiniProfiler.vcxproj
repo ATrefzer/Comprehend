@@ -183,9 +183,11 @@
     <ClInclude Include="Common\OutputFileStream.h" />
     <ClInclude Include="Common\TextFileWriter.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="FunctionCall.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Profiler.h" />
     <ClInclude Include="ProfilerApi.h" />
+    <ClInclude Include="Stack.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CallGraphBuilder.cpp" />
@@ -221,6 +223,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="FunctionCall.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -229,6 +232,7 @@
     </ClCompile>
     <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="ProfilerApi.cpp" />
+    <ClCompile Include="Stack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MiniProfiler_x64.def">

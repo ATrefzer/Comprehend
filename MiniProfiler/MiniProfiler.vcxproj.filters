@@ -60,6 +60,12 @@
     <ClInclude Include="CallGraphBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FunctionCall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -93,6 +99,12 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="CallGraphBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FunctionCall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

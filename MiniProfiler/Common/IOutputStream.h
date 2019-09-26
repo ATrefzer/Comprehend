@@ -20,7 +20,7 @@ namespace CppEssentials
         ///
         virtual void Write(byte value) = 0;
 
-        /// Writes an byte array to the end of the stream
+        /// Writes a byte array to the end of the stream
         /// This method is not buffered. If there are still bytes in the buffer
         /// they are flushed first. The data target resizes automatically if necessary.
         ///

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ProfilerApi.h"
 #include "Common/FilePath.h"
+#include <string>
 
 void ProfilerApi::Release()
 {
@@ -26,6 +27,8 @@ FunctionInfo* ProfilerApi::CreateFunctionInfo(FunctionID funcId)
     std::wstring moduleName = GetModuleName(funcId);
     std::wstring funcName = GetFunctionName(funcId);
     auto parts = CppEssentials::FilePath::Split(moduleName);
+
+
     return new FunctionInfo(funcId, parts._name, funcName);
 }
 
@@ -76,4 +79,10 @@ std::wstring ProfilerApi::GetFunctionName(FunctionID functionId)
 
 
     return std::wstring(typeName) + std::wstring(L".") + std::wstring(funcName);
+}
+
+std::wstring FunctionInfo::ToString()
+{
+    return _funcName;
+ 
 }

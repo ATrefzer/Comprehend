@@ -140,4 +140,3 @@ public:
 	ULONG STDMETHODCALLTYPE Release(void) override;
 };
 
-void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
