@@ -6,22 +6,22 @@ namespace HelloWorld_x86
     {
         private static int Add(int a, int b)
         {
-            return a+b;
+            return a + b;
         }
 
-    private static int Mult(int a, int b)
+        private static int Mult(int a, int b)
         {
-            int result = 0;
-            for (int i = 0; i <a; i++)
+            var result = 0;
+            for (var i = 0; i < a; i++)
             {
                 result = Add(result, b);
             }
+
             return result;
-            
         }
 
 
-private static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Console.WriteLine(Mult(2, 3));
 

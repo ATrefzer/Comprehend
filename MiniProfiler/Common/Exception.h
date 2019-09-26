@@ -15,96 +15,92 @@ using namespace std;
 
 namespace CppEssentials
 {
+	/// General exception class for this library. Unlike the std::exception object
+	/// it allows to convey unicode messages.
+	///
+	class Exception : public exception
+	{
+	public:
 
-    /// General exception class for this library. Unlike the std::exception object
-    /// it allows to convey unicode messages.
-    ///
-    class Exception : public exception
-    {
-    public:
+		/// Default constructor. It only creates a stack dump.
+		///
+		Exception();
 
-        /// Default constructor. It only creates a stack dump.
-        ///
-        Exception();
+		/// Constructor
+		/// @param sourceLocation   Source code location where the exception was thrown
+		/// @param message          Message why the exception was thrown.
+		/// @param lastError        Optional error code, received via ::GetLastError()
+		///
+		Exception(const wstring& message, unsigned long lastError = 0);
 
-        /// Constructor
-        /// @param sourceLocation   Source code location where the exception was thrown
-        /// @param message          Message why the exception was thrown.
-        /// @param lastError        Optional error code, received via ::GetLastError()
-        ///
-        Exception(const wstring & message, unsigned long lastError = 0);
+		/// Constructor
+		/// @param sourceLocation   Source code location where the exception was thrown
+		/// @param message          Message in which context or why the exception was thrown.
+		/// @param details          More details about the problem. (i.e. the string that couldn't be converted)
+		/// @param lastError        Optional error code, received via ::GetLastError()
+		///
+		Exception(const wstring& message, const wstring& details, unsigned long lastError = 0);
 
-        /// Constructor
-        /// @param sourceLocation   Source code location where the exception was thrown
-        /// @param message          Message in which context or why the exception was thrown.
-        /// @param details          More details about the problem. (i.e. the string that couldn't be converted)
-        /// @param lastError        Optional error code, received via ::GetLastError()
-        ///
-        Exception(const wstring & message, const wstring & details, unsigned long lastError = 0);
+		/// Proper destructor definition required by std::exception
+		///
+		virtual ~Exception() noexcept;
 
-        /// Proper destructor definition required by std::exception
-        ///
-        virtual ~Exception() noexcept;
+		/// Returns the message passed to the constructor.
+		/// Do not use this method. It needs to be present due to the std::exception base class.
+		///
+		const char* what() const override;
 
-        /// Returns the message passed to the constructor.
-        /// Do not use this method. It needs to be present due to the std::exception base class.
-        ///
-        virtual const char *what() const;
+		wstring GetMessage();
 
-        wstring GetMessage();
+		wstring GetDetails();
 
-        wstring GetDetails();
+		unsigned long GetLastError();
 
-        unsigned long GetLastError();
+		/// Returns the stack dump created when the the constructor of the Exception class
+		/// was called.
+		///
+		wstring GetStackDump();
 
-        /// Returns the stack dump created when the the constructor of the Exception class
-        /// was called.
-        ///
-        wstring GetStackDump();
+		/// Returns the Windows system error text for the error code set in constructor.
+		/// If the error code was not set an empty string is returned.
+		///
+		//static wstring ResolveLastError(unsigned long lastError);
+		static wstring ResolveLastError(unsigned long lastError, unsigned long langId = LANG_SYSTEM_DEFAULT);
 
-        /// Returns the Windows system error text for the error code set in constructor.
-        /// If the error code was not set an empty string is returned.
-        ///
-        //static wstring ResolveLastError(unsigned long lastError);
-        static wstring ResolveLastError(unsigned long lastError, unsigned long langId = LANG_SYSTEM_DEFAULT);
+		/// Creates a stack dump
+		std::string DumpStack();
 
-        /// Creates a stack dump
-        std::string DumpStack();
+	private:
 
-    private:
+		/// Converts the message (ctor) to a string returned by the what() method of std::exception.
+		void MakeWhat();
 
-        /// Converts the message (ctor) to a string returned by the what() method of std::exception.
-        void MakeWhat();
+		wstring _message;
+		wstring _details;
 
-        wstring _message;
-        wstring _details;
+		unsigned long _lastError;
 
-        unsigned long _lastError;
+		/// Holder for std::exception::what()
+		string _what;
 
-        /// Holder for std::exception::what()
-        string _what;
+		string _stackDump;
+	};
 
-        string _stackDump;
-    };
+	class TimeoutException : public Exception
+	{
+	public:
+		TimeoutException(const wstring& message = L"") : Exception(message, ERROR_TIMEOUT)
+		{
+		}
+	};
 
-    class TimeoutException : public Exception
-    {
-    public:
-        TimeoutException(const wstring & message = L"") : Exception(message, ERROR_TIMEOUT)
-        {
+	/// Thrown when user cancels blocking calls in case of shutdown.
+	class CancelIOException : public Exception
+	{
+	public:
 
-        }
-    };
-
-    /// Thrown when user cancels blocking calls in case of shutdown.
-    class CancelIOException : public Exception
-    {
-    public:
-
-        CancelIOException(const wstring & message = L"") : Exception(message, ERROR_OPERATION_ABORTED)
-        {
-
-        }
-    };
-
+		CancelIOException(const wstring& message = L"") : Exception(message, ERROR_OPERATION_ABORTED)
+		{
+		}
+	};
 }

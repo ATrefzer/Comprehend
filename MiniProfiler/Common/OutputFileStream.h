@@ -11,78 +11,76 @@
 
 namespace CppEssentials
 {
+	/// Open mode for the file writer classes
+	///
+	enum FileOpenMode
+	{
+		/// If the file exists it is removed and re-created
+		CreateNew,
 
-    /// Open mode for the file writer classes
-    ///
-    enum FileOpenMode
-    {
-        /// If the file exists it is removed and re-created
-        CreateNew,
+		/// If the file exists it is opened and the write pointer moved to the
+		/// end of the file.
+		Append
+	};
 
-        /// If the file exists it is opened and the write pointer moved to the
-        /// end of the file.
-        Append
-    };
+	/// Write class for binary files
+	class OutputFileStream : public IOutputStream
+	{
+	public:
 
-    /// Write class for binary files
-    class OutputFileStream : public IOutputStream
-    {
-    public:
+		/// @param cacheSize    Size in bytes of internal cache. The cache is used when single bytes
+		///                     are written via #Write
+		///
+		OutputFileStream(unsigned int cacheSize = 0);
 
-        /// @param cacheSize    Size in bytes of internal cache. The cache is used when single bytes
-        ///                     are written via #Write
-        ///
-        OutputFileStream(unsigned int cacheSize = 0);
+		virtual ~OutputFileStream();
 
-        virtual ~OutputFileStream();
+		/// Opens a file for byte wise access
+		///
+		/// @param  filePath    Path to the file
+		/// @param  eMode       Behavior if file already exists. (Delete or append)
+		///
+		void Open(const wstring& filePath, FileOpenMode eMode = CreateNew);
 
-        /// Opens a file for byte wise access
-        ///
-        /// @param  filePath    Path to the file
-        /// @param  eMode       Behavior if file already exists. (Delete or append)
-        ///
-        void Open(const wstring & filePath, FileOpenMode eMode = CreateNew);
+		/// Closes the file. (Done automatically in destructor)
+		///
+		void Close();
 
-        /// Closes the file. (Done automatically in destructor)
-        ///
-        void Close();
+		// Interface IBinaryWriter
+		void Write(byte value) override;
+		void Write(const byte* data, UInt32 length) override;
+		void Flush() override;
 
-        // Interface IBinaryWriter
-        virtual void Write(byte value);
-        virtual void Write(const byte * data, UInt32 length);
-        virtual void Flush();
+	private:
 
-    private:
+		void _WriteChunk(const byte* data, UInt32 length);
+		void Clear();
 
-        void _WriteChunk(const byte * data, UInt32 length);
-        void Clear();
+		/// Checks if file is open. If not a file_exception is thrown
+		void VerifyFileOpen();
 
-        /// Checks if file is open. If not a file_exception is thrown
-        void VerifyFileOpen();
+		/// Do not allow copy or assignment
+		OutputFileStream(const OutputFileStream& writer);
 
-        /// Do not allow copy or assignment
-        OutputFileStream(const OutputFileStream & writer);
+		/// Do not allow copy or assignment
+		OutputFileStream& operator==(const OutputFileStream& writer);
 
-        /// Do not allow copy or assignment
-        OutputFileStream &operator==(const OutputFileStream & writer);
+	private:
 
-    private:
+		/// Internal cache to increase performance if single bytes are written
+		byte* _cache;
 
-        /// Internal cache to increase performance if single bytes are written
-        byte * _cache;
+		/// Position in cache where the next byte is placed
+		unsigned int _cacheIndex;
 
-        /// Position in cache where the next byte is placed
-        unsigned int _cacheIndex;
+		/// Count of bytes currently in cache
+		unsigned int _cachedBytes;
 
-        /// Count of bytes currently in cache
-        unsigned int _cachedBytes;
+		/// Size of internal cache
+		const unsigned int CACHE_SIZE;
 
-        /// Size of internal cache
-        const unsigned int CACHE_SIZE;
+		HANDLE _handle;
 
-        HANDLE _handle;
-
-        void operator=(const OutputFileStream &);
-    };
-
+		void operator=(const OutputFileStream&);
+	};
 }

@@ -6,8 +6,8 @@ namespace HelloWorld_x64
     {
         private static void Foo()
         {
-
         }
+
         private static void Main(string[] args)
         {
             Foo();

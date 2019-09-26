@@ -13,34 +13,33 @@
 
 namespace CppEssentials
 {
-class IInputStream;
-class IEncoder;
+	class IInputStream;
+	class IEncoder;
 
-/// Writer class for text files
-class TextFileWriter
-{
-public:
+	/// Writer class for text files
+	class TextFileWriter
+	{
+	public:
 
-    TextFileWriter();
+		TextFileWriter();
 
-    void Open(const wstring & filePath, FileOpenMode eMode, const IEncoder & encoder);
+		void Open(const wstring& filePath, FileOpenMode eMode, const IEncoder& encoder);
 
-    void Close();
+		void Close();
 
-    void WriteByteOrderMark();
+		void WriteByteOrderMark();
 
-    void WriteString(const wstring & stringToWrite);
+		void WriteString(const wstring& stringToWrite);
 
-    void WriteWideChar(wchar_t wideChar);
+		void WriteWideChar(wchar_t wideChar);
 
-private:
+	private:
 
-    void Clear();
+		void Clear();
 
-    OutputFileStream _writer;
-    IEncoder * _encoder;
+		OutputFileStream _writer;
+		IEncoder* _encoder;
 
-    void operator=(const TextFileWriter &);
-
-};
+		void operator=(const TextFileWriter&);
+	};
 };

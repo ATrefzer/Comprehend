@@ -13,12 +13,11 @@ private:
 
 	LONG _referenceCounter;
 
-	
 
 public:
 	Profiler();
 	virtual ~Profiler();
-	HRESULT STDMETHODCALLTYPE Initialize(IUnknown* pICorProfilerInfoUnk) override;
+	HRESULT STDMETHODCALLTYPE Initialize(IUnknown* pICorProfilerInfo) override;
 	HRESULT STDMETHODCALLTYPE Shutdown() override;
 	HRESULT STDMETHODCALLTYPE AppDomainCreationStarted(AppDomainID appDomainId) override;
 	HRESULT STDMETHODCALLTYPE AppDomainCreationFinished(AppDomainID appDomainId, HRESULT hrStatus) override;
@@ -139,4 +138,3 @@ public:
 	ULONG STDMETHODCALLTYPE AddRef(void) override;
 	ULONG STDMETHODCALLTYPE Release(void) override;
 };
-

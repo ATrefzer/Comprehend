@@ -9,84 +9,80 @@
 
 namespace CppEssentials
 {
+	std::wstring FilePath::Combine(const std::wstring& part1, const std::wstring& part2)
+	{
+		// Consider the situation when part2 starts with '\'
+		std::wstring cleanedPart2 = part2;
+		while (cleanedPart2.find(L"\\") == 0)
+		{
+			cleanedPart2 = cleanedPart2.substr(1);
+		}
 
-    std::wstring FilePath::Combine(const std::wstring & part1, const std::wstring & part2)
-    {
+		std::wstring path = part1;
 
-        // Consider the situation when part2 starts with '\'
-        std::wstring cleanedPart2 = part2;
-        while (cleanedPart2.find(L"\\") == 0)
-        {
-            cleanedPart2 = cleanedPart2.substr(1);
-        }
+		if (path.length() > 0)
+		{
+			if (path[path.length() - 1] != L'\\')
+			{
+				path.append(L"\\");
+			}
+		}
 
-        std::wstring path = part1;
+		path.append(cleanedPart2);
 
-        if (path.length() > 0)
-        {
-            if (path[path.length() - 1] != L'\\')
-            {
-                path.append(L"\\");
-            }
-        }
+		return path;
+	}
 
-        path.append(cleanedPart2);
+	std::wstring FilePath::Resolve(const std::wstring& path)
+	{
+		if (*(path.rbegin()) == L':')
+		{
+			// GetFullPathNameW cannot handle d: It has to be d:\ .
+			return path;
+		}
 
-        return path;
-    }
+		wchar_t szFullPath[_MAX_PATH];
+		wchar_t* szFile;
 
-    std::wstring FilePath::Resolve(const std::wstring & path)
-    {
-        if (*(path.rbegin()) == L':')
-        {
-            // GetFullPathNameW cannot handle d: It has to be d:\ .
-            return path;
-        }
+		if (FALSE == GetFullPathNameW(path.c_str(), _MAX_PATH, szFullPath, &szFile))
+		{
+			// Most likely some allocation problem with the buffer
+			throw Exception(L"Failed resolving path: " + path, GetLastError());
+		}
 
-        wchar_t szFullPath[_MAX_PATH];
-        wchar_t *szFile;
+		return szFullPath;
+	}
 
-        if (FALSE == GetFullPathNameW(path.c_str(), _MAX_PATH, szFullPath, &szFile))
-        {
-            // Most likely some allocation problem with the buffer
-            throw Exception(L"Failed resolving path: " + path, GetLastError());
-        }
+	FilePath::Parts FilePath::Split(const std::wstring& path)
+	{
+		Parts parts;
 
-        return szFullPath;
-    }
+		// remove tailing backslash
+		std::wstring splitPath = path;
+		while (splitPath.length() > 0 && *(splitPath.rbegin()) == L'\\')
+		{
+			splitPath.erase(splitPath.length() - 1);
+		}
 
-    FilePath::Parts FilePath::Split(const std::wstring & path)
-    {
-        Parts parts;
+		std::wstring::size_type backslashPos = splitPath.rfind(L'\\');
+		if (backslashPos != std::wstring::npos)
+		{
+			// Extract substring without the last \ .
+			parts._parent = splitPath.substr(0, backslashPos);
+			parts._name = splitPath.substr(backslashPos + 1);
+		}
+		else
+		{
+			// Also if path is a drive
+			parts._name = splitPath;
+		}
 
-        // remove tailing backslash
-        std::wstring splitPath = path;
-        while (splitPath.length() > 0 && *(splitPath.rbegin()) == L'\\')
-        {
-            splitPath.erase(splitPath.length() - 1);
-        }
+		std::wstring::size_type dotPos = parts._name.rfind(L'.');
+		if (dotPos != std::wstring::npos)
+		{
+			parts._extension = parts._name.substr(dotPos + 1);
+		}
 
-        std::wstring::size_type backslashPos = splitPath.rfind(L'\\');
-        if (backslashPos != std::wstring::npos)
-        {
-
-            // Extract substring without the last \ .
-            parts._parent = splitPath.substr(0, backslashPos);
-            parts._name = splitPath.substr(backslashPos + 1);
-        }
-        else
-        {
-            // Also if path is a drive
-            parts._name = splitPath;
-        }
-
-        std::wstring::size_type dotPos = parts._name.rfind(L'.');
-        if (dotPos != std::wstring::npos)
-        {
-            parts._extension = parts._name.substr(dotPos + 1);
-        }
-
-        return parts;
-    }
-
+		return parts;
+	}
 };

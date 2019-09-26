@@ -51,7 +51,7 @@ HRESULT STDMETHODCALLTYPE ClassFactory::CreateInstance(IUnknown* pUnkOuter, REFI
 	}
 
 
-    // Any of the profiler callback interfaces ends at this implementation.
+	// Any of the profiler callback interfaces ends at this implementation.
 	auto profiler = new Profiler(); // throws bad_alloc
 
 	return profiler->QueryInterface(riid, ppvObject);

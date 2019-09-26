@@ -1,20 +1,13 @@
 #pragma once
 #include "ProfilerApi.h"
-/// Abstracts hidded calls
+
+/// Abstracts hidden calls
 class FunctionCall
 {
 public:
-    // 0 if the function is hidden
-    FunctionInfo* _info;
+	FunctionInfo* _info;
 
-    FunctionCall(FunctionInfo* info)
-    {
-        _info = info;
-    }
+	explicit FunctionCall(FunctionInfo* info);
 
-    bool IsHidden()
-    {
-        return _info->IsHidden();
- }
-
+	bool IsHidden();
 };
