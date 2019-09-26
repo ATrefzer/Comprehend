@@ -173,6 +173,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CallGraphBuilder.h" />
+    <ClInclude Include="CallStackTests.h" />
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Common\DataTypes.h" />
     <ClInclude Include="Common\Encodings.h" />
@@ -188,9 +189,11 @@
     <ClInclude Include="Profiler.h" />
     <ClInclude Include="ProfilerApi.h" />
     <ClInclude Include="Stack.h" />
+    <ClInclude Include="TextWriterAdapter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CallGraphBuilder.cpp" />
+    <ClCompile Include="CallStackTests.cpp" />
     <ClCompile Include="ClassFactory.cpp" />
     <ClCompile Include="Common\Encodings.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -233,6 +236,7 @@
     <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="ProfilerApi.cpp" />
     <ClCompile Include="Stack.cpp" />
+    <ClCompile Include="TextWriterAdapter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MiniProfiler_x64.def">

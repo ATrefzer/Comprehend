@@ -3,3 +3,5 @@ LIBRARY "MiniProfiler_x86.Dll"
 EXPORTS
     DllCanUnloadNow PRIVATE
     DllGetClassObject PRIVATE
+
+	RunTests PRIVATE

@@ -13,5 +13,7 @@
                 Click="Button_Click_x64"/>
         <Button Content="Launch x86"
                 Click="Button_Click_x86"/>
+
+        <Button Content="Run Unit Tests (x86)" Click="Button_Click_RunTests"/>
     </StackPanel>
 </Window>

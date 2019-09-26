@@ -6,6 +6,18 @@
 #include <corprof.h>
 #include <strstream>
 
+class FunctionInfo;
+
+class IProfilerApi
+{
+public:
+
+    virtual void Release() = 0;
+    virtual FunctionInfo* CreateFunctionInfo(FunctionID funcId) = 0;
+    virtual ThreadID GetThreadId() = 0;
+    virtual std::wstring GetModuleName(FunctionID functionId) = 0;
+    virtual std::wstring GetFunctionName(FunctionID functionId) = 0;
+};
 
 class FunctionInfo
 {
@@ -38,7 +50,7 @@ public:
 	}
 };
 
-class ProfilerApi
+class ProfilerApi : public IProfilerApi
 {
 public:
 	ICorProfilerInfo8* _corProfilerInfo;

@@ -60,5 +60,11 @@ namespace Launcher
                            });
             IsEnabled = true;
         }
+
+
+        private void Button_Click_RunTests(object sender, RoutedEventArgs e)
+        {
+            ProfilerExports.RunTests();
+        }
     }
 }

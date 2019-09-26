@@ -205,8 +205,12 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 	DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL |
 		COR_PRF_ENABLE_FRAME_INFO | COR_PRF_MONITOR_THREADS;
 
-	auto api = new ProfilerApi(corProfilerInfo);
-	_callTrace = new CallGraphBuilder(L"d:\\output.txt", api);
+	IProfilerApi* api = new ProfilerApi(corProfilerInfo);
+    ITextWriter* writer = new TextWriterAdapter(L"d:\\output.txt");
+    writer->Open();
+
+    // Ownership
+	_callTrace = new CallGraphBuilder(api, writer);
 
 	corProfilerInfo->SetFunctionIDMapper2(FunctionIDMapperFunc, nullptr);
 

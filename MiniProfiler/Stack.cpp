@@ -11,6 +11,7 @@ FunctionCall* Stack::Push(FunctionInfo* info)
 {
 	const auto call = new FunctionCall(info);
 	_stack.push(call);
+    _level++;
 
 	if (_entryFunc == nullptr)
 	{
@@ -20,14 +21,6 @@ FunctionCall* Stack::Push(FunctionInfo* info)
 	
 	_activeFunc = call;
 
-	/*if (_activeFunc == nullptr)
-	{
-		OutputDebugString(L"\nStack::Push We have no active func");
-	}
-	else
-	{
-		OutputDebugString(L"\nStack::Push We have an active func");
-	}*/
 	
 	return call;
 }
@@ -38,6 +31,7 @@ FunctionCall* Stack::Pop()
 
 	const auto removed = _stack.top();
 	_stack.pop();
+    _level--;
 
 	if (_stack.empty())
 	{
@@ -49,14 +43,7 @@ FunctionCall* Stack::Pop()
 		_activeFunc = _stack.top();
 	}
 
-	/*if (_activeFunc == nullptr)
-	{
-		OutputDebugString(L"\nStack::Pop We have no active func");
-	}
-	else
-	{
-		OutputDebugString(L"\nStack::Pop We have an active func");
-	}*/
+
 
 	return removed;
 }

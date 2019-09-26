@@ -6,6 +6,12 @@ class Stack
 {
 public:
 
+    int _level = 1;
+    int Level()
+    {
+        return _level;
+    }
+
 	std::stack<FunctionCall*> _stack;
 
 	FunctionCall* _entryFunc;
@@ -27,4 +33,5 @@ public:
 	FunctionCall* Push(FunctionInfo* info);
 
 	FunctionCall* Pop();
+
 };
