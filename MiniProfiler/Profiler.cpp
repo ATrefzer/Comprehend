@@ -55,6 +55,7 @@ HRESULT Profiler::QueryInterface(const IID& riid, void** ppvObject)
 
 ULONG Profiler::AddRef()
 {
+  
 	return ::InterlockedIncrement(&_referenceCounter);
 }
 
@@ -76,8 +77,8 @@ ULONG Profiler::Release()
 #define PROFILER_CALLTYPE EXTERN_C void STDMETHODCALLTYPE
 #endif
 
-
-void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+// TODO naked needs __stdcall!
+void  OnEnter  (FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	_callTrace->OnEnter(functionIDOrClientID.functionID);
 	// TODO function ids may change!
@@ -94,12 +95,12 @@ void OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo
 }
 
 
-void OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void  OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	_callTrace->OnLeave(functionIDOrClientID.functionID);
 }
 
-void OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void  OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	_callTrace->OnTailCall(functionIDOrClientID.functionID);
 }
@@ -107,57 +108,73 @@ void OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltI
 #ifndef _WIN64
 
 
-void __declspec(naked) EnterNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked) __stdcall EnterNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	__asm
-		{
-		PUSH EAX
-		PUSH ECX
-		PUSH EDX
-		PUSH[ESP + 16]
-		CALL OnEnter
-		POP EDX
-		POP ECX
-		POP EAX
-		RET 8
-		}
+    __asm
+    {
+        push ebp
+        mov ebp, esp
+        pushad
+        mov edx, [ebp + 0x0C]
+        push edx
+        mov eax, [ebp + 0x08]
+        push eax
+        call OnEnter;
+        popad
+            pop ebp
+            ret SIZE functionIDOrClientID + SIZE eltInfo
+    }
 }
 
-void __declspec(naked) LeaveNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked)  __stdcall LeaveNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	__asm
-		{
-		PUSH EAX
-		PUSH ECX
-		PUSH EDX
-		PUSH[ESP + 16]
-		CALL OnLeave
-		POP EDX
-		POP ECX
-		POP EAX
-		RET 8
-		}
+    __asm
+    {
+        push ebp
+        mov ebp, esp
+        pushad
+
+        mov edx, [ebp + 0x0C]
+        push edx
+
+        mov eax, [ebp + 0x08]
+        push eax
+
+        call OnLeave;
+
+        popad
+            pop ebp
+            ret SIZE functionIDOrClientID + SIZE eltInfo
+    }
 }
 
-void __declspec(naked) TailCallNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked) __stdcall TailCallNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	__asm
-		{
-		PUSH EAX
-		PUSH ECX
-		PUSH EDX
-		PUSH[ESP + 16]
-		CALL OnTailCall
-		POP EDX
-		POP ECX
-		POP EAX
-		RET 8
-		}
+    __asm
+    {
+
+        push ebp
+        mov ebp, esp
+        pushad
+
+        mov edx, [ebp + 0x0C]
+        push edx
+
+        mov eax, [ebp + 0x08]
+        push eax
+
+        call OnTailCall;
+
+
+        popad
+            pop ebp
+            ret SIZE functionIDOrClientID + SIZE eltInfo
+    }
 }
 
 #endif
 
-void _stdcall EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+ void __stdcall  EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
 	OnEnter(functionIDOrClientID, eltInfo);
@@ -224,7 +241,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 		printf("ERROR: Profiler SetEventMask failed (HRESULT: %d)", hr);
 	}
 
-	//hr = _corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNaked, LeaveNaked, TailCallNaked);
+	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNaked, LeaveNaked, TailCallNaked);
 	hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterFunc, LeaveFunc, TailCallFunc);
 
 	if (hr != S_OK)
@@ -237,10 +254,14 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 
 HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 {
+    ::OutputDebugString(L"\nProfiler::Shutdown");
+
     CppEssentials::TextFileWriter writer;
     writer.Open(L"d:\\index.txt", CppEssentials::FileOpenMode::CreateNew, CppEssentials::UTF16LittleEndianEncoder());
     _callTrace->WriteIndexFile(writer);
     writer.Close();
+
+    ::OutputDebugString(L"\nIndex written");
 
 	if (_callTrace != nullptr)
 	{

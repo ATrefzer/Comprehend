@@ -59,40 +59,42 @@ namespace Launcher
         private List<ProfilerEvent> ParseEventStream(string path, Dictionary<ulong, string> dictionary)
         {
             List<ProfilerEvent> eventStream = new List<ProfilerEvent>();
-            var stream = new FileStream(path, FileMode.Open);
-            var offset = 0;
-            byte[] bytes = new byte[10];
-
-            while (stream.Read(bytes, 0, 10) == 10)
+            using (var stream = new FileStream(path, FileMode.Open))
             {
-                // Token and thread id
-                offset += sizeof(ulong) + sizeof(ushort);
+                var offset = 0;
+                byte[] bytes = new byte[10];
 
-                Tokens token;
-                ulong tid;
-                ulong fid;
-
-                token = (Tokens)BitConverter.ToUInt16(bytes, 0);
-                tid = BitConverter.ToUInt64(bytes, 2);
-
-                var entry = new ProfilerEvent();
-                entry.Token = token;
-                entry.ThreadId = tid;
-
-                if (token == Tokens.TokenEnter || token == Tokens.TokenLeave || token == Tokens.TokenTailCall)
+                while (stream.Read(bytes, 0, 10) == 10)
                 {
-                    stream.Read(bytes, 0, sizeof(ulong));
-                    offset += sizeof(ulong);
+                    // Token and thread id
+                    offset += sizeof(ulong) + sizeof(ushort);
 
-                    fid = BitConverter.ToUInt64(bytes, 0);
+                    Tokens token;
+                    ulong tid;
+                    ulong fid;
 
-                    var funcName = dictionary[fid];
-                    entry.FunctioId = fid;
-                    entry.FunctionName = funcName;
+                    token = (Tokens)BitConverter.ToUInt16(bytes, 0);
+                    tid = BitConverter.ToUInt64(bytes, 2);
+
+                    var entry = new ProfilerEvent();
+                    entry.Token = token;
+                    entry.ThreadId = tid;
+
+                    if (token == Tokens.TokenEnter || token == Tokens.TokenLeave || token == Tokens.TokenTailCall)
+                    {
+                        stream.Read(bytes, 0, sizeof(ulong));
+                        offset += sizeof(ulong);
+
+                        fid = BitConverter.ToUInt64(bytes, 0);
+
+                        var funcName = dictionary[fid];
+                        entry.FunctioId = fid;
+                        entry.FunctionName = funcName;
+                    }
+                    eventStream.Add(entry);
                 }
-                eventStream.Add(entry);
+                return eventStream;
             }
-            return eventStream;
         }
     }
 }
