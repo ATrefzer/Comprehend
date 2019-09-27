@@ -8,6 +8,7 @@
 #include "ProfilerApi.h"
 #include "CallGraphExporter.h"
 #include "Common/BinaryWriter.h"
+#include "Common\Encodings.h"
 
 
 // http://www.blong.com/conferences/dcon2003/internals/profiling.htm
@@ -236,6 +237,11 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 
 HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 {
+    CppEssentials::TextFileWriter writer;
+    writer.Open(L"d:\\index.txt", CppEssentials::FileOpenMode::CreateNew, CppEssentials::UTF16LittleEndianEncoder());
+    _callTrace->WriteIndexFile(writer);
+    writer.Close();
+
 	if (_callTrace != nullptr)
 	{
 		_callTrace->Release();

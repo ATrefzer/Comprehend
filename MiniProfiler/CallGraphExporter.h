@@ -24,6 +24,8 @@ public:
 	void OnThreadCreated(ThreadID tid);
 	void OnThreadDestroyed(ThreadID tid);
 
+    void WriteIndexFile(CppEssentials::TextFileWriter& writer);
+
     // Ownership stays within this class.
     FunctionInfo* AddFunctionInfo(FunctionID funcId);
 

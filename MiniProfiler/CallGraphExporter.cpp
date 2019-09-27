@@ -2,6 +2,7 @@
 #include "CallGraphExporter.h"
 #include "Common/BinaryWriter.h"
 #include <cassert>
+using namespace CppEssentials;
 
 // TODO
 // 1. How fast ist it?
@@ -49,23 +50,8 @@ CallGraphExporter::CallGraphExporter(IProfilerApi* api, CppEssentials::BinaryWri
 
 void CallGraphExporter::Release()
 {
-	if (_writer != nullptr)
-	{
-		_writer->Flush();
-
-		// Closes the inner file
-		delete _writer;
-		_writer = nullptr;
-	}
-
-	if (_api != nullptr)
-	{
-		_api->Release();
-		delete _api;
-		_api = nullptr;
-	}
+	
 }
-
 
 void CallGraphExporter::OnEnter(FunctionID funcId)
 {
@@ -110,4 +96,20 @@ void CallGraphExporter::OnThreadDestroyed(ThreadID tid)
 
 	_writer->WriteUInt16(TokenDestroyThread);
 	_writer->WriteUInt64(tid);
+}
+
+void CallGraphExporter::WriteIndexFile(CppEssentials::TextFileWriter& writer)
+{
+    for (auto iter = _funcInfos.begin(); iter != _funcInfos.end(); ++iter)
+    {
+        if (iter != _funcInfos.begin())
+        {
+            writer.WriteString(L"\r\n");
+        }
+
+        auto func = iter->second;
+        writer.WriteString(std::to_wstring(func->_id));
+        writer.WriteString(L" ");
+        writer.WriteString(func->_funcName);
+    }
 }
