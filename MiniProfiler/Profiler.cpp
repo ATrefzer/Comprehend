@@ -32,53 +32,13 @@ UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOO
 }
 
 
-HRESULT Profiler::QueryInterface(const IID& riid, void** ppvObject)
-{
-	if (riid == __uuidof(ICorProfilerCallback8) ||
-		riid == __uuidof(ICorProfilerCallback7) ||
-		riid == __uuidof(ICorProfilerCallback6) ||
-		riid == __uuidof(ICorProfilerCallback5) ||
-		riid == __uuidof(ICorProfilerCallback4) ||
-		riid == __uuidof(ICorProfilerCallback3) ||
-		riid == __uuidof(ICorProfilerCallback2) ||
-		riid == __uuidof(ICorProfilerCallback) ||
-		riid == IID_IUnknown)
-	{
-		*ppvObject = this;
-		this->AddRef();
-		return S_OK;
-	}
-
-	*ppvObject = nullptr;
-	return E_NOINTERFACE;
-}
-
-ULONG Profiler::AddRef()
-{
-  
-	return ::InterlockedIncrement(&_referenceCounter);
-}
-
-ULONG Profiler::Release()
-{
-	auto newValue = ::InterlockedDecrement(&_referenceCounter);
-
-	if (newValue == 0)
-	{
-		delete this;
-	}
-
-	return newValue;
-}
-
-
 #ifndef WIN32
 #else
 #define PROFILER_CALLTYPE EXTERN_C void STDMETHODCALLTYPE
 #endif
 
-// TODO naked needs __stdcall!
-void  OnEnter  (FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+// Note: Naked function calls below needs __stdcall!
+void __stdcall  OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	_callTrace->OnEnter(functionIDOrClientID.functionID);
 	// TODO function ids may change!
@@ -95,12 +55,12 @@ void  OnEnter  (FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltI
 }
 
 
-void  OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __stdcall   OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	_callTrace->OnLeave(functionIDOrClientID.functionID);
 }
 
-void  OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void  __stdcall  OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
 	_callTrace->OnTailCall(functionIDOrClientID.functionID);
 }
@@ -108,67 +68,57 @@ void  OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO elt
 #ifndef _WIN64
 
 
-void __declspec(naked) __stdcall EnterNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked) __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     __asm
     {
         push ebp
         mov ebp, esp
         pushad
-        mov edx, [ebp + 0x0C]
+        mov edx, [ebp + 12] // ebp + 12 = second parameter: eltInfo
         push edx
-        mov eax, [ebp + 0x08]
+        mov eax, [ebp + 8]  // epb+8 = first parameter: functionId
         push eax
-        call OnEnter;
+        call OnEnter // __stdcall: parameters are pushed right to left. 
         popad
-            pop ebp
-            ret SIZE functionIDOrClientID + SIZE eltInfo
+        pop ebp
+        ret 8   // __stdcall: Callee cleans up the parameters
     }
 }
 
-void __declspec(naked)  __stdcall LeaveNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked)  __stdcall LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     __asm
     {
         push ebp
         mov ebp, esp
         pushad
-
-        mov edx, [ebp + 0x0C]
+        mov edx, [ebp + 12]
         push edx
-
-        mov eax, [ebp + 0x08]
+        mov eax, [ebp + 8]
         push eax
-
-        call OnLeave;
-
+        call OnLeave
         popad
-            pop ebp
-            ret SIZE functionIDOrClientID + SIZE eltInfo
+        pop ebp
+        ret 8
     }
 }
 
-void __declspec(naked) __stdcall TailCallNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked) __stdcall TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     __asm
     {
-
         push ebp
         mov ebp, esp
         pushad
-
-        mov edx, [ebp + 0x0C]
+        mov edx, [ebp + 12]
         push edx
-
-        mov eax, [ebp + 0x08]
+        mov eax, [ebp + 8]
         push eax
-
-        call OnTailCall;
-
-
+        call OnTailCall
         popad
-            pop ebp
-            ret SIZE functionIDOrClientID + SIZE eltInfo
+        pop ebp
+        ret 8
     }
 }
 
@@ -195,6 +145,8 @@ void _stdcall TailCallFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_EL
 
 Profiler::Profiler() : _referenceCounter(0)
 {
+    _writer = nullptr;
+    _api = nullptr;
 }
 
 Profiler::~Profiler()
@@ -208,14 +160,15 @@ Profiler::~Profiler()
 
 HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 {
+  
+
 	/// Passed in from CLR when Initialize is called
 	ICorProfilerInfo8* corProfilerInfo;
 
-	HRESULT queryInterfaceResult = pICorProfilerInfo->QueryInterface(__uuidof(ICorProfilerInfo8),
-	                                                                 reinterpret_cast<void**>(&corProfilerInfo));
+	HRESULT result = pICorProfilerInfo->QueryInterface(__uuidof(ICorProfilerInfo8),
+	                                                   reinterpret_cast<void**>(&corProfilerInfo));
 
-
-	if (FAILED(queryInterfaceResult))
+	if (FAILED(result))
 	{
 		return E_FAIL;
 	}
@@ -241,7 +194,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 		printf("ERROR: Profiler SetEventMask failed (HRESULT: %d)", hr);
 	}
 
-	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNaked, LeaveNaked, TailCallNaked);
+	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFunc, LeaveNakedFunc, TailCallNakedFunc);
 	hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterFunc, LeaveFunc, TailCallFunc);
 
 	if (hr != S_OK)
@@ -750,4 +703,46 @@ HRESULT STDMETHODCALLTYPE Profiler::DynamicMethodJITCompilationFinished(Function
                                                                         BOOL fIsSafeToBlock)
 {
 	return S_OK;
+}
+
+
+
+
+HRESULT Profiler::QueryInterface(const IID& riid, void** ppvObject)
+{
+    if (riid == __uuidof(ICorProfilerCallback8) ||
+        riid == __uuidof(ICorProfilerCallback7) ||
+        riid == __uuidof(ICorProfilerCallback6) ||
+        riid == __uuidof(ICorProfilerCallback5) ||
+        riid == __uuidof(ICorProfilerCallback4) ||
+        riid == __uuidof(ICorProfilerCallback3) ||
+        riid == __uuidof(ICorProfilerCallback2) ||
+        riid == __uuidof(ICorProfilerCallback) ||
+        riid == IID_IUnknown)
+    {
+        *ppvObject = this;
+        this->AddRef();
+        return S_OK;
+    }
+
+    *ppvObject = nullptr;
+    return E_NOINTERFACE;
+}
+
+ULONG Profiler::AddRef()
+{
+
+    return ::InterlockedIncrement(&_referenceCounter);
+}
+
+ULONG Profiler::Release()
+{
+    auto newValue = ::InterlockedDecrement(&_referenceCounter);
+
+    if (newValue == 0)
+    {
+        delete this;
+    }
+
+    return newValue;
 }
