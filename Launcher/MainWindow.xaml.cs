@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -36,7 +37,7 @@ namespace Launcher
                                process?.WaitForExit();
                            });
             IsEnabled = true;
-        }
+        }    
 
         private async void Button_Click_x86(object sender, RoutedEventArgs e)
         {
@@ -59,8 +60,12 @@ namespace Launcher
                                process?.WaitForExit();
                            });
             IsEnabled = true;
-        }
 
+            ProfileParser parser = new ProfileParser();
+            var eventStream = parser.Parse();
+
+         
+        }
 
         private void Button_Click_RunTests(object sender, RoutedEventArgs e)
         {

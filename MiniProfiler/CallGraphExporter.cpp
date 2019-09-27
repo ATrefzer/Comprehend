@@ -17,9 +17,6 @@ enum Tokens
 	TokenEnter,
 	TokenLeave,
 	TokenTailCall,
-
-	// After this token the function dictionary starts
-	Terminate
 };
 
 FunctionInfo* CallGraphExporter::AddFunctionInfo(FunctionID funcId)
