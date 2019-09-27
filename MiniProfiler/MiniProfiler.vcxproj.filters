@@ -60,20 +60,20 @@
     <ClInclude Include="Common\FilePath.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="CallGraphBuilder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FunctionCall.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CallStackTests.h">
       <Filter>Tests</Filter>
     </ClInclude>
-    <ClInclude Include="TextWriterAdapter.h">
+    <ClInclude Include="Common\BinaryWriter.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CallGraphExporter.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\BinaryTools.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -107,20 +107,20 @@
     <ClCompile Include="Common\FilePath.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="CallGraphBuilder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FunctionCall.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Stack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CallStackTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="TextWriterAdapter.cpp">
+    <ClCompile Include="Common\BinaryWriter.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="CallGraphExporter.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\BinaryTools.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

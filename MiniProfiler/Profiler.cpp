@@ -5,9 +5,9 @@
 #include <string>
 #include <unordered_map>
 #include "Common/TextFileWriter.h"
-#include "Common/Encodings.h"
 #include "ProfilerApi.h"
-#include "CallGraphBuilder.h"
+#include "CallGraphExporter.h"
+#include "Common/BinaryWriter.h"
 
 
 // http://www.blong.com/conferences/dcon2003/internals/profiling.htm
@@ -19,13 +19,13 @@
 // https://github.com/OpenCover/opencover/blob/master/main/OpenCover.Profiler/CodeCoverage_ProfilerInfo.cpp
 
 
-CallGraphBuilder* _callTrace;
+CallGraphExporter* _callTrace;
 
 
 UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOOL* pbHookFunction)
 {
-	// This is called only once the funcId is created
-	//if (g_funcInfos.find(funcId) == g_funcInfos.end())
+	// This is called only once the funcId is created.
+	// Same function have arrive with different ids.
 	_callTrace->AddFunctionInfo(funcId);
 	return funcId;
 }
@@ -108,70 +108,70 @@ void OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltI
 
 void __declspec(naked) EnterNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        PUSH EAX
-        PUSH ECX
-        PUSH EDX
-        PUSH[ESP + 16]
-        CALL OnEnter
-        POP EDX
-        POP ECX
-        POP EAX
-        RET 8
-    }
+	__asm
+		{
+		PUSH EAX
+		PUSH ECX
+		PUSH EDX
+		PUSH[ESP + 16]
+		CALL OnEnter
+		POP EDX
+		POP ECX
+		POP EAX
+		RET 8
+		}
 }
 
 void __declspec(naked) LeaveNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        PUSH EAX
-        PUSH ECX
-        PUSH EDX
-        PUSH[ESP + 16]
-        CALL OnLeave
-        POP EDX
-        POP ECX
-        POP EAX
-        RET 8
-    }
+	__asm
+		{
+		PUSH EAX
+		PUSH ECX
+		PUSH EDX
+		PUSH[ESP + 16]
+		CALL OnLeave
+		POP EDX
+		POP ECX
+		POP EAX
+		RET 8
+		}
 }
 
 void __declspec(naked) TailCallNaked(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        PUSH EAX
-        PUSH ECX
-        PUSH EDX
-        PUSH[ESP + 16]
-        CALL OnTailCall
-        POP EDX
-        POP ECX
-        POP EAX
-        RET 8
-    }
+	__asm
+		{
+		PUSH EAX
+		PUSH ECX
+		PUSH EDX
+		PUSH[ESP + 16]
+		CALL OnTailCall
+		POP EDX
+		POP ECX
+		POP EAX
+		RET 8
+		}
 }
 
 #endif
 
- void _stdcall EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void _stdcall EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    // TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
-    OnEnter(functionIDOrClientID, eltInfo);
+	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
+	OnEnter(functionIDOrClientID, eltInfo);
 }
 
 void _stdcall LeaveFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    // TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
-    OnLeave(functionIDOrClientID, eltInfo);
+	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
+	OnLeave(functionIDOrClientID, eltInfo);
 }
 
 void _stdcall TailCallFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    // TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
-    OnTailCall(functionIDOrClientID, eltInfo);
+	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
+	OnTailCall(functionIDOrClientID, eltInfo);
 }
 
 
@@ -194,7 +194,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 	ICorProfilerInfo8* corProfilerInfo;
 
 	HRESULT queryInterfaceResult = pICorProfilerInfo->QueryInterface(__uuidof(ICorProfilerInfo8),
-	                                                                    reinterpret_cast<void**>(&corProfilerInfo));
+	                                                                 reinterpret_cast<void**>(&corProfilerInfo));
 
 
 	if (FAILED(queryInterfaceResult))
@@ -205,12 +205,15 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 	DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL |
 		COR_PRF_ENABLE_FRAME_INFO | COR_PRF_MONITOR_THREADS;
 
-	IProfilerApi* api = new ProfilerApi(corProfilerInfo);
-    ITextWriter* writer = new TextWriterAdapter(L"d:\\output.txt");
-    writer->Open();
+	_api = new ProfilerApi(corProfilerInfo);
 
-    // Ownership
-	_callTrace = new CallGraphBuilder(api, writer);
+	auto stream = new CppEssentials::OutputFileStream(100000);
+	stream->Open(L"d:\\output.bin", CppEssentials::CreateNew);
+	_writer = new CppEssentials::BinaryWriter(stream, true);
+
+
+	// No Ownership
+	_callTrace = new CallGraphExporter(_api, _writer);
 
 	corProfilerInfo->SetFunctionIDMapper2(FunctionIDMapperFunc, nullptr);
 
@@ -237,6 +240,19 @@ HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 	{
 		_callTrace->Release();
 		_callTrace = nullptr;
+	}
+
+	if (_writer != nullptr)
+	{
+		delete _writer;
+		_writer = nullptr;
+	}
+
+	if (_api != nullptr)
+	{
+		_api->Release();
+		delete _api;
+		_api = nullptr;
 	}
 
 	return S_OK;

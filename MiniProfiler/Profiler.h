@@ -6,12 +6,16 @@
 // C:\Program Files (x86)\Windows Kits\NETFXSDK\4.7.2\Include\um\corprof.h
 #include "cor.h"
 #include "corprof.h"
+#include "ProfilerApi.h"
+#include "Common/BinaryWriter.h"
 
 class Profiler : public ICorProfilerCallback8
 {
 private:
 
 	LONG _referenceCounter;
+	ProfilerApi* _api;
+	CppEssentials::BinaryWriter* _writer;
 
 
 public:

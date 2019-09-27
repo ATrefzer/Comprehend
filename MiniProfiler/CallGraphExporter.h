@@ -1,16 +1,13 @@
 #pragma once
-#include <string>
 #include "Common/TextFileWriter.h"
 #include <corprof.h>
 #include "ProfilerApi.h"
 #include <unordered_map>
-#include "TextWriterAdapter.h"
 
 namespace CppEssentials {
 	class BinaryWriter;
 }
 
-class Stack;
 class CallGraphExporter
 {
 
@@ -38,15 +35,10 @@ private:
 
 	// 
     //std::unordered_map<ThreadID, Stack*> _threadIdToStack;
-	std::wstring Format(const wstring& prefix, ThreadID tid, FunctionInfo* info = nullptr, int numSpaces = 1);
-    std::wstring FormatCompact(const wstring& prefix, ThreadID tid, FunctionInfo* info);
-
-    std::wstring FormatCreateThread(ThreadID tid);
-	std::wstring FormatDestroyThread(ThreadID tid);
+	
 private:
 
 	IProfilerApi* _api;
 	std::unordered_map<UINT_PTR, FunctionInfo*> _funcInfos;
-	CppEssentials::BinaryWriter* _writer;
-	
+    CppEssentials::BinaryWriter* _writer;
 };

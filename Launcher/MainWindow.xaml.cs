@@ -52,6 +52,7 @@ namespace Launcher
             // Start child process and inherit environment variables
 
             var path = Path.Combine(directory, "HelloWorld_x86");
+            path = @"D:\_Projekte\SICK\NTG\Frame\Bin\SDFrame.Application.exe";
             IsEnabled = false;
             await Task.Run(() =>
                            {

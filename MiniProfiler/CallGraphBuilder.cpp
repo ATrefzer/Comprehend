@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "CallGraphBuilder.h"
+#include "CallGraphExporter.h"
 #include "Common/Encodings.h"
+#include "Common/BinaryWriter.h"
 #include <stack>
 #include <cassert>
 #include "Stack.h"
@@ -10,7 +11,7 @@
 // 2. Trigger function
 // 3. launcher => Select executable, enter trigger function, specify output file.
 
-FunctionInfo* CallGraphBuilder::AddFunctionInfo(FunctionID funcId)
+FunctionInfo* CallGraphExporter::AddFunctionInfo(FunctionID funcId)
 {
 
     // TODO If this is the trigger function: Mark it!
@@ -29,37 +30,27 @@ FunctionInfo* CallGraphBuilder::AddFunctionInfo(FunctionID funcId)
     return info;
 }
 
-FunctionInfo* CallGraphBuilder::GetFunctionInfo(FunctionID funcId)
+FunctionInfo* CallGraphExporter::GetFunctionInfo(FunctionID funcId)
 {
 	assert(_funcInfos.find(funcId) != _funcInfos.end());
 	return _funcInfos[funcId];
 }
 
-CallGraphBuilder::CallGraphBuilder(IProfilerApi* api, ITextWriter * writer)
+CallGraphExporter::CallGraphExporter(IProfilerApi* api, CppEssentials::BinaryWriter * writer)
 {
 	_api = api;
     _writer = writer;
 
 }
 
-void CallGraphBuilder::Release()
+void CallGraphExporter::Release()
 {
-	if (_writer != nullptr)
-	{
-		_writer->Close();
-        delete _writer;
-		_writer = nullptr;
-	}
-
-	if (_api != nullptr)
-	{
-		_api->Release();
-        delete _api;
-		_api = nullptr;
-	}
+	_api = nullptr;
+	_writer = nullptr;
+	
 }
 
-std::wstring CallGraphBuilder::Format(const wstring& prefix, ThreadID tid, FunctionInfo* info, int numSpaces)
+std::wstring CallGraphExporter::Format(const wstring& prefix, ThreadID tid, FunctionInfo* info, int numSpaces)
 {
 	const auto spaces = std::wstring(numSpaces, ' ');
 
@@ -77,8 +68,24 @@ std::wstring CallGraphBuilder::Format(const wstring& prefix, ThreadID tid, Funct
 	return msg.str();
 }
 
+std::wstring CallGraphExporter::FormatCompact(const wstring& prefix, ThreadID tid, FunctionInfo* info)
+{
+	//<tid><space><prefix><space><funcName>
+	std::wstringstream msg;
+	msg << L"\r\n" << tid;
+	msg << L" ";
+	msg << prefix;
 
-std::wstring CallGraphBuilder::FormatCreateThread(ThreadID tid)
+	if (info != nullptr)
+	{
+		msg << L" ";
+		msg << info->_funcName;
+	}
+	return msg.str();
+}
+
+
+std::wstring CallGraphExporter::FormatCreateThread(ThreadID tid)
 {
 	std::wstringstream msg;
 	msg << L"\r\n" << tid << L" ";
@@ -86,7 +93,7 @@ std::wstring CallGraphBuilder::FormatCreateThread(ThreadID tid)
 	return msg.str();
 }
 
-std::wstring CallGraphBuilder::FormatDestroyThread(ThreadID tid)
+std::wstring CallGraphExporter::FormatDestroyThread(ThreadID tid)
 {
 	std::wstringstream msg;
 	msg << L"\r\n" << tid << L" ";
@@ -95,7 +102,7 @@ std::wstring CallGraphBuilder::FormatDestroyThread(ThreadID tid)
 }
 
 
-void CallGraphBuilder::OnEnter(FunctionID funcId)
+void CallGraphExporter::OnEnter(FunctionID funcId)
 {
 	auto tid = _api->GetThreadId();
 	assert(_threadIdToStack.find(tid) != _threadIdToStack.end());
@@ -103,33 +110,41 @@ void CallGraphBuilder::OnEnter(FunctionID funcId)
 	auto info = GetFunctionInfo(funcId);
 	assert(info != nullptr);
 
-	auto stack = _threadIdToStack[tid];
-	assert(stack != nullptr);
+	/*auto stack = _threadIdToStack[tid];
+	assert(stack != nullptr);*/
 
-    const auto msg = Format(L"@enter", tid, info, stack->Level());
+    const auto msg = FormatCompact(L"@enter", tid, info);
     _writer->WriteString(msg);
 
-    stack->Push(info);
+    //stack->Push(info);
 }
 
 
-void CallGraphBuilder::OnLeave(FunctionID funcId)
+void CallGraphExporter::OnLeave(FunctionID funcId)
 {
 	auto info = GetFunctionInfo(funcId);
 	auto tid = _api->GetThreadId();
 
-	assert(_threadIdToStack.find(tid) != _threadIdToStack.end());
+	/*assert(_threadIdToStack.find(tid) != _threadIdToStack.end());
 	auto stack = _threadIdToStack[tid];
-	assert(stack != nullptr);
+	assert(stack != nullptr);*/
 
-	const auto leaving = stack->Pop();
-	assert(leaving->_info->_id == funcId);
+	//const auto leaving = stack->Pop();
 
-    const auto msg = Format(L"@leave", tid, info, stack->Level());
+	// It is possible that we find the same function name with different ids.
+	/*if (leaving->_info->_id == funcId)
+	{
+		OutputDebugString(L"\nError: Leaving: ");
+		OutputDebugString(_funcInfos[funcId]->_funcName.c_str());
+		OutputDebugString(L"\nbut should be");
+		OutputDebugString(leaving->_info->_funcName.c_str());
+	}*/
+
+    const auto msg = FormatCompact(L"@leave", tid, info);
     _writer->WriteString(msg);
 }
 
-void CallGraphBuilder::OnTailCall(FunctionID funcId)
+void CallGraphExporter::OnTailCall(FunctionID funcId)
 {
 	auto info = GetFunctionInfo(funcId);
 	auto tid = _api->GetThreadId();
@@ -141,26 +156,27 @@ void CallGraphBuilder::OnTailCall(FunctionID funcId)
 	}
 }
 
-void CallGraphBuilder::OnThreadCreated(ThreadID tid)
+void CallGraphExporter::OnThreadCreated(ThreadID tid)
 {
 	_writer->WriteString(FormatCreateThread(tid));
-	_threadIdToStack[tid] = new Stack();
+	//_threadIdToStack[tid] = new Stack();
 }
 
-void CallGraphBuilder::OnThreadDestroyed(ThreadID tid)
+void CallGraphExporter::OnThreadDestroyed(ThreadID tid)
 {
 	_writer->WriteString(FormatDestroyThread(tid));
 
 	// Note that the same ThreadID may be reused later.
-	auto stack = _threadIdToStack[tid];
+	/*auto stack = _threadIdToStack[tid];
 	delete stack;
 
 	_threadIdToStack[tid] = nullptr;
+	*/
 }
 
-
-bool CallGraphBuilder::IsEmpty(ThreadID tid)
-{
-    auto stack = _threadIdToStack[tid];
-    return stack->ActiveFunction() == nullptr;
-}
+//
+//bool CallGraphExporter::IsEmpty(ThreadID tid)
+//{
+//    auto stack = _threadIdToStack[tid];
+//    return stack->ActiveFunction() == nullptr;
+//}
