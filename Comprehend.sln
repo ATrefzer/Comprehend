@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Launcher", "Launcher\Launch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld_x86", "HelloWorld_x86\HelloWorld_x86.csproj", "{1BB46D08-F6FD-47AB-B700-7EAC1D676F51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphLibrary", "GraphLibrary\GraphLibrary.csproj", "{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,18 @@ Global
 		{1BB46D08-F6FD-47AB-B700-7EAC1D676F51}.Release|x64.Build.0 = Release|Any CPU
 		{1BB46D08-F6FD-47AB-B700-7EAC1D676F51}.Release|x86.ActiveCfg = Release|Any CPU
 		{1BB46D08-F6FD-47AB-B700-7EAC1D676F51}.Release|x86.Build.0 = Release|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Debug|x86.Build.0 = Debug|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|x64.Build.0 = Release|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|x86.ActiveCfg = Release|Any CPU
+		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

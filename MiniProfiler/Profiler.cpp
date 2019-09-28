@@ -104,7 +104,7 @@ void __declspec(naked)  __stdcall LeaveNakedFunc(FunctionIDOrClientID functionID
     }
 }
 
-void __declspec(naked) __stdcall TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked) __stdcall  TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     __asm
     {
@@ -194,8 +194,8 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 		printf("ERROR: Profiler SetEventMask failed (HRESULT: %d)", hr);
 	}
 
-	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFunc, LeaveNakedFunc, TailCallNakedFunc);
-	hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterFunc, LeaveFunc, TailCallFunc);
+	hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFunc, LeaveNakedFunc, TailCallNakedFunc);
+	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterFunc, LeaveFunc, TailCallFunc);
 
 	if (hr != S_OK)
 	{
