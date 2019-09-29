@@ -74,7 +74,8 @@ void __declspec(naked) __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDO
     {
         push ebp
         mov ebp, esp
-        pushad
+
+        pushad // Push general purpose registers
         mov edx, [ebp + 12] // ebp + 12 = second parameter: eltInfo
         push edx
         mov eax, [ebp + 8]  // epb+8 = first parameter: functionId

@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using GraphLibrary.Dgml;
 
 namespace Launcher
 {
@@ -64,7 +65,23 @@ namespace Launcher
             ProfileParser parser = new ProfileParser();
             var eventStream = parser.Parse();
 
-         
+            // TODO Wohin??
+            var model = parser.CreateInvokationModel(eventStream);
+
+
+            var file = "d:\\outgraph.dgml";
+            DgmlFileBuilder builder = new DgmlFileBuilder();
+
+            foreach (var func in model.AllFunctions)
+            {
+                foreach (var call in func.Children)
+                {
+                    builder.AddEdge(func.Name, call.Name);
+                }
+            }
+
+            builder.WriteOutput(file);
+
         }
 
         private void Button_Click_RunTests(object sender, RoutedEventArgs e)

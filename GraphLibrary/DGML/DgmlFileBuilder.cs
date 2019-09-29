@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Xml;
 
-namespace CppProjectAssistant.DGML
+namespace GraphLibrary.Dgml
 {
     /// <summary>
     /// Builder class to create a directed graph file to be processed with Visual Studio.
     /// </summary>
-    internal class DgmlFileBuilder
+    public class DgmlFileBuilder
     {
         public DgmlFileBuilder()
         {

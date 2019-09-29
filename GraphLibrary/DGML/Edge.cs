@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CppProjectAssistant.DGML
+namespace GraphLibrary.Dgml
 {
     /// <summary>
     /// Represents an edge to be rendered.   

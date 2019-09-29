@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CppProjectAssistant.Graphwiz
+namespace GraphLibrary.Graphwiz
 {
     /// <summary>
     /// Represents an edge to be rendered by Graphwiz.

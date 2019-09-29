@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace CppProjectAssistant.Graphwiz
+namespace GraphLibrary.Graphwiz
 {
     /// <summary>
     /// Builder class to create a directed graph file to be processed with Graphwiz.
