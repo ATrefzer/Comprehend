@@ -9,7 +9,7 @@
 #include "CallGraphExporter.h"
 #include "Common/BinaryWriter.h"
 #include "Common\Encodings.h"
-
+#include "Callbacks.h"
 
 // http://www.blong.com/conferences/dcon2003/internals/profiling.htm
 
@@ -19,8 +19,8 @@
 
 // https://github.com/OpenCover/opencover/blob/master/main/OpenCover.Profiler/CodeCoverage_ProfilerInfo.cpp
 
+// http://read.pudn.com/downloads64/sourcecode/windows/system/228104/leave_x86.cpp__.htm
 
-CallGraphExporter* _callTrace;
 
 
 UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOOL* pbHookFunction)
@@ -37,91 +37,12 @@ UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOO
 #define PROFILER_CALLTYPE EXTERN_C void STDMETHODCALLTYPE
 #endif
 
-// Note: Naked function calls below needs __stdcall!
-void __stdcall  OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-	_callTrace->OnEnter(functionIDOrClientID.functionID);
-	// TODO function ids may change!
-	/*
-	 *
-	 * ULONG pcbArgumentInfo = 0;
-	COR_PRF_FRAME_INFO frameInfo;
-	g_corProfilerInfo->GetFunctionEnter3Info(functionIDOrClientID.functionID, eltInfo, &frameInfo, &pcbArgumentInfo, NULL);
-
-	char* pArgumentInfo = new char[pcbArgumentInfo];
-	g_corProfilerInfo->GetFunctionEnter3Info(functionIDOrClientID.functionID, eltInfo, &frameInfo, &pcbArgumentInfo, (COR_PRF_FUNCTION_ARGUMENT_INFO*)pArgumentInfo);
-
-	COR_PRF_FUNCTION_ARGUMENT_INFO* ptr = (COR_PRF_FUNCTION_ARGUMENT_INFO*)pArgumentInfo;*/
-}
-
-
-void __stdcall   OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-	_callTrace->OnLeave(functionIDOrClientID.functionID);
-}
-
-void  __stdcall  OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-	_callTrace->OnTailCall(functionIDOrClientID.functionID);
-}
 
 #ifndef _WIN64
 
-
-void __declspec(naked) __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    __asm
-    {
-        push ebp
-        mov ebp, esp
-
-        pushad // Push general purpose registers
-        mov edx, [ebp + 12] // ebp + 12 = second parameter: eltInfo
-        push edx
-        mov eax, [ebp + 8]  // epb+8 = first parameter: functionId
-        push eax
-        call OnEnter // __stdcall: parameters are pushed right to left. 
-        popad
-        pop ebp
-        ret 8   // __stdcall: Callee cleans up the parameters
-    }
-}
-
-void __declspec(naked)  __stdcall LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    __asm
-    {
-        push ebp
-        mov ebp, esp
-        pushad
-        mov edx, [ebp + 12]
-        push edx
-        mov eax, [ebp + 8]
-        push eax
-        call OnLeave
-        popad
-        pop ebp
-        ret 8
-    }
-}
-
-void __declspec(naked) __stdcall  TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    __asm
-    {
-        push ebp
-        mov ebp, esp
-        pushad
-        mov edx, [ebp + 12]
-        push edx
-        mov eax, [ebp + 8]
-        push eax
-        call OnTailCall
-        popad
-        pop ebp
-        ret 8
-    }
-}
+void  __stdcall  EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void  __stdcall  LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void  __stdcall  TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
 #endif
 
@@ -162,6 +83,10 @@ Profiler::~Profiler()
 HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 {
   
+    FunctionIDOrClientID id;
+    id.functionID = 3;
+    COR_PRF_ELT_INFO info = 6;
+    EnterNakedFunc(id, info);
 
 	/// Passed in from CLR when Initialize is called
 	ICorProfilerInfo8* corProfilerInfo;

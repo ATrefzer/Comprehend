@@ -42,3 +42,5 @@
 /MiniProfiler/x64/Release
 /GraphLibrary/obj/Debug
 /GraphLibrary/bin/Debug
+/GraphLibrary/bin/Release
+/GraphLibrary/obj/Release

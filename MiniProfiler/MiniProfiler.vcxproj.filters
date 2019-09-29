@@ -60,9 +60,6 @@
     <ClInclude Include="Common\FilePath.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="FunctionCall.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CallStackTests.h">
       <Filter>Tests</Filter>
     </ClInclude>
@@ -74,6 +71,9 @@
     </ClInclude>
     <ClInclude Include="Common\BinaryTools.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Callbacks.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -107,9 +107,6 @@
     <ClCompile Include="Common\FilePath.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="FunctionCall.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CallStackTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
@@ -121,6 +118,12 @@
     </ClCompile>
     <ClCompile Include="Common\BinaryTools.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks_x86.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Callbacks.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

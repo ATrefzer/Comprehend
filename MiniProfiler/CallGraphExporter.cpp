@@ -6,7 +6,7 @@ using namespace CppEssentials;
 
 // TODO
 // 1. How fast ist it?
-// 2. Trigger function
+// 2. Trigger function / Start event.
 // 3. launcher => Select executable, enter trigger function, specify output file.
 
 
