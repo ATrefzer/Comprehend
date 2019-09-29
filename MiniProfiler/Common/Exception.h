@@ -86,21 +86,5 @@ namespace CppEssentials
 		string _stackDump;
 	};
 
-	class TimeoutException : public Exception
-	{
-	public:
-		TimeoutException(const wstring& message = L"") : Exception(message, ERROR_TIMEOUT)
-		{
-		}
-	};
-
-	/// Thrown when user cancels blocking calls in case of shutdown.
-	class CancelIOException : public Exception
-	{
-	public:
-
-		CancelIOException(const wstring& message = L"") : Exception(message, ERROR_OPERATION_ABORTED)
-		{
-		}
-	};
+	
 }

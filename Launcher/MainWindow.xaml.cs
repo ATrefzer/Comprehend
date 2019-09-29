@@ -54,17 +54,20 @@ namespace Launcher
             // Start child process and inherit environment variables
 
             var path = Path.Combine(directory, "HelloWorld_x86");
-            IsEnabled = false;
-            await Task.Run(() =>
-                           {
-                               var process = Process.Start(path);
-                               process?.WaitForExit();
-                           });
-            IsEnabled = true;
+            
+
+            //IsEnabled = false;
+            //await Task.Run(() =>
+            //               {
+            //                   var process = Process.Start(path);
+            //                   process?.WaitForExit();
+            //               });
+            //IsEnabled = true;
 
             ProfileParser parser = new ProfileParser();
-            var eventStream = parser.Parse();
 
+            var eventStream = parser.Parse();
+            
             // TODO Wohin??
             var model = parser.CreateInvokationModel(eventStream);
 

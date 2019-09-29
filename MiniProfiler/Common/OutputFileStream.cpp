@@ -80,34 +80,13 @@ namespace CppEssentials
 
 	void OutputFileStream::Write(byte value)
 	{
-		if (_cache)
-		{
-			_cache[_cacheIndex] = value;
-			_cacheIndex++;
-			_cachedBytes++;
-
-			if (_cachedBytes == CACHE_SIZE)
-			{
-				Flush();
-			}
-		}
-		else
-		{
-			DWORD bytesWritten = 0;
-			BOOL result = WriteFile(_handle, static_cast<LPVOID>(&value), 1, &bytesWritten,
-			                        static_cast<LPOVERLAPPED>(nullptr));
-
-			if (result == FALSE)
-			{
-				throw Exception(L"Failed writing from file!", GetLastError());
-			}
-		}
+		Write(&value, 1);
 	}
 
 	void OutputFileStream::_WriteChunk(const byte* data, UInt32 length)
 	{
 		DWORD bytesWritten = 0;
-		BOOL result = WriteFile(_handle, (LPVOID)data, length, &bytesWritten, static_cast<LPOVERLAPPED>(nullptr));
+		const BOOL result = WriteFile(_handle, (LPVOID)data, length, &bytesWritten, static_cast<LPOVERLAPPED>(nullptr));
 
 		_ASSERTE(length == bytesWritten);
 
@@ -119,13 +98,19 @@ namespace CppEssentials
 
 	void OutputFileStream::Write(const byte* data, UInt32 length)
 	{
-		// From former Write calls
-		if (_cache && _cachedBytes > 0)
+		if (length > CACHE_SIZE)
+		{
+			_WriteChunk(data, length);
+			return;
+		}
+		
+		if (_cache && _cachedBytes + length > CACHE_SIZE)
 		{
 			Flush();
 		}
 
-		_WriteChunk(data, length);
+		memcpy_s(_cache + _cachedBytes, CACHE_SIZE, data, length);
+		_cachedBytes += length;		
 	}
 
 	void OutputFileStream::Flush()
@@ -135,14 +120,12 @@ namespace CppEssentials
 			_WriteChunk(_cache, _cachedBytes);
 
 			_cachedBytes = 0;
-			_cacheIndex = 0;
 		}
 	}
 
 	void OutputFileStream::Clear()
 	{
 		_handle = INVALID_HANDLE_VALUE;
-		_cacheIndex = 0;
 		_cachedBytes = 0;
 	}
 }

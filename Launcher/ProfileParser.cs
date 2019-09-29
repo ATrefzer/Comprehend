@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace Launcher
 {
-    class ProfilerEvent
+    internal class ProfilerEvent
     {
         public Tokens Token { get; set; }
         public ulong FunctioId { get; set; }
@@ -15,57 +14,22 @@ namespace Launcher
         public ulong ThreadId { get; set; }
     }
 
-    enum Tokens
+    internal enum Tokens
     {
         TokenCreateThread,
         TokenDestroyThread,
         TokenEnter,
         TokenLeave,
-        TokenTailCall,
-    };
+        TokenTailCall
+    }
 
 
-
-    class ProfileParser
+    internal class ProfileParser
     {
-
-
-        Dictionary<ulong, string> ParseIndex(string path)
+        public InvocationModel CreateInvokationModel(IEnumerable<ProfilerEvent> stream)
         {
-            var dictionary = new Dictionary<ulong, string>();
-            var lines = File.ReadAllLines(path);
-            foreach (var line in lines)
-            {
-                if (!string.IsNullOrEmpty(line))
-                {
-                    var parts = line.Split(' ');
-                    if (parts.Length != 2) continue;
-
-                    var funcId = ulong.Parse(parts[0]);
-                    var funcName = parts[1];
-
-                    dictionary.Add(funcId, funcName);
-                }
-            }
-            return dictionary;
-        }
-
-        internal List<ProfilerEvent> Parse()
-        {
-            var funcIdToName = ParseIndex("d:\\index.txt");
-
-            // Function Ids may change!
-            //var distinctNames = funcIdToName.Values.Distinct();
-            var stream = ParseEventStream("d:\\output.bin", funcIdToName);
-
-          
-
-            return stream;
-        }
-        public InvocationModel CreateInvokationModel(List<ProfilerEvent> stream)
-        {
-              Dictionary<ulong, Stack<FunctionCall>> tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
-              Dictionary<string, FunctionCall> functions = new Dictionary<string, FunctionCall>();
+            var tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
+            var functions = new Dictionary<string, FunctionCall>();
 
             foreach (var entry in stream)
             {
@@ -137,7 +101,6 @@ namespace Launcher
                     {
                         // Ignore. We did not start recording at the time.
                     }
-
                 }
                 else if (entry.Token == Tokens.TokenTailCall)
                 {
@@ -151,26 +114,71 @@ namespace Launcher
                     }
 
                     newFunc.TailCall = true;
-
                 }
 
                 // TODO other events = changing thread ids!
             }
 
-                return new InvocationModel(functions.Values.ToList());
+            return new InvocationModel(functions.Values.ToList());
+        }
+
+        internal IEnumerable<ProfilerEvent> Parse()
+        {
+            var funcIdToName = ParseIndex("d:\\index.txt");
+
+            // Function Ids may change!
+            //var distinctNames = funcIdToName.Values.Distinct();
+            var stream = ParseEventStream("d:\\output.bin", funcIdToName);
+
+            return stream;
+        }
+
+        private bool IsHidden(string functionName)
+        {
+            if (functionName.StartsWith("mscorlib"))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public Dictionary<ulong, string> ParseIndex(string path)
+        {
+            var dictionary = new Dictionary<ulong, string>();
+
+            var reader = new StreamReader(path);
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
+
+                var parts = line.Split(' ');
+                if (parts.Length != 2)
+                {
+                    continue;
+                }
+
+                var funcId = ulong.Parse(parts[0]);
+                var funcName = parts[1];
+
+               
+                    dictionary.Add(funcId, funcName);
+            }
+
+            return dictionary;
         }
 
 
-
-
-        // TODO one by one
-        private List<ProfilerEvent> ParseEventStream(string path, Dictionary<ulong, string> dictionary)
+        private IEnumerable<ProfilerEvent> ParseEventStream(string path, Dictionary<ulong, string> dictionary)
         {
-            List<ProfilerEvent> eventStream = new List<ProfilerEvent>();
             using (var stream = new FileStream(path, FileMode.Open))
             {
                 var offset = 0;
-                byte[] bytes = new byte[10];
+                var bytes = new byte[10];
 
                 while (stream.Read(bytes, 0, 10) == 10)
                 {
@@ -181,7 +189,7 @@ namespace Launcher
                     ulong tid;
                     ulong fid;
 
-                    token = (Tokens)BitConverter.ToUInt16(bytes, 0);
+                    token = (Tokens) BitConverter.ToUInt16(bytes, 0);
                     tid = BitConverter.ToUInt64(bytes, 2);
 
                     var entry = new ProfilerEvent();
@@ -195,13 +203,23 @@ namespace Launcher
 
                         fid = BitConverter.ToUInt64(bytes, 0);
 
-                        var funcName = dictionary[fid];
+                        //Debug.Assert(dictionary.ContainsKey(fid));
+                        if (dictionary.ContainsKey(fid))
+                        {
+                            var funcName = dictionary[fid];
+                            entry.FunctionName = funcName;
+                        }
+                        else
+                        {
+                            // Hidden
+                            entry.FunctionName = "Unknown_" + fid;
+                        }
+
                         entry.FunctioId = fid;
-                        entry.FunctionName = funcName;
                     }
-                    eventStream.Add(entry);
+
+                    yield return entry;
                 }
-                return eventStream;
             }
         }
     }

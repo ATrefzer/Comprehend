@@ -5,8 +5,7 @@ CallGraphExporter* _callTrace;
 // Note: Naked function calls below needs __stdcall!
 void __stdcall  OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-  
-    _callTrace->OnEnter(functionIDOrClientID.functionID);
+   _callTrace->OnEnter(functionIDOrClientID.functionID);
     // TODO function ids may change!
     /*
      *

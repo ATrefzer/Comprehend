@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Xml;
 
 namespace GraphLibrary.Dgml
@@ -28,12 +30,17 @@ namespace GraphLibrary.Dgml
             _edges.Add(new Edge(sourceNodeId, targetNodeId));
         }
 
+        private bool IsNonPrintableCharacter(char candidate)
+        {
+            return (candidate < 0x20 || candidate > 127);
+        }
+
         /// <summary>
         /// Creates the output file.
         /// </summary>        
         public void WriteOutput(string path)
         {
-            using (XmlWriter writer = XmlWriter.Create(path))
+            using (var writer = XmlWriter.Create(path))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartElement("DirectedGraph", "http://schemas.microsoft.com/vs/2009/dgml");
@@ -44,7 +51,13 @@ namespace GraphLibrary.Dgml
                 {
                     writer.WriteStartElement("Node");
                     writer.WriteAttributeString("Id", node.Value);
-                    writer.WriteAttributeString("Label", node.Key);
+
+                    var escaped = node.Key;
+                    if (node.Key.Any(IsNonPrintableCharacter))
+                    {
+                        escaped = "Cryptic_" + node.Value;
+                    }
+                    writer.WriteAttributeString("Label", escaped);
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();

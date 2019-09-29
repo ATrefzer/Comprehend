@@ -40,29 +40,18 @@ UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOO
 
 #ifndef _WIN64
 
+
 void  __stdcall  EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 void  __stdcall  LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 void  __stdcall  TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
+
+void  __stdcall  EnterNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void  __stdcall  LeaveNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void  __stdcall  TailCallNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+
+
 #endif
-
- void __stdcall  EnterFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
-	OnEnter(functionIDOrClientID, eltInfo);
-}
-
-void _stdcall LeaveFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
-	OnLeave(functionIDOrClientID, eltInfo);
-}
-
-void _stdcall TailCallFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-	// TODO Registers are not saved when these callbacks are invoked. So why is it working fine?
-	OnTailCall(functionIDOrClientID, eltInfo);
-}
 
 
 Profiler::Profiler() : _referenceCounter(0)
@@ -83,10 +72,10 @@ Profiler::~Profiler()
 HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 {
   
-    FunctionIDOrClientID id;
+   /* FunctionIDOrClientID id;
     id.functionID = 3;
     COR_PRF_ELT_INFO info = 6;
-    EnterNakedFunc(id, info);
+    EnterNakedFunc(id, info);*/
 
 	/// Passed in from CLR when Initialize is called
 	ICorProfilerInfo8* corProfilerInfo;
@@ -104,7 +93,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 
 	_api = new ProfilerApi(corProfilerInfo);
 
-	auto stream = new CppEssentials::OutputFileStream(100000);
+	auto stream = new CppEssentials::OutputFileStream(4 * 1024 * 1024);
 	stream->Open(L"d:\\output.bin", CppEssentials::CreateNew);
 	_writer = new CppEssentials::BinaryWriter(stream, true);
 
@@ -120,8 +109,9 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 		printf("ERROR: Profiler SetEventMask failed (HRESULT: %d)", hr);
 	}
 
+ 	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFuncOld, LeaveNakedFuncOld, TailCallNakedFuncOld);
 	hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFunc, LeaveNakedFunc, TailCallNakedFunc);
-	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterFunc, LeaveFunc, TailCallFunc);
+	
 
 	if (hr != S_OK)
 	{

@@ -3,120 +3,206 @@
 
 #include "Callbacks.h"
 
-//void __declspec(naked) __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-//{
-//    __asm
-//    {
-//        push ebp
-//        mov ebp, esp
-//
-//        pushad // Push general purpose registers
-//        mov edx, [ebp + 12] // ebp + 12 = second parameter: eltInfo
-//        push edx
-//        mov eax, [ebp + 8]  // epb+8 = first parameter: functionId
-//        push eax
-//        call OnEnter // __stdcall: parameters are pushed right to left. 
-//        popad
-//        pop ebp
-//        ret 8   // __stdcall: Callee cleans up the parameters
-//    }
-//}
 
-// TODO Try saving FP like it is done here.
+// Idea of saving the FP related parts are from here.
 // http://read.pudn.com/downloads64/sourcecode/windows/system/228104/leave_x86.cpp__.htm
 
-
+//#define USE_LOCAL_VARS
 
 void __declspec(naked) __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        // Needed otherwide the function call does not work.
-        push ebp
-        mov ebp, esp
+	__asm
+		{
 
-        // Make space for locals.   
-        // TODO sub esp, __LOCAL_SIZE
-  
-        pushad
+		// Needed otherwise the function call below does not work.
+		// Debugging is still not possible.
 
-        // Check if there's anything on the FP stack.   
-        //   
-        fstsw   ax
-        and ax, 3800h       // Check the top-of-fp-stack bits   
-        cmp     ax, 0           // If non-zero, we have something to save   
-        jnz     SaveFPReg
-        push    0               // otherwise, mark that there is no float value   
-        jmp     NoSaveFPReg
-        SaveFPReg :
-        sub     esp, 8          // Make room for the FP value   
-            fstp    qword ptr[esp] // Copy the FP value to the buffer as a double   
-            push    1               // mark that a float value is present   
-            NoSaveFPReg :
-    }
+		// Store old frame base pointer
+		push ebp
 
-   
-    OnEnter(functionIDOrClientID, eltInfo);
+		// Stack pointer is the new base pointer for this stack frame
+		mov ebp, esp
 
-    __asm
-    {
-        // Now see if we have to restore any floating point registers   //     
-        cmp[esp], 0            // Check the flag   
-        jz      NoRestoreFPRegs     // If zero, no FP regs   
-        RestoreFPRegs :
-            fld     qword ptr[esp + 4] // Restore FP regs   
-            add    esp, 12              // Move ESP past the storage space   
-            jmp   RestoreFPRegsDone
-        NoRestoreFPRegs :
-            add     esp, 4              // Move ESP past the flag   
-            RestoreFPRegsDone :
+#ifdef USE_LOCAL_VARS
+		sub esp, __LOCAL_SIZE
+#endif
 
-            // Restore other registers   
-            popad
+		// Store all general purpose registers 
+		pushad
 
-            // Pop off locals   
-           // add esp, __LOCAL_SIZE
+		// Check if there's anything on the FP stack.   
 
-            pop ebp
+		// Store x87 FPU Status Word
+		fstsw ax
 
-            ret SIZE functionIDOrClientID + SIZE eltInfo
-    }
+		// Check the top-of-stack pinter (3 bits, 0...7)
+		and ax, 3800h
+		// If non-zero, we have something to save 
+		cmp ax, 0
+		jnz SaveFPReg
+
+		// Otherwise mark that there is no float value
+		push 0
+		jmp NoSaveFPReg
+		SaveFPReg :
+
+		// Create space on stack for the FP value.
+		sub esp, 8
+
+		// Stores top of floating point register stack to the buffer as a double. Pops value.
+		fstp qword ptr[esp]
+
+		// Mark that a float value is present
+		push 1
+		NoSaveFPReg:
+		}
+
+
+	OnEnter(functionIDOrClientID, eltInfo);
+
+	__asm
+		{
+		// Test if we have something to restore. If zero no FP registers.
+		cmp[esp], 0
+		jz NoRestoreFPRegs
+		RestoreFPRegs:
+
+		// Load floating point value: Pushes the source operand onto the FPU register stack
+		fld qword ptr[esp + 4]
+
+		// Move esp past the floating value storage space
+		add esp, 12
+		jmp RestoreFPRegsDone
+		NoRestoreFPRegs :
+
+		// Move esp past the flag
+		add esp, 4
+		RestoreFPRegsDone:
+
+		// Restore general purpose registers
+		popad
+
+#ifdef USE_LOCAL_VARS
+		// add esp, __LOCAL_SIZE
+#endif
+
+		pop ebp
+
+		ret SIZE functionIDOrClientID + SIZE eltInfo
+		}
 }
 
 
-
-void __declspec(naked)  __stdcall LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void __declspec(naked) __stdcall LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        push ebp
-        mov ebp, esp
-        pushad
-        mov edx, [ebp + 12]
-        push edx
-        mov eax, [ebp + 8]
-        push eax
-        call OnLeave
-        popad
-        pop ebp
-        ret 8
-    }
+	__asm
+		{
+		// Needed otherwise the function call does not work.
+		push ebp
+		mov ebp, esp
+
+#ifdef USE_LOCAL_VARS
+		sub esp, __LOCAL_SIZE
+#endif
+
+		pushad
+
+
+		fstsw ax
+		and ax, 3800h
+		cmp ax, 0
+		jnz SaveFPReg
+		push 0
+		jmp NoSaveFPReg
+		SaveFPReg :
+		sub esp, 8
+		fstp qword ptr[esp]
+		push 1
+		NoSaveFPReg :
+		}
+
+
+	OnLeave(functionIDOrClientID, eltInfo);
+
+	__asm
+		{
+
+		cmp[esp], 0
+		jz NoRestoreFPRegs
+		RestoreFPRegs:
+		fld qword ptr[esp + 4]
+		add esp, 12
+		jmp RestoreFPRegsDone
+		NoRestoreFPRegs :
+		add esp, 4
+		RestoreFPRegsDone:
+
+
+		popad
+
+#ifdef USE_LOCAL_VARS
+		add esp, __LOCAL_SIZE
+#endif
+
+		pop ebp
+
+		ret SIZE functionIDOrClientID + SIZE eltInfo
+		}
 }
 
-void __declspec(naked) __stdcall  TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+
+void __declspec(naked) __stdcall TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID,
+                                                   COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        push ebp
-        mov ebp, esp
-        pushad
-        mov edx, [ebp + 12]
-        push edx
-        mov eax, [ebp + 8]
-        push eax
-        call OnTailCall
-        popad
-        pop ebp
-        ret 8
-    }
+	__asm
+		{
+		push ebp
+		mov ebp, esp
+
+#ifdef USE_LOCAL_VARS
+		sub esp, __LOCAL_SIZE
+#endif
+
+		pushad
+
+
+		fstsw ax
+		and ax, 3800h
+		cmp ax, 0
+		jnz SaveFPReg
+		push 0
+		jmp NoSaveFPReg
+		SaveFPReg :
+		sub esp, 8
+		fstp qword ptr[esp]
+		push 1
+		NoSaveFPReg :
+		}
+
+
+	OnTailCall(functionIDOrClientID, eltInfo);
+
+	__asm
+		{
+
+		cmp[esp], 0
+		jz NoRestoreFPRegs
+		RestoreFPRegs:
+		fld qword ptr[esp + 4]
+		add esp, 12
+		jmp RestoreFPRegsDone
+		NoRestoreFPRegs :
+		add esp, 4
+		RestoreFPRegsDone:
+
+		popad
+
+#ifdef USE_LOCAL_VARS
+		add esp, __LOCAL_SIZE
+#endif
+
+		pop ebp
+
+		ret SIZE functionIDOrClientID + SIZE eltInfo
+		}
 }

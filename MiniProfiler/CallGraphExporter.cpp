@@ -29,7 +29,10 @@ FunctionInfo* CallGraphExporter::AddFunctionInfo(FunctionID funcId)
 		info->SetHidden();
 	}*/
 
-	_funcInfos.emplace(info->_id, info);
+	// No duplicates found.
+	
+	auto result = _funcInfos.emplace(info->_id, info);
+	assert(result.second == true);
 	return info;
 }
 
