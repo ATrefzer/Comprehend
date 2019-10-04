@@ -179,6 +179,7 @@
     <ClInclude Include="Common\BinaryWriter.h" />
     <ClInclude Include="Common\DataTypes.h" />
     <ClInclude Include="Common\Encodings.h" />
+    <ClInclude Include="Common\Environment.h" />
     <ClInclude Include="Common\Exception.h" />
     <ClInclude Include="Common\FilePath.h" />
     <ClInclude Include="Common\IInputStream.h" />
@@ -208,6 +209,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Common\Environment.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Common\Exception.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

@@ -4,64 +4,21 @@
 // You are free to use / modify this code but leave this header intact
 //
 
-//#include <atlutil.h>
 #include "Exception.h"
 #include <sstream>
 
 
 namespace CppEssentials
 {
-	/*
-	    /// Internal helper class to build the call stack dump.
-	    class StackDumpHandlerImpl : public IStackDumpHandler
-	    {
-	    public:
-
-	        StackDumpHandlerImpl()
-	        {
-	        }
-
-	        void __stdcall OnBegin()
-	        {
-	        }
-
-	        void __stdcall OnEntry(void *pvAddress, LPCSTR szModule, LPCSTR szSymbol)
-	        {
-	            (void)pvAddress;
-
-	            _stream << szModule << " - " << szSymbol << "\n";
-	        }
-	        void __stdcall OnError(LPCSTR szError)
-	        {
-	            _stream << "Error traversing call stack: " << szError;
-	        }
-
-	        void __stdcall OnEnd()
-	        {
-	        }
-
-	        std::string GetStackDump()
-	        {
-	            return _stream.str();
-	        }
-
-	        std::stringstream _stream;
-	    };
-
-	    */
-
 	Exception::Exception()
 	{
 		_lastError = 0;
-		_stackDump = DumpStack();
 	}
 
 	Exception::Exception(const wstring& message, unsigned long lastError /*= 0*/)
 	{
 		_lastError = lastError;
 		_message = message;
-
-		_stackDump = DumpStack();
 		MakeWhat();
 	}
 
@@ -71,12 +28,18 @@ namespace CppEssentials
 		_message = message;
 		_details = details;
 
-		_stackDump = DumpStack();
 		MakeWhat();
 	}
 
 	Exception::~Exception() noexcept
+	= default;
+
+	Exception::Exception(const Exception& e): exception(e)
 	{
+		_message = e._message;
+		_details = e._details;
+		_lastError = e._lastError;
+		_what = e._what;
 	}
 
 	const char* Exception::what() const
@@ -84,25 +47,19 @@ namespace CppEssentials
 		return _what.c_str();
 	}
 
-	std::wstring Exception::GetMessage()
+	std::wstring Exception::GetMessage() const
 	{
 		return _message;
 	}
 
-	std::wstring Exception::GetDetails()
+	std::wstring Exception::GetDetails() const
 	{
 		return _details;
 	}
 
-	unsigned long Exception::GetLastError()
+	unsigned long Exception::GetLastError() const
 	{
 		return _lastError;
-	}
-
-	std::wstring Exception::GetStackDump()
-	{
-		// Simply widen the characters
-		return wstring(_stackDump.begin(), _stackDump.end());
 	}
 
 	void Exception::MakeWhat()
@@ -141,26 +98,6 @@ namespace CppEssentials
 		return msg;
 	}
 
-	std::string Exception::DumpStack()
-	{
-		return "Not implemented";
 
-		/*
-		ATL Version 8 has a memory leak here! So we do not use this code.
-		string stackDump;
-		try
-		{
-		    StackDumpHandlerImpl impl;
-		    AtlDumpStack(&impl);
-		    stackDump = impl.GetStackDump();
-		}
-		catch(...)
-		{
-		    stackDump = "Stack dump not available!";
-		}
-
-		return stackDump;
-		*/
-	}
 #pragma endregion
 }

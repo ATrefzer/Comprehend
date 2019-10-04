@@ -16,12 +16,15 @@ private:
 	LONG _referenceCounter;
 	ProfilerApi* _api;
 	CppEssentials::BinaryWriter* _writer;
+	std::wstring _module;
+	std::wstring _outputDirectory;
 
 
 public:
 	Profiler();
 	virtual ~Profiler();
 	HRESULT STDMETHODCALLTYPE Initialize(IUnknown* pICorProfilerInfo) override;
+	void WriteIndexFile();
 	HRESULT STDMETHODCALLTYPE Shutdown() override;
 	HRESULT STDMETHODCALLTYPE AppDomainCreationStarted(AppDomainID appDomainId) override;
 	HRESULT STDMETHODCALLTYPE AppDomainCreationFinished(AppDomainID appDomainId, HRESULT hrStatus) override;

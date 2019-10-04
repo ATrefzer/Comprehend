@@ -45,16 +45,18 @@ namespace CppEssentials
 		///
 		virtual ~Exception() noexcept;
 
+		Exception(const Exception& e);
+
 		/// Returns the message passed to the constructor.
 		/// Do not use this method. It needs to be present due to the std::exception base class.
 		///
 		const char* what() const override;
 
-		wstring GetMessage();
+		wstring GetMessage() const;
 
-		wstring GetDetails();
+		wstring GetDetails() const;
 
-		unsigned long GetLastError();
+		unsigned long GetLastError() const;
 
 		/// Returns the stack dump created when the the constructor of the Exception class
 		/// was called.
@@ -66,9 +68,6 @@ namespace CppEssentials
 		///
 		//static wstring ResolveLastError(unsigned long lastError);
 		static wstring ResolveLastError(unsigned long lastError, unsigned long langId = LANG_SYSTEM_DEFAULT);
-
-		/// Creates a stack dump
-		std::string DumpStack();
 
 	private:
 
@@ -85,6 +84,4 @@ namespace CppEssentials
 
 		string _stackDump;
 	};
-
-	
 }

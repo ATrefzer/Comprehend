@@ -4,12 +4,6 @@
 #include <cassert>
 using namespace CppEssentials;
 
-// TODO
-// 1. How fast ist it?
-// 2. Trigger function / Start event.
-// 3. launcher => Select executable, enter trigger function, specify output file.
-
-
 enum Tokens
 {
 	TokenCreateThread,
@@ -22,12 +16,6 @@ enum Tokens
 FunctionInfo* CallGraphExporter::AddFunctionInfo(FunctionID funcId)
 {
 	auto info = _api->CreateFunctionInfo(funcId);
-
-	/*bool isHidden = info->_moduleName.find(L"mscorlib.dll") != std::wstring::npos;
-	if (isHidden)
-	{
-		info->SetHidden();
-	}*/
 
 	// No duplicates found.
 	
@@ -110,6 +98,8 @@ void CallGraphExporter::WriteIndexFile(CppEssentials::TextFileWriter& writer)
         auto func = iter->second;
         writer.WriteString(std::to_wstring(func->_id));
         writer.WriteString(L" ");
+    	writer.WriteString(func->_moduleName);
+    	writer.WriteString(L"!");
         writer.WriteString(func->_funcName);
     }
 }

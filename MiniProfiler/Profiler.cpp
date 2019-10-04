@@ -9,6 +9,8 @@
 #include "CallGraphExporter.h"
 #include "Common/BinaryWriter.h"
 #include "Common\Encodings.h"
+#include "Common\Environment.h"
+#include "common/FilePath.h"
 #include "Callbacks.h"
 
 // http://www.blong.com/conferences/dcon2003/internals/profiling.htm
@@ -69,9 +71,13 @@ Profiler::~Profiler()
 	}
 }
 
+wstring g_module;
+
 HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 {
-  
+	// Disable profiling for sub processes
+	CppEssentials::Environment::SetVariableToEnvironment(L"COR_ENABLE_PROFILING", L"0");
+	
    /* FunctionIDOrClientID id;
     id.functionID = 3;
     COR_PRF_ELT_INFO info = 6;
@@ -88,13 +94,19 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 		return E_FAIL;
 	}
 
+	_module = CppEssentials::Environment::GetModuleName();
+	_outputDirectory = CppEssentials::Environment::GetVariableFromEnvironment(L"MINI_PROFILER_OUT_DIR");
+	
+
 	DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL |
 		COR_PRF_ENABLE_FRAME_INFO | COR_PRF_MONITOR_THREADS;
 
 	_api = new ProfilerApi(corProfilerInfo);
 
 	auto stream = new CppEssentials::OutputFileStream(4 * 1024 * 1024);
-	stream->Open(L"d:\\output.bin", CppEssentials::CreateNew);
+	auto path = CppEssentials::FilePath::Combine(_outputDirectory, _module + L".profile");
+	
+	stream->Open(path, CppEssentials::CreateNew);
 	_writer = new CppEssentials::BinaryWriter(stream, true);
 
 
@@ -121,16 +133,23 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 	return S_OK;
 }
 
+void Profiler::WriteIndexFile()
+{
+	CppEssentials::TextFileWriter writer;
+	const auto indexFile = CppEssentials::FilePath::Combine(_outputDirectory, _module + L".index");
+	writer.Open(indexFile, CppEssentials::FileOpenMode::CreateNew, CppEssentials::UTF16LittleEndianEncoder());
+	_callTrace->WriteIndexFile(writer);
+	writer.Close();
+
+	::OutputDebugString(L"\nIndex written");
+}
+
 HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 {
     ::OutputDebugString(L"\nProfiler::Shutdown");
 
-    CppEssentials::TextFileWriter writer;
-    writer.Open(L"d:\\index.txt", CppEssentials::FileOpenMode::CreateNew, CppEssentials::UTF16LittleEndianEncoder());
-    _callTrace->WriteIndexFile(writer);
-    writer.Close();
-
-    ::OutputDebugString(L"\nIndex written");
+	
+    WriteIndexFile();
 
 	if (_callTrace != nullptr)
 	{
