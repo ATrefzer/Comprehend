@@ -136,6 +136,8 @@ namespace Launcher
             var eventStream = parser.Parse(selection.IndexFile, selection.EventFile);
             var model = CallGraphModel.FromEventStream(eventStream, filter);
 
+            var visibleFuncs = model.AllFunctions.Where(f => f.IsHidden == false).ToList();
+
             var builder = new DgmlFileBuilder();
             builder.AddCategory("indirect", "StrokeDashArray", "1 1");
             BuildDgml(builder, model);
@@ -149,11 +151,11 @@ namespace Launcher
             foreach (var func in model.AllFunctions.Where(f => !f.IsHidden))
             {
                 // Start with all visible functions and add them to the graph
-                BuildDgml_Iter(builder, null, func);
+                BuildDgml(builder, null, func);
             }
         }
 
-        private void BuildDgml_Iter(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
+        private void BuildDgml(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
         {
 
             var toProcess = new Queue<(FunctionCall, FunctionCall)>();
@@ -207,43 +209,6 @@ namespace Launcher
 
           
 
-        }
-
-        private void BuildDgml(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
-        {
-            if (_processed.Contains(target))
-            {
-                return;
-            }
-
-            _processed.Add(target);
-
-            // Assumption: We start with the first visible parent. Anything hidden above is ignored.
-
-            if (lastVisibleAncestor != null && !target.IsHidden)
-            {
-                if (lastVisibleAncestor.Children.Contains(target))
-                {
-                    // Direct call
-                    builder.AddEdge(lastVisibleAncestor.Name, target.Name);
-                }
-                else
-                {
-                    // Indirect call (mark as dashed line)
-                    builder.AddEdge(lastVisibleAncestor.Name, target.Name, "indirect");
-                }
-            }
-
-            if (!target.IsHidden)
-            {
-                // New visible parent for the children
-                lastVisibleAncestor = target;
-            }
-
-            foreach (var call in target.Children)
-            {
-                BuildDgml(builder, lastVisibleAncestor, call);
-            }
         }
 
         private void RefreshAvailableTraces()

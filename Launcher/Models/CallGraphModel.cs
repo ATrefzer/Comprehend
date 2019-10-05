@@ -154,7 +154,7 @@ namespace Launcher.Models
 
         private static bool CanRemove(FunctionCall exitFunc)
         {
-            return !exitFunc.IsHidden && exitFunc.HasVisibleChildren == false;
+            return exitFunc.IsHidden && exitFunc.HasVisibleChildren == false;
         }
 
         /// <summary>

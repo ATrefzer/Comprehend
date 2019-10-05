@@ -34,19 +34,25 @@ namespace Launcher
             var lines = File.ReadAllLines(file);
             foreach (var line in lines)
             {
-                if (line.Trim().StartsWith("//"))
+                var trimmed = line.Trim();
+                if (string.IsNullOrEmpty(trimmed))
                 {
                     continue;
                 }
 
-                if (line == "@exclude_function_patterns")
+                if (trimmed.StartsWith("//"))
+                {
+                    continue;
+                }
+
+                if (trimmed == "@exclude_function_patterns")
                 {
                     excluding = true;
                     including = false;
                     continue;
                 }
 
-                if (line == "@include_function_patterns")
+                if (trimmed == "@include_function_patterns")
                 {
                     excluding = false;
                     including = true;
@@ -55,12 +61,12 @@ namespace Launcher
 
                 if (excluding)
                 {
-                    filter._excludeRules.Add(line.Trim());
+                    filter._excludeRules.Add(trimmed);
                 }
 
                 if (including)
                 {
-                    filter._includeRules.Add(line.Trim());
+                    filter._includeRules.Add(trimmed);
                 }
             }
 
@@ -70,25 +76,34 @@ namespace Launcher
 
         public bool IsHidden(string function)
         {
+            // 1. No filtes at all, default is everything is visible
+            // 2. Only include filters, default is everything is hidden
+            // 3. Only exclude filters, default in everything is visible
+            // 4. Both filters, default is everything is hidden, then include is applied, 
+            //    the exclude to exclude again.
+
+
             if (!_includeRules.Any() && !_excludeRules.Any())
             {
+                // No filtes at all, default is everything is visible
                 return false;
             }
 
+            // Only include filters or include and exclude filters: Default is hidden.
+            bool hidden = true;
+            if (!_includeRules.Any() && _excludeRules.Any())
+            {
+                // Only exclude filters: default is visible
+                hidden = false;
+            }
 
             foreach (var rule in _includeRules)
             {
                 if (Regex.IsMatch(function, rule))
                 {
-                    // Inclusive list has precedence over exclude list
-                    return false;
+                    hidden = false;
+                    break;
                 }
-            }
-
-            if (!_includeRules.Any())
-            {
-                // We have include rules. Default is hidden.
-                return true;
             }
 
 
@@ -97,12 +112,13 @@ namespace Launcher
             {
                 if (Regex.IsMatch(function, rule))
                 {
-                    return true;
+                    hidden = true;
+                    break;
                 }
             }
 
            
-            return false;
+            return hidden;
         }
     }
 }
