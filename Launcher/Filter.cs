@@ -8,6 +8,7 @@ namespace Launcher
     internal class Filter
     {
         private readonly List<string> _excludeRules = new List<string>();
+        private readonly List<string> _includeRules = new List<string>();
 
         private Filter()
         {
@@ -57,7 +58,10 @@ namespace Launcher
                     filter._excludeRules.Add(line.Trim());
                 }
 
-                // TODO including patterns
+                if (including)
+                {
+                    filter._includeRules.Add(line.Trim());
+                }
             }
 
             return filter;
@@ -66,11 +70,29 @@ namespace Launcher
 
         public bool IsHidden(string function)
         {
-            if (!_excludeRules.Any())
+            if (!_includeRules.Any() && !_excludeRules.Any())
             {
                 return false;
             }
 
+
+            foreach (var rule in _includeRules)
+            {
+                if (Regex.IsMatch(function, rule))
+                {
+                    // Inclusive list has precedence over exclude list
+                    return false;
+                }
+            }
+
+            if (!_includeRules.Any())
+            {
+                // We have include rules. Default is hidden.
+                return true;
+            }
+
+
+            // We don't have any include rules. Default is visible.
             foreach (var rule in _excludeRules)
             {
                 if (Regex.IsMatch(function, rule))
@@ -79,6 +101,7 @@ namespace Launcher
                 }
             }
 
+           
             return false;
         }
     }

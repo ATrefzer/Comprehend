@@ -66,6 +66,7 @@ namespace Launcher
 
         private IEnumerable<ProfilerEvent> ParseEventStream(string path, Dictionary<ulong, string> dictionary)
         {
+            // TODO use BinaryReader
             using (var stream = new FileStream(path, FileMode.Open))
             {
                 var offset = 0;
@@ -108,6 +109,11 @@ namespace Launcher
 
                         entry.FunctioId = fid;
                     }
+                 
+                    //else if (token == Tokens.TokenDestroyThread || token == Tokens.TokenCreateThread)
+                    //{
+
+                    //}
 
                     yield return entry;
                 }

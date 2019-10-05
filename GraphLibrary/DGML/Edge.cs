@@ -16,8 +16,17 @@ namespace GraphLibrary.Dgml
             Target = targetNode;
         }
 
+        public Edge(string sourceNode, string targetNode, string category)
+        {
+            Source = sourceNode;
+            Target = targetNode;
+            Category = category;
+        }
+
         public string Source { get; set; }
         public string Target { get; set; }
+
+        public string Category { get; set; }
         
     }
 }

@@ -1,7 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -43,6 +46,8 @@ namespace Launcher
     internal class AnalyzerViewModel : INotifyPropertyChanged
     {
         private Trace _selectedTrace;
+
+        private readonly HashSet<FunctionCall> _processed = new HashSet<FunctionCall>();
 
         public AnalyzerViewModel()
         {
@@ -132,16 +137,113 @@ namespace Launcher
             var model = CallGraphModel.FromEventStream(eventStream, filter);
 
             var builder = new DgmlFileBuilder();
+            builder.AddCategory("indirect", "StrokeDashArray", "1 1");
+            BuildDgml(builder, model);
 
-            foreach (var func in model.AllFunctions)
+            builder.WriteOutput(Path.Combine(WorkingDirectory, SelectedTrace + ".graph.dgml"));
+        }
+
+        private void BuildDgml(DgmlFileBuilder builder, CallGraphModel model)
+        {
+            _processed.Clear();
+            foreach (var func in model.AllFunctions.Where(f => !f.IsHidden))
             {
-                foreach (var call in func.Children)
+                // Start with all visible functions and add them to the graph
+                BuildDgml_Iter(builder, null, func);
+            }
+        }
+
+        private void BuildDgml_Iter(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
+        {
+
+            var toProcess = new Queue<(FunctionCall, FunctionCall)>();
+            toProcess.Enqueue((lastVisibleAncestor, target));
+
+            while (toProcess.Any())
+            {
+                (lastVisibleAncestor,target) = toProcess.Dequeue();
+
+
+                if (_processed.Contains(target))
                 {
-                    builder.AddEdge(func.Name, call.Name);
+                    continue;
+                }
+
+                _processed.Add(target);
+
+
+                if (lastVisibleAncestor != null && !target.IsHidden)
+                {
+                    if (lastVisibleAncestor.Children.Contains(target))
+                    {
+                        // Direct call
+                        builder.AddEdge(lastVisibleAncestor.Name, target.Name);
+                    }
+                    else
+                    {
+                        // Indirect call (mark as dashed line)
+                        builder.AddEdge(lastVisibleAncestor.Name, target.Name, "indirect");
+                    }
+                }
+
+
+                
+                if (!target.IsHidden)
+                {
+                    // New visible parent for the children
+                    lastVisibleAncestor = target;
+                }
+
+                foreach (var call in target.Children)
+                {
+                    toProcess.Enqueue((lastVisibleAncestor, call));
                 }
             }
 
-            builder.WriteOutput(Path.Combine(WorkingDirectory, SelectedTrace + ".graph.dgml"));
+
+         
+
+            // Assumption: We start with the first visible parent. Anything hidden above is ignored.
+
+          
+
+        }
+
+        private void BuildDgml(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
+        {
+            if (_processed.Contains(target))
+            {
+                return;
+            }
+
+            _processed.Add(target);
+
+            // Assumption: We start with the first visible parent. Anything hidden above is ignored.
+
+            if (lastVisibleAncestor != null && !target.IsHidden)
+            {
+                if (lastVisibleAncestor.Children.Contains(target))
+                {
+                    // Direct call
+                    builder.AddEdge(lastVisibleAncestor.Name, target.Name);
+                }
+                else
+                {
+                    // Indirect call (mark as dashed line)
+                    builder.AddEdge(lastVisibleAncestor.Name, target.Name, "indirect");
+                }
+            }
+
+            if (!target.IsHidden)
+            {
+                // New visible parent for the children
+                lastVisibleAncestor = target;
+            }
+
+            foreach (var call in target.Children)
+            {
+                BuildDgml(builder, lastVisibleAncestor, call);
+            }
         }
 
         private void RefreshAvailableTraces()

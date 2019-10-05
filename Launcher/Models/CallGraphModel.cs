@@ -57,6 +57,28 @@ namespace Launcher.Models
                     {
                         activeFunc.Children.Add(enterFunc);
                         enterFunc.Parents.Add(activeFunc);
+
+                        if (!enterFunc.IsHidden)
+                        {
+                            // Mark all parents that the have at least one visible child
+                            var parents = new Queue<FunctionCall>();
+                            parents.Enqueue(activeFunc);
+                            while (parents.Any())
+                            {
+                                var parent = parents.Dequeue();
+
+                                if (parent.HasVisibleChildren == false)
+                                {
+                                    parent.HasVisibleChildren = true;
+
+                                    foreach (var ancestor in parent.Parents)
+                                    {
+                                        parents.Enqueue(ancestor);
+                                    }
+                                }
+                            }
+
+                        }
                     }
 
                     // This is the new active function 
@@ -132,39 +154,39 @@ namespace Launcher.Models
 
         private static bool CanRemove(FunctionCall exitFunc)
         {
-            return CanRemove(exitFunc, new HashSet<ulong>());
+            return !exitFunc.IsHidden && exitFunc.HasVisibleChildren == false;
         }
 
         /// <summary>
         /// Are there only hidden functions called
         /// </summary>
-        private static bool CanRemove(FunctionCall exitFunc, HashSet<ulong> visited)
-        {
-            if (!exitFunc.IsHidden)
-            {
-                return false;
-            }
+        //private static bool CanRemove(FunctionCall exitFunc, HashSet<ulong> visited)
+        //{
+        //    if (!exitFunc.IsHidden)
+        //    {
+        //        return false;
+        //    }
 
-            foreach (var child in exitFunc.Children)
-            {
-                if (visited.Contains(child.Id))
-                {
-                    continue;
-                }
+        //    foreach (var child in exitFunc.Children)
+        //    {
+        //        if (visited.Contains(child.Id))
+        //        {
+        //            continue;
+        //        }
 
-                // Avoid cycles
-                visited.Add(child.Id);
+        //        // Avoid cycles
+        //        visited.Add(child.Id);
 
-                if (!CanRemove(child, visited))
-                {
-                    // At lease one child cannot be removed.
-                    return false;
-                }
-            }
+        //        if (!CanRemove(child, visited))
+        //        {
+        //            // At lease one child cannot be removed.
+        //            return false;
+        //        }
+        //    }
 
-            // Nothing found that keeps us from removing this hidden function with only hidden children.
-            return true;
-        }
+        //    // Nothing found that keeps us from removing this hidden function with only hidden children.
+        //    return true;
+        //}
 
         private static FunctionCall CreateFunctionCall(ProfilerEvent entry, Filter filter)
         {

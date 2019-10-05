@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
-namespace Launcher
+namespace Launcher.Models
 {
+    [DebuggerDisplay("Func: {Name} Hidden={IsHidden}")]
     public class FunctionCall
     {
         public ulong Id { get; set; }
@@ -13,15 +15,16 @@ namespace Launcher
         public bool Recursive { get; internal set; }
         public bool TailCall { get; internal set; }
         public bool IsHidden { get; set; }
+        public bool HasVisibleChildren { get; set; } = false;
 
         public override bool Equals(object obj)
         {
-            return Name == ((FunctionCall) obj).Name;
+            return Id == ((FunctionCall) obj).Id;
         }
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }
