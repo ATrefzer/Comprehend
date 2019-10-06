@@ -1,5 +1,5 @@
-﻿using System;
-
+﻿
+using System;
 namespace HelloWorld_x86
 {
     class App
@@ -7,37 +7,43 @@ namespace HelloWorld_x86
         public event EventHandler Initialized;
         public void Initialize()
         {
-            Console.WriteLine(nameof(Initialized));
             Initialized?.Invoke(this, new EventArgs());
-
-            var a = new Action(() => Inner());
-            a.Invoke();
-
-            Recursive(3);
-
-            CycleA(3);
         }
-
-        private void CycleA(int v)
+        public void RunCycle()
         {
-            if (v <= 0) return;
-            CycleB(v - 1);
+            CycleA(10);
         }
-
-        private void CycleB(int v)
+        public void CycleA(int counter)
         {
-            CycleA(v - 1);
+            if (counter <= 0)
+            {
+                return;
+            }
+            counter--;
+            CycleB(counter);
         }
-
-        private void Recursive(int v)
+        private void CycleB(int counter)
         {
-            if (v == 0) return;
-            Recursive(--v);
+            counter--;
+            CycleC(counter);
         }
-
-        void Inner()
+        private void CycleC(int counter)
         {
-            Console.WriteLine("Inner");
+            counter--;
+            CycleA(counter);
+        }
+        public void RunRecursion()
+        {
+            Recursive(10);
+        }
+        private void Recursive(int counter)
+        {
+            if (counter <= 0)
+            {
+                return;
+            }
+            counter--;
+            Recursive(counter);
         }
     }
     internal class Program
@@ -46,7 +52,6 @@ namespace HelloWorld_x86
         {
             return a + b;
         }
-
         private static int Mult(int a, int b)
         {
             var result = 0;
@@ -54,26 +59,23 @@ namespace HelloWorld_x86
             {
                 result = Add(result, b);
             }
-
             return result;
         }
 
-
         private static void Main(string[] args)
         {
-            var a = new App();
-            a.Initialized += AppIsInitialized;
-            a.Initialized += (sender, arguments) => { Console.WriteLine("event handled"); };
-            a.Initialize();
             Console.WriteLine(Mult(2, 3));
-
-            Console.ReadKey();
+            var app = new App();
+            app.Initialized += AppOnInitialized;
+            app.Initialized += (sender, eventArgs) => Console.WriteLine("Initialized");
+            app.Initialize();
+            app.RunCycle();
+            app.RunRecursion();
+            //Console.ReadKey();
         }
-
-        private static void AppIsInitialized(object sender, EventArgs e)
+        private static void AppOnInitialized(object sender, EventArgs e)
         {
-            var a = new App();
-            a.Initialize();
+            Console.WriteLine("Initialized (static)");
         }
     }
 }

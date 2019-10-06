@@ -31,7 +31,6 @@
 *.out
 *.app
 /.vs
-/Binaries
 /HelloWorld_x64/bin/Debug
 /HelloWorld_x64/obj
 /Launcher/obj
@@ -45,3 +44,4 @@
 /GraphLibrary/bin/Release
 /GraphLibrary/obj/Release
 /packages
+/Binaries

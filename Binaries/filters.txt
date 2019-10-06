@@ -1,0 +1,5 @@
+@exclude_function_patterns
+mscorlib..*
+.*.ctor.*
+.*>b__2_0
+.*>b__3_0

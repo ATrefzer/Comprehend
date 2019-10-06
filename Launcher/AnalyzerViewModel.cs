@@ -17,38 +17,12 @@ using Prism.Commands;
 
 namespace Launcher
 {
-    internal class Trace
-    {
-        private readonly string _directory;
-
-        public Trace(string directory, string baseFile)
-        {
-            _directory = directory;
-            BaseFile = baseFile;
-        }
-
-        public string BaseFile { get; }
-
-        public string IndexFile => Path.Combine(_directory, BaseFile + ".index");
-        public string EventFile => Path.Combine(_directory, BaseFile + ".profile");
-
-        public override string ToString()
-        {
-            return BaseFile;
-        }
-    }
-
-    public class TracesArg
-    {
-        public string Path { get; set; }
-    }
 
     internal class AnalyzerViewModel : INotifyPropertyChanged
     {
         private Trace _selectedTrace;
 
-        private readonly HashSet<FunctionCall> _processed = new HashSet<FunctionCall>();
-
+     
         public AnalyzerViewModel()
         {
             GenerateFilteredGraphCommand = new DelegateCommand(ExecuteGenerateFilteredGraph);
@@ -119,7 +93,6 @@ namespace Launcher
 
             Process.Start(filterDef);
         }
-
         private void ExecuteGenerateFilteredGraph()
         {
             var selection = SelectedTrace;
@@ -138,77 +111,8 @@ namespace Launcher
 
             var visibleFuncs = model.AllFunctions.Where(f => f.IsHidden == false).ToList();
 
-            var builder = new DgmlFileBuilder();
-            builder.AddCategory("indirect", "StrokeDashArray", "1 1");
-            BuildDgml(builder, model);
-
-            builder.WriteOutput(Path.Combine(WorkingDirectory, SelectedTrace + ".graph.dgml"));
-        }
-
-        private void BuildDgml(DgmlFileBuilder builder, CallGraphModel model)
-        {
-            _processed.Clear();
-            foreach (var func in model.AllFunctions.Where(f => !f.IsHidden))
-            {
-                // Start with all visible functions and add them to the graph
-                BuildDgml(builder, null, func);
-            }
-        }
-
-        private void BuildDgml(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
-        {
-
-            var toProcess = new Queue<(FunctionCall, FunctionCall)>();
-            toProcess.Enqueue((lastVisibleAncestor, target));
-
-            while (toProcess.Any())
-            {
-                (lastVisibleAncestor,target) = toProcess.Dequeue();
-
-
-                if (_processed.Contains(target))
-                {
-                    continue;
-                }
-
-                _processed.Add(target);
-
-
-                if (lastVisibleAncestor != null && !target.IsHidden)
-                {
-                    if (lastVisibleAncestor.Children.Contains(target))
-                    {
-                        // Direct call
-                        builder.AddEdge(lastVisibleAncestor.Name, target.Name);
-                    }
-                    else
-                    {
-                        // Indirect call (mark as dashed line)
-                        builder.AddEdge(lastVisibleAncestor.Name, target.Name, "indirect");
-                    }
-                }
-
-
-                
-                if (!target.IsHidden)
-                {
-                    // New visible parent for the children
-                    lastVisibleAncestor = target;
-                }
-
-                foreach (var call in target.Children)
-                {
-                    toProcess.Enqueue((lastVisibleAncestor, call));
-                }
-            }
-
-
-         
-
-            // Assumption: We start with the first visible parent. Anything hidden above is ignored.
-
-          
-
+            var exporter = new CallGraphExporter();
+            exporter.Export(model, Path.Combine(WorkingDirectory, SelectedTrace + ".graph.dgml"));
         }
 
         private void RefreshAvailableTraces()

@@ -88,6 +88,9 @@
     </Compile>
     <Compile Include="Common\InvertBoolConverter.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="Models\CallGraphExporter.cs" />
+    <Compile Include="Trace.cs" />
+    <Compile Include="TracesArg.cs" />
     <Compile Include="TracingViewModel.cs" />
     <Compile Include="Models\FunctionCall.cs" />
     <Compile Include="MainWindow.xaml.cs">

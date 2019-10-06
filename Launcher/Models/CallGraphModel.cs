@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -13,71 +14,78 @@ namespace Launcher.Models
 
         public List<FunctionCall> AllFunctions { get; }
 
+        private static Dictionary<ulong, Stack<FunctionCall>> _tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
+        private static Dictionary<ulong, FunctionCall> _functions = new Dictionary<ulong, FunctionCall>();
+        private static Filter _filter = Filter.Default();
+        static FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
+        {          
+            // Find active function
+            FunctionCall activeFunc = null;
+            if (stack.Count > 0)
+            {
+                activeFunc = stack.Peek();
+            }
+
+            return activeFunc;
+
+        }
+
+        private static Stack<FunctionCall> GetStackByThreadId(ulong threadId)
+        {
+            // Find the correct thread such that we find the correct parent function.
+            if (!_tidToStack.TryGetValue(threadId, out var stack))
+            {
+                stack = new Stack<FunctionCall>();
+                _tidToStack.Add(threadId, stack);
+            }
+
+            return stack;
+        }
+
+        private static FunctionCall GetEnteredFunction(ProfilerEvent entry)
+        {
+            FunctionCall enterFunc = null;
+            if (!_functions.TryGetValue(entry.FunctioId, out enterFunc))
+            {
+                enterFunc = CreateFunctionCall(entry, _filter);
+                _functions.Add(enterFunc.Id, enterFunc);
+            }
+            return enterFunc;
+        }
+
 
         public static CallGraphModel FromEventStream(IEnumerable<ProfilerEvent> stream, Filter filter)
         {
-            var tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
-            var functions = new Dictionary<ulong, FunctionCall>();
+            _filter = filter;
+            _tidToStack.Clear();
+            _functions.Clear();
 
             foreach (var entry in stream)
             {
                 if (entry.Token == Tokens.TokenEnter)
                 {
-                    // 1. Note as child of the active function
+                    // 1. Mark as child of the active function
                     // 2. Push as active function
 
-                    FunctionCall enterFunc = null;
-                    if (!functions.TryGetValue(entry.FunctioId, out enterFunc))
-                    {
-                        enterFunc = CreateFunctionCall(entry, filter);
-                        functions.Add(enterFunc.Id, enterFunc);
-                    }
+                    var stack = GetStackByThreadId(entry.ThreadId);
+                    var enterFunc = GetEnteredFunction(entry);
+                    var activeFunc = GetActiveFunction(stack);
 
-                    // Find the correct thread such that we find the correct parent function.
-                    if (!tidToStack.TryGetValue(entry.ThreadId, out var stack))
+                    if (activeFunc != null)
                     {
-                        stack = new Stack<FunctionCall>();
-                        tidToStack.Add(entry.ThreadId, stack);
-                    }
+                        if (ReferenceEquals(activeFunc, enterFunc)) 
+                        {
+                            activeFunc.Recursive = true;
+                        }
 
-                    Debug.Assert(enterFunc != null);
-
-                    // Find active function
-                    FunctionCall activeFunc = null;
-                    if (stack.Count > 0)
-                    {
-                        activeFunc = stack.Peek();
-                    }
-
-                    if (ReferenceEquals(activeFunc, enterFunc)) // reference
-                    {
-                        activeFunc.Recursive = true;
-                    }
-                    else if (activeFunc != null)
-                    {
                         activeFunc.Children.Add(enterFunc);
                         enterFunc.Parents.Add(activeFunc);
 
                         if (!enterFunc.IsHidden)
                         {
-                            // Mark all parents that the have at least one visible child
-                            var parents = new Queue<FunctionCall>();
-                            parents.Enqueue(activeFunc);
-                            while (parents.Any())
-                            {
-                                var parent = parents.Dequeue();
-
-                                if (parent.HasVisibleChildren == false)
-                                {
-                                    parent.HasVisibleChildren = true;
-
-                                    foreach (var ancestor in parent.Parents)
-                                    {
-                                        parents.Enqueue(ancestor);
-                                    }
-                                }
-                            }
-
+                            // We cant remove the ancestors of enterFunc becuase they contain at least
+                            // one visible child.
+                            MarkAsAncestorOfVisibleChild(activeFunc);
                         }
                     }
 
@@ -87,28 +95,16 @@ namespace Launcher.Models
                 }
                 else if (entry.Token == Tokens.TokenLeave)
                 {
-                    // Find the correct thread such that we find the correct parent functions.
-                    Stack<FunctionCall> stack;
-                    if (!tidToStack.TryGetValue(entry.ThreadId, out stack))
-                    {
-                        stack = new Stack<FunctionCall>();
-                        tidToStack.Add(entry.ThreadId, stack);
-                    }
-
-                    // Find active function
-                    FunctionCall activeFunc = null;
-                    if (stack.Count > 0)
-                    {
-                        activeFunc = stack.Peek();
-                    }
+                    var stack = GetStackByThreadId(entry.ThreadId);
+                    var activeFunc = GetActiveFunction(stack);
 
                     if (activeFunc != null && activeFunc.Name == entry.FunctionName)
                     {
                         stack.Pop();
 
-                        // Reduce memory by cleaning up while be process the event stream.
+                        // Reduce memory by cleaning up while we process the event stream.
                         // We remove all functions that are hidden and only call hidden functions!
-                        CleanupHiddenCalls(functions, activeFunc);
+                        CleanupHiddenCalls(_functions, activeFunc);
                     }
                     else
                     {
@@ -118,22 +114,51 @@ namespace Launcher.Models
                 else if (entry.Token == Tokens.TokenTailCall)
                 {
                     FunctionCall newFunc = null;
-                    if (!functions.TryGetValue(entry.FunctioId, out newFunc))
+                    if (!_functions.TryGetValue(entry.FunctioId, out newFunc))
                     {
                         newFunc = CreateFunctionCall(entry, filter);
                         newFunc.TailCall = true;
-                        functions.Add(newFunc.Id, newFunc);
+                        _functions.Add(newFunc.Id, newFunc);
                     }
 
                     newFunc.TailCall = true;
                 }
                 else if (entry.Token == Tokens.TokenDestroyThread)
                 {
-                    tidToStack.Remove(entry.ThreadId);
+                    _tidToStack.Remove(entry.ThreadId);
                 }
             }
 
-            return new CallGraphModel(functions.Values.ToList());
+            var model = new CallGraphModel(_functions.Values.ToList());
+            _tidToStack.Clear();
+            _functions.Clear();
+            _filter = Filter.Default();
+            return model;
+        }
+
+        private static void MarkAsAncestorOfVisibleChild(FunctionCall activeFunc)
+        {
+            HashSet<ulong> processedParent = new HashSet<ulong>();
+            // Mark all parents that the have at least one visible child
+            var parents = new Queue<FunctionCall>();
+            parents.Enqueue(activeFunc);
+            while (parents.Any())
+            {
+                var parent = parents.Dequeue();
+                processedParent.Add(parent.Id);
+                if (parent.HasVisibleChildren == false)
+                {
+                    parent.HasVisibleChildren = true;
+
+                    foreach (var ancestor in parent.Parents)
+                    {
+                        if (!processedParent.Contains(ancestor.Id))
+                        {
+                            parents.Enqueue(ancestor);
+                        }
+                    }
+                }
+            }
         }
 
         private static void CleanupHiddenCalls(Dictionary<ulong, FunctionCall> allFunctions, FunctionCall exitFunc)
@@ -156,37 +181,6 @@ namespace Launcher.Models
         {
             return exitFunc.IsHidden && exitFunc.HasVisibleChildren == false;
         }
-
-        /// <summary>
-        /// Are there only hidden functions called
-        /// </summary>
-        //private static bool CanRemove(FunctionCall exitFunc, HashSet<ulong> visited)
-        //{
-        //    if (!exitFunc.IsHidden)
-        //    {
-        //        return false;
-        //    }
-
-        //    foreach (var child in exitFunc.Children)
-        //    {
-        //        if (visited.Contains(child.Id))
-        //        {
-        //            continue;
-        //        }
-
-        //        // Avoid cycles
-        //        visited.Add(child.Id);
-
-        //        if (!CanRemove(child, visited))
-        //        {
-        //            // At lease one child cannot be removed.
-        //            return false;
-        //        }
-        //    }
-
-        //    // Nothing found that keeps us from removing this hidden function with only hidden children.
-        //    return true;
-        //}
 
         private static FunctionCall CreateFunctionCall(ProfilerEvent entry, Filter filter)
         {
