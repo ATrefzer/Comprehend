@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include "Common/TextFileWriter.h"
 #include "ProfilerApi.h"
-#include "CallGraphExporter.h"
+#include "ProfileWriter.h"
 #include "Common/BinaryWriter.h"
 #include "Common\Encodings.h"
 #include "Common\Environment.h"
@@ -103,7 +103,9 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 
 	_api = new ProfilerApi(corProfilerInfo);
 
+	// Using a large buffer to prevent disk access.
 	auto stream = new CppEssentials::OutputFileStream(4 * 1024 * 1024);
+	//auto stream = new CppEssentials::OutputFileStream(13);
 	auto path = CppEssentials::FilePath::Combine(_outputDirectory, _module + L".profile");
 	
 	stream->Open(path, CppEssentials::CreateNew);
@@ -111,7 +113,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 
 
 	// No Ownership
-	_callTrace = new CallGraphExporter(_api, _writer);
+	_callTrace = new ProfileWriter(_api, _writer);
 
 	corProfilerInfo->SetFunctionIDMapper2(FunctionIDMapperFunc, nullptr);
 

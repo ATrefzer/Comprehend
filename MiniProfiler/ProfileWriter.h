@@ -8,17 +8,14 @@ namespace CppEssentials {
 	class BinaryWriter;
 }
 
-class TraceExporter
+class ProfileWriter
 {
-	CRITICAL_SECTION _cs;
   
 public:
 
     // Takes ownership
-	TraceExporter(IProfilerApi* api, CppEssentials::BinaryWriter * writer);
+	ProfileWriter(IProfilerApi* api, CppEssentials::BinaryWriter * writer);
 	void Release();
-
-	virtual ~TraceExporter();
 
 	void OnEnter(FunctionID funcId);
 	void OnLeave(FunctionID funcId);
@@ -31,18 +28,15 @@ public:
     // Ownership stays within this class.
     FunctionInfo* AddFunctionInfo(FunctionID funcId);
 
-   // bool IsEmpty(ThreadID tid);
-
 private:
 
 	FunctionInfo* GetFunctionInfo(FunctionID funcId);
 
-	// 
-    //std::unordered_map<ThreadID, Stack*> _threadIdToStack;
-	
 private:
 
 	IProfilerApi* _api;
 	std::unordered_map<UINT_PTR, FunctionInfo*> _funcInfos;
     CppEssentials::BinaryWriter* _writer;
+
+	CRITICAL_SECTION _cs;
 };

@@ -1,6 +1,8 @@
 #include "Callbacks.h"
 #include <string>
-CallGraphExporter* _callTrace;
+#include "ProfileWriter.h"
+
+ProfileWriter* _callTrace;
 
 // Note: Naked function calls below needs __stdcall!
 void __stdcall  OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)

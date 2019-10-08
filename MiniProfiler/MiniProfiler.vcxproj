@@ -172,7 +172,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CallGraphExporter.h" />
+    <ClInclude Include="ProfileWriter.h" />
     <ClInclude Include="CallStackTests.h" />
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Common\BinaryTools.h" />
@@ -193,7 +193,7 @@
     <ClInclude Include="ProfilerApi.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CallGraphExporter.cpp" />
+    <ClCompile Include="ProfileWriter.cpp" />
     <ClCompile Include="CallStackTests.cpp" />
     <ClCompile Include="ClassFactory.cpp" />
     <ClCompile Include="Common\BinaryTools.cpp">

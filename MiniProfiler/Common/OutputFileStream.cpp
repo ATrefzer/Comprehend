@@ -98,15 +98,15 @@ namespace CppEssentials
 
 	void OutputFileStream::Write(const byte* data, UInt32 length)
 	{
+		if (_cache && _cachedBytes + length > CACHE_SIZE)
+		{
+			Flush();
+		}
+
 		if (length > CACHE_SIZE)
 		{
 			_WriteChunk(data, length);
 			return;
-		}
-		
-		if (_cache && _cachedBytes + length > CACHE_SIZE)
-		{
-			Flush();
 		}
 
 		memcpy_s(_cache + _cachedBytes, CACHE_SIZE, data, length);

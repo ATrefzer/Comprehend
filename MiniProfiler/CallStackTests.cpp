@@ -1,7 +1,8 @@
 #include "pch.h"
-#include "CallGraphExporter.h"
+#include "ProfileWriter.h"
 #include <cassert>
 #include "CallStackTests.h"
+#include "ProfilerApi.h"
 
 
 class ProfilerApiMock : public IProfilerApi

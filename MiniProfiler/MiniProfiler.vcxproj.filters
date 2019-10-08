@@ -66,9 +66,6 @@
     <ClInclude Include="Common\BinaryWriter.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="CallGraphExporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common\BinaryTools.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -77,6 +74,9 @@
     </ClInclude>
     <ClInclude Include="Common\Environment.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfileWriter.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -116,9 +116,6 @@
     <ClCompile Include="Common\BinaryWriter.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="CallGraphExporter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Common\BinaryTools.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -133,6 +130,9 @@
     </ClCompile>
     <ClCompile Include="Common\Environment.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfileWriter.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

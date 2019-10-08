@@ -1,9 +1,9 @@
 #pragma once
 #include <corhlpr.h>
 #include <corprof.h>
-#include "CallGraphExporter.h"
+#include "ProfileWriter.h"
 
-extern CallGraphExporter* _callTrace;
+extern ProfileWriter* _callTrace;
 
 // Callbacks for x86 and x64 code
 void __stdcall  OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);

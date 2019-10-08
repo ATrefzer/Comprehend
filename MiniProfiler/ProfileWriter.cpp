@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TraceExporter.h"
+#include "ProfileWriter.h"
 #include "Common/BinaryWriter.h"
 #include <cassert>
 using namespace CppEssentials;
@@ -13,7 +13,7 @@ enum Tokens
 	TokenTailCall,
 };
 
-FunctionInfo* TraceExporter::AddFunctionInfo(FunctionID funcId)
+FunctionInfo* ProfileWriter::AddFunctionInfo(FunctionID funcId)
 {
 	auto info = _api->CreateFunctionInfo(funcId);
 
@@ -27,7 +27,7 @@ FunctionInfo* TraceExporter::AddFunctionInfo(FunctionID funcId)
 	return info;
 }
 
-FunctionInfo* TraceExporter::GetFunctionInfo(FunctionID funcId)
+FunctionInfo* ProfileWriter::GetFunctionInfo(FunctionID funcId)
 {
 	::EnterCriticalSection(&_cs);
 	assert(_funcInfos.find(funcId) != _funcInfos.end());	
@@ -36,24 +36,20 @@ FunctionInfo* TraceExporter::GetFunctionInfo(FunctionID funcId)
 	return info;
 }
 
-TraceExporter::TraceExporter(IProfilerApi* api, CppEssentials::BinaryWriter* writer)
+ProfileWriter::ProfileWriter(IProfilerApi* api, CppEssentials::BinaryWriter* writer)
 {
 	_api = api;
 	_writer = writer;
 	::InitializeCriticalSection(&_cs);
 }
 
-void TraceExporter::Release()
+void ProfileWriter::Release()
 {
 	::DeleteCriticalSection(&_cs);
 }
 
-TraceExporter::~TraceExporter()
-{
-	
-}
 
-void TraceExporter::OnEnter(FunctionID funcId)
+void ProfileWriter::OnEnter(FunctionID funcId)
 {
 	auto tid = _api->GetThreadId();
 
@@ -64,7 +60,7 @@ void TraceExporter::OnEnter(FunctionID funcId)
 	::LeaveCriticalSection(&_cs);
 }
 
-void TraceExporter::OnLeave(FunctionID funcId)
+void ProfileWriter::OnLeave(FunctionID funcId)
 {
 	// It is possible that we find the same function name with different ids(!)
 
@@ -77,7 +73,7 @@ void TraceExporter::OnLeave(FunctionID funcId)
 	::LeaveCriticalSection(&_cs);
 }
 
-void TraceExporter::OnTailCall(FunctionID funcId)
+void ProfileWriter::OnTailCall(FunctionID funcId)
 {
 	auto tid = _api->GetThreadId();
 
@@ -88,7 +84,7 @@ void TraceExporter::OnTailCall(FunctionID funcId)
 	::LeaveCriticalSection(&_cs);
 }
 
-void TraceExporter::OnThreadCreated(ThreadID tid)
+void ProfileWriter::OnThreadCreated(ThreadID tid)
 {
 	::EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenCreateThread);
@@ -96,7 +92,7 @@ void TraceExporter::OnThreadCreated(ThreadID tid)
 	::LeaveCriticalSection(&_cs);
 }
 
-void TraceExporter::OnThreadDestroyed(ThreadID tid)
+void ProfileWriter::OnThreadDestroyed(ThreadID tid)
 {
 	// Note that the same ThreadID may be reused later.
 	::EnterCriticalSection(&_cs);
@@ -105,7 +101,7 @@ void TraceExporter::OnThreadDestroyed(ThreadID tid)
 	::LeaveCriticalSection(&_cs);
 }
 
-void TraceExporter::WriteIndexFile(CppEssentials::TextFileWriter& writer)
+void ProfileWriter::WriteIndexFile(CppEssentials::TextFileWriter& writer)
 {
     for (auto iter = _funcInfos.begin(); iter != _funcInfos.end(); ++iter)
     {
