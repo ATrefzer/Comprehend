@@ -19,33 +19,33 @@ FunctionInfo* ProfileWriter::AddFunctionInfo(FunctionID funcId)
 
 	// No duplicates found.
 
-	::EnterCriticalSection(&_cs);
+	EnterCriticalSection(&_cs);
 	auto result = _funcInfos.emplace(info->_id, info);
 	assert(result.second == true);
-	::LeaveCriticalSection(&_cs);
-	
+	LeaveCriticalSection(&_cs);
+
 	return info;
 }
 
 FunctionInfo* ProfileWriter::GetFunctionInfo(FunctionID funcId)
 {
-	::EnterCriticalSection(&_cs);
-	assert(_funcInfos.find(funcId) != _funcInfos.end());	
-	auto info =  _funcInfos[funcId];
-	::LeaveCriticalSection(&_cs);
+	EnterCriticalSection(&_cs);
+	assert(_funcInfos.find(funcId) != _funcInfos.end());
+	auto info = _funcInfos[funcId];
+	LeaveCriticalSection(&_cs);
 	return info;
 }
 
-ProfileWriter::ProfileWriter(IProfilerApi* api, CppEssentials::BinaryWriter* writer)
+ProfileWriter::ProfileWriter(IProfilerApi* api, BinaryWriter* writer)
 {
 	_api = api;
 	_writer = writer;
-	::InitializeCriticalSection(&_cs);
+	InitializeCriticalSection(&_cs);
 }
 
 void ProfileWriter::Release()
 {
-	::DeleteCriticalSection(&_cs);
+	DeleteCriticalSection(&_cs);
 }
 
 
@@ -53,11 +53,11 @@ void ProfileWriter::OnEnter(FunctionID funcId)
 {
 	auto tid = _api->GetThreadId();
 
-	::EnterCriticalSection(&_cs);
+	EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenEnter);
 	_writer->WriteUInt64(tid);
 	_writer->WriteUInt64(funcId);
-	::LeaveCriticalSection(&_cs);
+	LeaveCriticalSection(&_cs);
 }
 
 void ProfileWriter::OnLeave(FunctionID funcId)
@@ -66,55 +66,67 @@ void ProfileWriter::OnLeave(FunctionID funcId)
 
 	auto tid = _api->GetThreadId();
 
-	::EnterCriticalSection(&_cs);
+	EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenLeave);
 	_writer->WriteUInt64(tid);
 	_writer->WriteUInt64(funcId);
-	::LeaveCriticalSection(&_cs);
+	LeaveCriticalSection(&_cs);
 }
 
 void ProfileWriter::OnTailCall(FunctionID funcId)
 {
 	auto tid = _api->GetThreadId();
 
-	::EnterCriticalSection(&_cs);
+	EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenTailCall);
 	_writer->WriteUInt64(tid);
 	_writer->WriteUInt64(funcId);
-	::LeaveCriticalSection(&_cs);
+	LeaveCriticalSection(&_cs);
 }
 
 void ProfileWriter::OnThreadCreated(ThreadID tid)
 {
-	::EnterCriticalSection(&_cs);
+	EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenCreateThread);
 	_writer->WriteUInt64(tid);
-	::LeaveCriticalSection(&_cs);
+	LeaveCriticalSection(&_cs);
 }
 
 void ProfileWriter::OnThreadDestroyed(ThreadID tid)
 {
 	// Note that the same ThreadID may be reused later.
-	::EnterCriticalSection(&_cs);
+	EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenDestroyThread);
 	_writer->WriteUInt64(tid);
-	::LeaveCriticalSection(&_cs);
+	LeaveCriticalSection(&_cs);
 }
 
-void ProfileWriter::WriteIndexFile(CppEssentials::TextFileWriter& writer)
+void ProfileWriter::WriteIndexFile(TextFileWriter& writer)
 {
-    for (auto iter = _funcInfos.begin(); iter != _funcInfos.end(); ++iter)
-    {
-        if (iter != _funcInfos.begin())
-        {
-            writer.WriteString(L"\r\n");
-        }
+	for (auto iter = _funcInfos.begin(); iter != _funcInfos.end(); ++iter)
+	{
+		if (iter != _funcInfos.begin())
+		{
+			writer.WriteString(L"\r\n");
+		}
 
-        auto func = iter->second;
-        writer.WriteString(std::to_wstring(func->_id));
-        writer.WriteString(L" ");
-    	writer.WriteString(func->_moduleName);
-    	writer.WriteString(L"!");
-        writer.WriteString(func->_funcName);
-    }
+		auto func = iter->second;
+		writer.WriteString(std::to_wstring(func->_id));
+		writer.WriteString(L"\t");
+
+		std::wstring fullName = func->GetFullName();
+
+		//// Get rid of spaces
+		//for (int i = 0; i < fullName.size(); i++)
+		//{
+		//	if (fullName[i] == L' ')
+		//	{
+		//		fullName[i] = L'_';
+		//	}
+		//}
+
+		writer.WriteString(func->GetFullName());
+		writer.WriteString(L"\t");
+		writer.WriteString(func->IsPublic() == true ? L"+" : L"-");
+	}
 }

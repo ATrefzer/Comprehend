@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,12 +22,34 @@ namespace Launcher.Models
             builder.WriteOutput(path);
         }
 
+        bool IsEntry(FunctionCall call)
+        {
+            return call.IsEntry;
+        }
+
+        bool IsIncluded(FunctionCall call)
+        {
+            return !call.IsFiltered /*&& call.IsPublic*/;
+        }
+
         private void Build(DgmlFileBuilder builder, CallGraphModel model)
         {
             _processed.Clear();
-            foreach (var func in model.AllFunctions.Where(f => !f.IsHidden && f.IsEntry))
+
+            // Starting point: User entry functions
+            var selection = new HashSet<FunctionCall>();
+            var starting = model.AllFunctions.Where(f => IsEntry(f) && IsIncluded(f)).ToList();
+            selection.UnionWith(starting);
+
+            // Include (visible) parents
+            foreach (var func in starting)
             {
-                // Start with all visible functions and add them to the graph
+                selection.UnionWith(func.GetAncestorChain().Where(f => IsIncluded(f)));
+            }
+
+            // Include children
+            foreach (var func in selection)
+            {
                 Build(builder, null, func);
             }
         }
@@ -48,7 +71,7 @@ namespace Launcher.Models
             {
                 (lastVisibleAncestor, target) = toProcess.Dequeue();
 
-                // Avoid processsing the same link twice. We have to use the link to decide, not the nodes(!)
+                // Avoid processing the same link twice. We have to use the link to decide, not the nodes(!)
                 if (lastVisibleAncestor != null)
                 {
                     var link = (lastVisibleAncestor.Id, target.Id);
@@ -65,7 +88,7 @@ namespace Launcher.Models
                     builder.AddEdge(lastVisibleAncestor.Name, lastVisibleAncestor.Name);
                 }
 
-                if (lastVisibleAncestor != null && !target.IsHidden)
+                if (lastVisibleAncestor != null && IsIncluded(target))
                 {
                     if (lastVisibleAncestor.Children.Contains(target))
                     {
@@ -79,7 +102,7 @@ namespace Launcher.Models
                     }
                 }
 
-                if (!target.IsHidden)
+                if (IsIncluded(target))
                 {
                     // New visible parent for the children
                     lastVisibleAncestor = target;

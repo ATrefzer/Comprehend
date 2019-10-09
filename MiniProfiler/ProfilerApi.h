@@ -12,11 +12,11 @@ class IProfilerApi
 {
 public:
 
-    virtual void Release() = 0;
-    virtual FunctionInfo* CreateFunctionInfo(FunctionID funcId) = 0;
-    virtual ThreadID GetThreadId() = 0;
-    virtual std::wstring GetModuleName(FunctionID functionId) = 0;
-    virtual std::wstring GetFunctionName(FunctionID functionId) = 0;
+	virtual void Release() = 0;
+	virtual FunctionInfo* CreateFunctionInfo(FunctionID funcId) = 0;
+	virtual ThreadID GetThreadId() = 0;
+	
+	//virtual std::wstring GetModuleName(FunctionID functionId) = 0;*/
 };
 
 class FunctionInfo
@@ -25,28 +25,31 @@ public:
 	FunctionID _id;
 	std::wstring _moduleName;
 	std::wstring _funcName;
-	bool _isHidden;
+	DWORD _attributes;
+	std::wstring _typeName;
 
 public:
 
-	bool IsHidden()
+	bool IsPublic()
 	{
-		return _isHidden;
+		return (_attributes & 6) == 6; // See MethodAttributes in reflection
 	}
 
-	void SetHidden()
+	std::wstring GetFullName()
 	{
-		_isHidden = true;
+		return _moduleName + L"!" + _typeName + L"." + _funcName;
 	}
 
 	std::wstring ToString();
 
-	FunctionInfo(FunctionID id, std::wstring moduleName, std::wstring funcName)
+	FunctionInfo(FunctionID id, const std::wstring& moduleName, const std::wstring& typeName,
+	             const std::wstring& funcName, DWORD attributes)
 	{
 		_id = id;
+		_typeName = typeName;
 		_moduleName = moduleName;
 		_funcName = funcName;
-		_isHidden = false;
+		_attributes = attributes;
 	}
 };
 
@@ -55,15 +58,14 @@ class ProfilerApi : public IProfilerApi
 public:
 	ICorProfilerInfo8* _corProfilerInfo;
 
-	void Release();
+	void Release() override;
 
 	ProfilerApi(ICorProfilerInfo8* profilerInfo);
 
-	FunctionInfo* CreateFunctionInfo(FunctionID funcId);
+	FunctionInfo* CreateFunctionInfo(FunctionID funcId) override;
 
-	ThreadID GetThreadId();
+	ThreadID GetThreadId() override;
 
 	std::wstring GetModuleName(FunctionID functionId);
 
-	std::wstring GetFunctionName(FunctionID functionId);
 };

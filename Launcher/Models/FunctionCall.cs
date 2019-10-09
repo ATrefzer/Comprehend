@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Security.Policy;
 
 using Launcher.Profiler;
 
 namespace Launcher.Models
 {
-    [DebuggerDisplay("Func: {Name} Hidden={IsHidden}")]
+    [DebuggerDisplay("Func: {Name} Hidden={IsFiltered}")]
     public class FunctionCall
     {
         private readonly FunctionInfo _info;
@@ -21,7 +23,7 @@ namespace Launcher.Models
         public bool Recursive { get; internal set; }
         public bool TailCall { get; internal set; }
 
-        public bool IsHidden => _info.IsHidden;
+        public bool IsFiltered => _info.IsFiltered;
 
         /// <summary>
         /// Returns true if the functions is an entry function for the following analysis.
@@ -33,6 +35,7 @@ namespace Launcher.Models
         public string Name => _info.Name;
 
         public bool HasVisibleChildren { get; set; } = false;
+        public bool IsPublic => _info.IsPublic;
 
         public override bool Equals(object obj)
         {
@@ -42,6 +45,31 @@ namespace Launcher.Models
         public override int GetHashCode()
         {
             return _info.Id.GetHashCode();
+        }
+
+        public List<FunctionCall> GetAncestorChain()
+        {
+            var allAncestors = new HashSet<FunctionCall>(Parents);
+
+            // Start with direct parents
+            var toProcess = new Queue<FunctionCall>(Parents);
+            
+            while (toProcess.Any())
+            {
+                var parent = toProcess.Dequeue();
+                if (allAncestors.Add(parent))
+                {
+                    foreach (var ancestor in parent.Parents)
+                    {
+                        if (!allAncestors.Contains(ancestor))
+                        {
+                            toProcess.Enqueue(ancestor);
+                        }
+                    }
+                }
+            }
+
+            return allAncestors.ToList();
         }
     }
 }

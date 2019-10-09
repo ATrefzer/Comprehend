@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Policy;
 
 using Launcher.Common;
 using Launcher.Execution;
@@ -30,8 +32,9 @@ namespace Launcher.Profiler
     {
         public ulong Id;
         public string Name;
-        public bool IsHidden;
+        public bool IsFiltered;
         public bool IsEntry { get; set; }
+        public bool IsPublic { get; set; }
     }
 
 
@@ -59,18 +62,20 @@ namespace Launcher.Profiler
                 }
 
                 // Some method names contain spaces. We string.split does not work reliably.
-                line = line.Trim();
-                var index = line.IndexOf(' ');
-                if (index < 0)
-                {
-                    continue;
-                }
+                // Fixed spaces in profiler dll.
 
-                var funcId = ulong.Parse(line.Substring(0, index));
-                var funcName = line.Substring(index + 1);
-                var hidden = filter.IsHidden(funcName);
+
+                line = line.Trim();
+                var parts = line.Split(new []{'\t'}, StringSplitOptions.RemoveEmptyEntries);
+                Debug.Assert((parts.Length == 3));
+                
+
+                var funcId = ulong.Parse(parts[0].Trim());
+                var funcName = parts[1].Trim();
+                var isPublic = parts[2] == "+" ? true : false;;
+                var filtered = filter.IsFiltered(funcName);
                 var entry = filter.IsEntry(funcName);
-                dictionary.Add(funcId, new FunctionInfo { Id = funcId, Name = funcName , IsHidden = hidden, IsEntry = entry});
+                dictionary.Add(funcId, new FunctionInfo { Id = funcId, Name = funcName , IsFiltered = filtered, IsEntry = entry, IsPublic = isPublic});
 
                 // Note(!)
                 // Same function is recorded multiple times with different ids!

@@ -20,11 +20,31 @@ ProfilerApi::ProfilerApi(ICorProfilerInfo8* profilerInfo) : _corProfilerInfo(nul
 FunctionInfo* ProfilerApi::CreateFunctionInfo(FunctionID funcId)
 {
 	std::wstring moduleName = GetModuleName(funcId);
-	std::wstring funcName = GetFunctionName(funcId);
 	auto parts = CppEssentials::FilePath::Split(moduleName);
 
+	wchar_t funcName[4000];
+	wchar_t typeName[4000];
 
-	return new FunctionInfo(funcId, parts._name, funcName);
+	// Type name, class name and attributes
+	mdToken functionToken = mdTypeDefNil;
+	mdTypeDef classToken = mdTypeDefNil;
+	IMetaDataImport* pMDImport = nullptr;
+	_corProfilerInfo->GetTokenAndMetaDataFromFunction(funcId,
+	                                                  IID_IMetaDataImport, reinterpret_cast<IUnknown * *>(&pMDImport),
+	                                                  &functionToken);
+
+	DWORD attributes = 0;
+	auto numChars = sizeof(funcName) / sizeof(wchar_t);
+	pMDImport->GetMethodProps(functionToken,
+	                          &classToken,
+	                          funcName, numChars,
+	                          nullptr, &attributes, nullptr, nullptr, nullptr, nullptr);
+
+	numChars = sizeof(typeName) / sizeof(wchar_t);
+	pMDImport->GetTypeDefProps(classToken, typeName, numChars, nullptr, nullptr, nullptr);
+
+	
+	return new FunctionInfo(funcId, parts._name, typeName, funcName, attributes);
 }
 
 ThreadID ProfilerApi::GetThreadId()
@@ -48,33 +68,7 @@ std::wstring ProfilerApi::GetModuleName(FunctionID functionId)
 	return std::wstring(name);
 }
 
-std::wstring ProfilerApi::GetFunctionName(FunctionID functionId)
-{
-	wchar_t funcName[4000];
-	wchar_t typeName[4000];
-
-
-	mdToken functionToken = mdTypeDefNil;
-	mdTypeDef classToken = mdTypeDefNil;
-	IMetaDataImport* pMDImport = nullptr;
-	_corProfilerInfo->GetTokenAndMetaDataFromFunction(functionId,
-	                                                  IID_IMetaDataImport, reinterpret_cast<IUnknown * *>(&pMDImport),
-	                                                  &functionToken);
-
-	auto numChars = sizeof(funcName) / sizeof(wchar_t);
-	pMDImport->GetMethodProps(functionToken,
-	                          &classToken,
-	                          funcName, numChars,
-	                          nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-
-	numChars = sizeof(typeName) / sizeof(wchar_t);
-	pMDImport->GetTypeDefProps(classToken, typeName, numChars, nullptr, nullptr, nullptr);
-
-
-	return std::wstring(typeName) + std::wstring(L".") + std::wstring(funcName);
-}
-
 std::wstring FunctionInfo::ToString()
 {
-	return _funcName;
+	return GetFullName();
 }

@@ -92,7 +92,7 @@ namespace Launcher.Profiler
             return false;
         }
 
-        public bool IsHidden(string function)
+        public bool IsFiltered(string function)
         {
             // 1. No filters at all, default is everything is visible
             // 2. Only include filters, default is everything is hidden

@@ -14,7 +14,7 @@ class ProfilerApiMock : public IProfilerApi
 
 	FunctionInfo* CreateFunctionInfo(FunctionID funcId) override
 	{
-		return new FunctionInfo(funcId, L"", L"");
+		return new FunctionInfo(funcId, L"", L"", L"", 0);
 	}
 
 	ThreadID GetThreadId() override
@@ -22,15 +22,12 @@ class ProfilerApiMock : public IProfilerApi
 		return 0;
 	}
 
-	std::wstring GetModuleName(FunctionID functionId) override
+	std::wstring GetModuleName(FunctionID functionId)
 	{
 		return std::wstring(L"ModuleName_") + std::to_wstring(functionId);
 	}
 
-	std::wstring GetFunctionName(FunctionID functionId) override
-	{
-		return std::wstring(L"FunctionName_") + std::to_wstring(functionId);
-	}
+	
 };
 
 // Excluded from release build

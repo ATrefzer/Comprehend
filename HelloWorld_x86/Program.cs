@@ -27,7 +27,7 @@ namespace HelloWorld_x86
             counter--;
             CycleC(counter);
         }
-        private void CycleC(int counter)
+        internal void CycleC(int counter)
         {
             counter--;
             CycleA(counter);
@@ -73,7 +73,7 @@ namespace HelloWorld_x86
             Console.WriteLine("Poly");
         }
 
-        private static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Console.WriteLine(Mult(2, 3));
             var app = new App();

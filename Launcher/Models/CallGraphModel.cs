@@ -50,11 +50,11 @@ namespace Launcher.Models
                         activeFunc.Children.Add(enterFunc);
                         enterFunc.Parents.Add(activeFunc);
 
-                        if (!enterFunc.IsHidden)
+                        if (!enterFunc.IsFiltered)
                         {
-                            // We cant remove the ancestors of enterFunc becuase they contain at least
+                            // We cant remove the ancestors of enterFunc because they contain at least
                             // one visible child.
-                            MarkAsAncestorOfVisibleChild(activeFunc);
+                            MarkAllAncestorOfVisibleChild(activeFunc);
                         }
                     }
 
@@ -96,6 +96,7 @@ namespace Launcher.Models
                 else if (entry.Token == Tokens.TokenDestroyThread)
                 {
                     _tidToStack.Remove(entry.ThreadId);
+                    // TODO close all open methods(!)
                 }
             }
 
@@ -142,30 +143,35 @@ namespace Launcher.Models
             return enterFunc;
         }
 
-        private static void MarkAsAncestorOfVisibleChild(FunctionCall activeFunc)
+        private static void MarkAllAncestorOfVisibleChild(FunctionCall activeFunc)
         {
-            var processedParent = new HashSet<ulong>();
-
-            // Mark all parents that the have at least one visible child
-            var parents = new Queue<FunctionCall>();
-            parents.Enqueue(activeFunc);
-            while (parents.Any())
+            var ancestors = activeFunc.GetAncestorChain();
+            foreach (var ancestor in ancestors)
             {
-                var parent = parents.Dequeue();
-                processedParent.Add(parent.Id);
-                if (parent.HasVisibleChildren == false)
-                {
-                    parent.HasVisibleChildren = true;
-
-                    foreach (var ancestor in parent.Parents)
-                    {
-                        if (!processedParent.Contains(ancestor.Id))
-                        {
-                            parents.Enqueue(ancestor);
-                        }
-                    }
-                }
+                ancestor.HasVisibleChildren = true;
             }
+            //var processedParent = new HashSet<ulong>();
+
+            //// Mark all parents that the have at least one visible child
+            //var parents = new Queue<FunctionCall>();
+            //parents.Enqueue(activeFunc);
+            //while (parents.Any())
+            //{
+            //    var parent = parents.Dequeue();
+            //    processedParent.Add(parent.Id);
+            //    if (parent.HasVisibleChildren == false)
+            //    {
+            //        parent.HasVisibleChildren = true;
+
+            //        foreach (var ancestor in parent.Parents)
+            //        {
+            //            if (!processedParent.Contains(ancestor.Id))
+            //            {
+            //                parents.Enqueue(ancestor);
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private static void CleanupHiddenCalls(Dictionary<ulong, FunctionCall> allFunctions, FunctionCall exitFunc)
@@ -186,7 +192,7 @@ namespace Launcher.Models
 
         private static bool CanRemove(FunctionCall exitFunc)
         {
-            return exitFunc.IsHidden && exitFunc.HasVisibleChildren == false;
+            return exitFunc.IsFiltered && exitFunc.HasVisibleChildren == false;
         }
 
         private static FunctionCall CreateFunctionCall(ProfilerEvent entry)
