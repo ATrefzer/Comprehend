@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml;
 
@@ -78,6 +79,11 @@ namespace GraphLibrary.Dgml
         /// </summary>
         public void WriteOutput(string path)
         {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
             using (var writer = XmlWriter.Create(path))
             {
                 writer.WriteStartDocument();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 
+using Launcher.Execution;
 using Launcher.Properties;
 
 namespace Launcher
@@ -20,8 +21,11 @@ namespace Launcher
             var outputDirectory = Environment.CurrentDirectory;
 
             var wnd = new MainWindow();
+
+            var service = new BackgroundExecutionService(wnd);
+
             _traceViewModel = new TracingViewModel();
-            _analyzeViewModel = new AnalyzerViewModel();
+            _analyzeViewModel = new AnalyzerViewModel(service);
             _traceViewModel.Target = Settings.Default.LastTarget;
             _traceViewModel.OutputDirectory = outputDirectory;
             _analyzeViewModel.WorkingDirectory = outputDirectory;

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Launcher
+namespace Launcher.Profiler
 {
     internal static class ProfilerExports
     {

@@ -2,7 +2,10 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace Launcher
+using Launcher.Common;
+using Launcher.Execution;
+
+namespace Launcher.Profiler
 {
     internal class ProfilerEvent
     {
@@ -31,17 +34,12 @@ namespace Launcher
         public bool IsEntry { get; set; }
     }
 
-    interface IParserProgress
-    {
-        void Progress(int percent, int numEvent);
-    }
-
 
     internal class ProfileParser
     {
-        private readonly IParserProgress _progress;
+        private readonly IProgress _progress;
 
-        public ProfileParser(IParserProgress progress = null)
+        public ProfileParser(IProgress progress = null)
         {
             _progress = progress;
         }
@@ -112,7 +110,8 @@ namespace Launcher
                         var currentProgress = (int) ((stream.Position / (double) length) * 100);
                         if (currentProgress >= lastProgress + 1)
                         {
-                            _progress.Progress(currentProgress, numEvent);
+                            string message = "Reading profile file: Event Nr: " + numEvent;
+                            _progress.Progress(message, currentProgress);
                             lastProgress = currentProgress;
                         }
                     }

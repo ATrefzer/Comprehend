@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 
+using Launcher.Profiler;
+
 namespace Launcher.Models
 {
     [DebuggerDisplay("Func: {Name} Hidden={IsHidden}")]

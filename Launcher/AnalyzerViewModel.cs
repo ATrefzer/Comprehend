@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -8,19 +9,26 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
+using Launcher.Common;
+using Launcher.Execution;
 using Launcher.Models;
+using Launcher.Profiler;
 
 using Prism.Commands;
+
+using Process = Launcher.Profiler.Process;
 
 namespace Launcher
 {
     internal class AnalyzerViewModel : INotifyPropertyChanged
     {
+        private readonly BackgroundExecutionService _backgroundService;
         private Profile _selectedProfile;
 
 
-        public AnalyzerViewModel()
+        public AnalyzerViewModel(BackgroundExecutionService backgroundService)
         {
+            _backgroundService = backgroundService;
             GenerateFilteredGraphCommand = new DelegateCommand(async () => await ExecuteGenerateFilteredGraphAsync());
 
             //GenerateFilteredGraphCommand = new DelegateCommand(ExecuteGenerateFilteredGraph, IsTraceSelected);
@@ -41,6 +49,7 @@ namespace Launcher
                 {
                     _selectedProfile = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsProfileSelected));
 
                     //CommandManager.InvalidateRequerySuggested();
                 }
@@ -60,10 +69,7 @@ namespace Launcher
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private bool IsTraceSelected()
-        {
-            return SelectedProfile != null;
-        }
+        public bool IsProfileSelected => SelectedProfile != null;
 
         private string GetFilterFilePath()
         {
@@ -87,47 +93,44 @@ namespace Launcher
                 }
             }
 
-            Process.Start(filterDef);
+            System.Diagnostics.Process.Start(filterDef);
+        }
+
+        void ProcessProfile(IProgress progress, Profile profile)
+        {
+            //var filter = Filter.Default();
+            var filter = Filter.FromFile(GetFilterFilePath());
+
+            var parser = new ProfileParser(progress);
+
+            // Add filter here only for performance.
+            var eventStream = parser.Parse(profile.IndexFile, profile.EventFile, filter);
+
+            var model = CallGraphModel.FromEventStream(eventStream);
+
+            // Write output file
+            var exporter = new CallGraphExporter();
+            var file = Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
+            exporter.Export(model, file);
         }
 
         private async Task ExecuteGenerateFilteredGraphAsync()
         {
-            var selection = SelectedProfile;
-            if (selection == null)
+            var profile = SelectedProfile;
+            if (profile == null)
             {
                 Debug.Assert(false);
                 return;
             }
 
-            var filter = Filter.FromFile(GetFilterFilePath());
-
-            var progressWindow = new ProgressWindow();
-            progressWindow.Owner = Application.Current.MainWindow;
-            progressWindow._progressBar.Value = 0;
-            progressWindow.Show();
-
-            await Task.Run(() =>
-                     {
-
-                         //var filter = Filter.Default();
-                         var parser = new ProfileParser(progressWindow);
-
-                         // Add filter here only for performance.
-                         var eventStream = parser.Parse(selection.IndexFile, selection.EventFile, filter);
-
-                         var model = CallGraphModel.FromEventStream(eventStream);
-
-                         // Write output file
-                         var exporter = new CallGraphExporter();
-                         var file = Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
-                         exporter.Export(model, file);
-
-                     });
-
-            // Dispose
-            progressWindow._progressBar.Value = 100;
-            progressWindow.Hide();
-
+            try
+            {
+                await _backgroundService.RunWithProgress((progress) => ProcessProfile(progress, profile));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Reading profile file failed!");
+            }
         }
 
         private void RefreshAvailableProfiles()

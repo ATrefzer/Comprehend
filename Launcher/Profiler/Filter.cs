@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Launcher
+namespace Launcher.Profiler
 {
     internal class Filter
     {
@@ -100,7 +100,6 @@ namespace Launcher
             // 4. Both filters, default is everything is hidden, then include is applied, 
             //    the exclude to exclude again.
 
-
             if (!_includeRules.Any() && !_excludeRules.Any())
             {
                 // No filtes at all, default is everything is visible
@@ -117,14 +116,12 @@ namespace Launcher
 
             foreach (var rule in _includeRules)
             {
-                
                 if (rule.IsMatch(function))
                 {
                     hidden = false;
                     break;
                 }
             }
-
 
             // We don't have any include rules. Default is visible.
             foreach (var rule in _excludeRules)
@@ -136,8 +133,6 @@ namespace Launcher
                 }
             }
 
-
-           
             return hidden;
         }
     }

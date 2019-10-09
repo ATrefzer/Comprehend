@@ -46,7 +46,7 @@
                 <StackPanel DockPanel.Dock="Bottom"
                             HorizontalAlignment="Right"
                             Margin="5">
-                    <Button Content="Launch x86"
+                    <Button Content="Launch"
                             Command="{Binding RunTargetCommand}"/>
                 </StackPanel>
 
@@ -105,6 +105,7 @@
                             Margin="5 5 5 0"/>
                     <Button Content="Generate Graph"
                             Command="{Binding GenerateFilteredGraphCommand}"
+                            IsEnabled="{Binding IsProfileSelected}"
                             Margin="5 5 5 0"/>
                 </StackPanel>
 

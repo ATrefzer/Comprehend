@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Windows;
 
-namespace Launcher
+namespace Launcher.Execution
 {
     /// <summary>
     /// Interaction logic for ProgressWindow.xaml
     /// </summary>
-    public partial class ProgressWindow : Window, IParserProgress
+    public partial class ProgressWindow : Window, IProgress
     {
         public ProgressWindow()
         {
             InitializeComponent();
         }
 
-        public void Progress(int percent, int numEvent)
+        public void Progress(string message, int percent)
         {
             Dispatcher?.BeginInvoke(new Action(() =>
                                                {
-                                                   //System.Diagnostics.Trace.WriteLine("Percent = " + currentProgress + ", Event Nr: " + numEvent);
+                                                  // TODO write text
                                                    _progressBar.Value = percent;
                                                }));
         }

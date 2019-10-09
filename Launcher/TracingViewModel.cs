@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+
+using Launcher.Profiler;
 
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -93,24 +94,9 @@ namespace Launcher
 
         private async Task StartAsync()
         {
-            Environment.SetEnvironmentVariable("MINI_PROFILER_OUT_DIR", OutputDirectory);
-
-            Environment.SetEnvironmentVariable("COR_PROFILER", "{7E981B79-6303-483F-A372-8169B1073A0F}");
-            Environment.SetEnvironmentVariable("COR_ENABLE_PROFILING", "1");
-
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var profilerDll = Path.Combine(directory, "MiniProfiler_x86.dll");
 
-            // The COM object is not registered. Instead it is sufficient to pass the file path to the profiler dll.
-            Environment.SetEnvironmentVariable("COR_PROFILER_PATH", profilerDll);
-
-            // StartAsync child process and inherit environment variables
-
-            await Task.Run(() =>
-                           {
-                               var process = Process.Start(Target);
-                               process?.WaitForExit();
-                           });
+            await Process.StartAsync(Target, directory, OutputDirectory);
 
             // Update trace list
             TraceSourceChanged?.Invoke(this, new TracesArg { Path = OutputDirectory });
