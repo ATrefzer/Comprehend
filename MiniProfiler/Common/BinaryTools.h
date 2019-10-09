@@ -11,42 +11,41 @@
 
 namespace CppEssentials
 {
-    class BinaryTools
-    {
-    public:
+	class BinaryTools
+	{
+	public:
 
-        /// Flips bytes in buffer. (inplace)
-        ///
-        static void SwapBuffer(byte * buffer, UInt32 length);
+		/// Flips bytes in buffer. (inplace)
+		///
+		static void SwapBuffer(byte* buffer, UInt32 length);
 
-        /// Sets bit at given bit index starting with zero
-        template <class T>
-        static void SetBitAt(T & value, byte bitIndex, bool bitValue)
-        {
-            _ASSERTE(bitIndex < std::numeric_limits<T>::digits);
+		/// Sets bit at given bit index starting with zero
+		template <class T>
+		static void SetBitAt(T& value, byte bitIndex, bool bitValue)
+		{
+			_ASSERTE(bitIndex < std::numeric_limits<T>::digits);
 
-            if (bitValue == true)
-            {
-                value |= (1 << bitIndex);
-            }
-            else
-            {
-                value &= ~(1 << bitIndex);
-            }
-        }
+			if (bitValue == true)
+			{
+				value |= (1 << bitIndex);
+			}
+			else
+			{
+				value &= ~(1 << bitIndex);
+			}
+		}
 
-        /// Reads bit from specified position
-        template <class T>
-        static bool GetBitAt(T value, byte bitIndex)
-        {
-            _ASSERTE(bitIndex < std::numeric_limits<T>::digits);
-            return ((value & (1 << bitIndex)) != 0);
-        }
+		/// Reads bit from specified position
+		template <class T>
+		static bool GetBitAt(T value, byte bitIndex)
+		{
+			_ASSERTE(bitIndex < std::numeric_limits<T>::digits);
+			return ((value & (1 << bitIndex)) != 0);
+		}
 
-    private:
+	private:
 
-        BinaryTools(void);
-        ~BinaryTools(void);
-    };
-
+		BinaryTools(void);
+		~BinaryTools(void);
+	};
 }

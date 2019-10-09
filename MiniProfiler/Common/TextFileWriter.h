@@ -16,7 +16,6 @@ namespace CppEssentials
 	class IInputStream;
 	class IEncoder;
 
-   
 
 	/// Writer class for text files
 	class TextFileWriter

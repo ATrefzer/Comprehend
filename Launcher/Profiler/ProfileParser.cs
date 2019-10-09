@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Policy;
 
-using Launcher.Common;
 using Launcher.Execution;
 
 namespace Launcher.Profiler
@@ -64,18 +62,17 @@ namespace Launcher.Profiler
                 // Some method names contain spaces. We string.split does not work reliably.
                 // Fixed spaces in profiler dll.
 
-
                 line = line.Trim();
-                var parts = line.Split(new []{'\t'}, StringSplitOptions.RemoveEmptyEntries);
-                Debug.Assert((parts.Length == 3));
-                
+                var parts = line.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                Debug.Assert(parts.Length == 3);
 
                 var funcId = ulong.Parse(parts[0].Trim());
                 var funcName = parts[1].Trim();
-                var isPublic = parts[2] == "+" ? true : false;;
+                var isPublic = parts[2] == "+" ? true : false;
+                ;
                 var filtered = filter.IsFiltered(funcName);
                 var entry = filter.IsEntry(funcName);
-                dictionary.Add(funcId, new FunctionInfo { Id = funcId, Name = funcName , IsFiltered = filtered, IsEntry = entry, IsPublic = isPublic});
+                dictionary.Add(funcId, new FunctionInfo { Id = funcId, Name = funcName, IsFiltered = filtered, IsEntry = entry, IsPublic = isPublic });
 
                 // Note(!)
                 // Same function is recorded multiple times with different ids!
@@ -112,17 +109,17 @@ namespace Launcher.Profiler
 
                     if (_progress != null)
                     {
-                        var currentProgress = (int) ((stream.Position / (double) length) * 100);
+                        var currentProgress = (int) (stream.Position / (double) length * 100);
                         if (currentProgress >= lastProgress + 1)
                         {
-                            string message = "Reading profile file: Event Nr: " + numEvent;
+                            var message = "Reading profile file: Event Nr: " + numEvent;
                             _progress.Progress(message, currentProgress);
                             lastProgress = currentProgress;
                         }
                     }
 
                     // Token and thread id
-                    var token = (Tokens)reader.ReadUInt16();
+                    var token = (Tokens) reader.ReadUInt16();
                     var tid = reader.ReadUInt64();
 
                     var entry = new ProfilerEvent();
@@ -141,7 +138,6 @@ namespace Launcher.Profiler
                         Debug.Assert(dictionary.ContainsKey(fid));
                         entry.Func = dictionary[fid];
                     }
-
 
                     yield return entry;
                 }

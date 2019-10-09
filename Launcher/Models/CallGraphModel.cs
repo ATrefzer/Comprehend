@@ -3,7 +3,6 @@ using System.Linq;
 
 using Launcher.Profiler;
 
-
 namespace Launcher.Models
 {
     internal class CallGraphModel
@@ -27,7 +26,7 @@ namespace Launcher.Models
             _tidToStack.Clear();
             _functions.Clear();
 
-            int numEvent = 0;
+            var numEvent = 0;
 
             foreach (var entry in stream)
             {
@@ -77,7 +76,6 @@ namespace Launcher.Models
                     }
                     else
                     {
-
                         // Ignore. We did not start recording at the time.
                     }
                 }
@@ -96,6 +94,7 @@ namespace Launcher.Models
                 else if (entry.Token == Tokens.TokenDestroyThread)
                 {
                     _tidToStack.Remove(entry.ThreadId);
+
                     // TODO close all open methods(!)
                 }
             }
@@ -150,6 +149,7 @@ namespace Launcher.Models
             {
                 ancestor.HasVisibleChildren = true;
             }
+
             //var processedParent = new HashSet<ulong>();
 
             //// Mark all parents that the have at least one visible child

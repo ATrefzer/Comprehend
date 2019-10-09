@@ -4,17 +4,17 @@
 #include "ProfilerApi.h"
 #include <unordered_map>
 
-namespace CppEssentials {
+namespace CppEssentials
+{
 	class BinaryWriter;
 }
 
 class ProfileWriter
 {
-  
 public:
 
-    // Takes ownership
-	ProfileWriter(IProfilerApi* api, CppEssentials::BinaryWriter * writer);
+	// Takes ownership
+	ProfileWriter(IProfilerApi* api, CppEssentials::BinaryWriter* writer);
 	void Release();
 
 	void OnEnter(FunctionID funcId);
@@ -23,10 +23,10 @@ public:
 	void OnThreadCreated(ThreadID tid);
 	void OnThreadDestroyed(ThreadID tid);
 
-    void WriteIndexFile(CppEssentials::TextFileWriter& writer);
+	void WriteIndexFile(CppEssentials::TextFileWriter& writer);
 
-    // Ownership stays within this class.
-    FunctionInfo* AddFunctionInfo(FunctionID funcId);
+	// Ownership stays within this class.
+	FunctionInfo* AddFunctionInfo(FunctionID funcId);
 
 private:
 
@@ -36,7 +36,7 @@ private:
 
 	IProfilerApi* _api;
 	std::unordered_map<UINT_PTR, FunctionInfo*> _funcInfos;
-    CppEssentials::BinaryWriter* _writer;
+	CppEssentials::BinaryWriter* _writer;
 
 	CRITICAL_SECTION _cs;
 };

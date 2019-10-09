@@ -9,14 +9,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-using Launcher.Common;
 using Launcher.Execution;
 using Launcher.Models;
 using Launcher.Profiler;
 
 using Prism.Commands;
 
-using Process = Launcher.Profiler.Process;
+using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
@@ -58,6 +57,8 @@ namespace Launcher
 
         public ObservableCollection<Profile> AvailableProfiles { get; } = new ObservableCollection<Profile>();
 
+        public bool IsProfileSelected => SelectedProfile != null;
+
         public void RefreshAvailableProfiles(object sender, TracesArg args)
         {
             WorkingDirectory = args.Path;
@@ -68,8 +69,6 @@ namespace Launcher
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public bool IsProfileSelected => SelectedProfile != null;
 
         private string GetFilterFilePath()
         {
@@ -93,10 +92,10 @@ namespace Launcher
                 }
             }
 
-            System.Diagnostics.Process.Start(filterDef);
+            Process.Start(filterDef);
         }
 
-        void ProcessProfile(IProgress progress, Profile profile)
+        private void ProcessProfile(IProgress progress, Profile profile)
         {
             //var filter = Filter.Default();
             var filter = Filter.FromFile(GetFilterFilePath());
@@ -125,7 +124,7 @@ namespace Launcher
 
             try
             {
-                await _backgroundService.RunWithProgress((progress) => ProcessProfile(progress, profile));
+                await _backgroundService.RunWithProgress(progress => ProcessProfile(progress, profile));
             }
             catch (Exception ex)
             {

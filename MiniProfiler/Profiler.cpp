@@ -8,8 +8,8 @@
 #include "ProfilerApi.h"
 #include "ProfileWriter.h"
 #include "Common/BinaryWriter.h"
-#include "Common\Encodings.h"
-#include "Common\Environment.h"
+#include "Common/Encodings.h"
+#include "Common/Environment.h"
 #include "common/FilePath.h"
 #include "Callbacks.h"
 
@@ -22,7 +22,6 @@
 // https://github.com/OpenCover/opencover/blob/master/main/OpenCover.Profiler/CodeCoverage_ProfilerInfo.cpp
 
 // http://read.pudn.com/downloads64/sourcecode/windows/system/228104/leave_x86.cpp__.htm
-
 
 
 UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOOL* pbHookFunction)
@@ -43,14 +42,14 @@ UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOO
 #ifndef _WIN64
 
 
-void  __stdcall  EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-void  __stdcall  LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-void  __stdcall  TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void __stdcall LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void __stdcall TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
 
-void  __stdcall  EnterNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-void  __stdcall  LeaveNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-void  __stdcall  TailCallNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void __stdcall EnterNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void __stdcall LeaveNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void __stdcall TailCallNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
 
 #endif
@@ -58,8 +57,8 @@ void  __stdcall  TailCallNakedFuncOld(FunctionIDOrClientID functionIDOrClientID,
 
 Profiler::Profiler() : _referenceCounter(0)
 {
-    _writer = nullptr;
-    _api = nullptr;
+	_writer = nullptr;
+	_api = nullptr;
 }
 
 Profiler::~Profiler()
@@ -77,11 +76,11 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 {
 	// Disable profiling for sub processes
 	CppEssentials::Environment::SetVariableToEnvironment(L"COR_ENABLE_PROFILING", L"0");
-	
-   /* FunctionIDOrClientID id;
-    id.functionID = 3;
-    COR_PRF_ELT_INFO info = 6;
-    EnterNakedFunc(id, info);*/
+
+	/* FunctionIDOrClientID id;
+	 id.functionID = 3;
+	 COR_PRF_ELT_INFO info = 6;
+	 EnterNakedFunc(id, info);*/
 
 	/// Passed in from CLR when Initialize is called
 	ICorProfilerInfo8* corProfilerInfo;
@@ -96,7 +95,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 
 	_module = CppEssentials::Environment::GetModuleName();
 	_outputDirectory = CppEssentials::Environment::GetVariableFromEnvironment(L"MINI_PROFILER_OUT_DIR");
-	
+
 
 	DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | /*COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL |*/
 		COR_PRF_ENABLE_FRAME_INFO | COR_PRF_MONITOR_THREADS;
@@ -107,7 +106,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 	auto stream = new CppEssentials::OutputFileStream(4 * 1024 * 1024);
 	//auto stream = new CppEssentials::OutputFileStream(13);
 	auto path = CppEssentials::FilePath::Combine(_outputDirectory, _module + L".profile");
-	
+
 	stream->Open(path, CppEssentials::CreateNew);
 	_writer = new CppEssentials::BinaryWriter(stream, true);
 
@@ -123,9 +122,9 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 		printf("ERROR: Profiler SetEventMask failed (HRESULT: %d)", hr);
 	}
 
- 	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFuncOld, LeaveNakedFuncOld, TailCallNakedFuncOld);
+	//hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFuncOld, LeaveNakedFuncOld, TailCallNakedFuncOld);
 	hr = corProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(EnterNakedFunc, LeaveNakedFunc, TailCallNakedFunc);
-	
+
 
 	if (hr != S_OK)
 	{
@@ -148,10 +147,10 @@ void Profiler::WriteIndexFile()
 
 HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 {
-    ::OutputDebugString(L"\nProfiler::Shutdown");
+	::OutputDebugString(L"\nProfiler::Shutdown");
 
-	
-    WriteIndexFile();
+
+	WriteIndexFile();
 
 	if (_callTrace != nullptr)
 	{
@@ -643,43 +642,40 @@ HRESULT STDMETHODCALLTYPE Profiler::DynamicMethodJITCompilationFinished(Function
 }
 
 
-
-
 HRESULT Profiler::QueryInterface(const IID& riid, void** ppvObject)
 {
-    if (riid == __uuidof(ICorProfilerCallback8) ||
-        riid == __uuidof(ICorProfilerCallback7) ||
-        riid == __uuidof(ICorProfilerCallback6) ||
-        riid == __uuidof(ICorProfilerCallback5) ||
-        riid == __uuidof(ICorProfilerCallback4) ||
-        riid == __uuidof(ICorProfilerCallback3) ||
-        riid == __uuidof(ICorProfilerCallback2) ||
-        riid == __uuidof(ICorProfilerCallback) ||
-        riid == IID_IUnknown)
-    {
-        *ppvObject = this;
-        this->AddRef();
-        return S_OK;
-    }
+	if (riid == __uuidof(ICorProfilerCallback8) ||
+		riid == __uuidof(ICorProfilerCallback7) ||
+		riid == __uuidof(ICorProfilerCallback6) ||
+		riid == __uuidof(ICorProfilerCallback5) ||
+		riid == __uuidof(ICorProfilerCallback4) ||
+		riid == __uuidof(ICorProfilerCallback3) ||
+		riid == __uuidof(ICorProfilerCallback2) ||
+		riid == __uuidof(ICorProfilerCallback) ||
+		riid == IID_IUnknown)
+	{
+		*ppvObject = this;
+		this->AddRef();
+		return S_OK;
+	}
 
-    *ppvObject = nullptr;
-    return E_NOINTERFACE;
+	*ppvObject = nullptr;
+	return E_NOINTERFACE;
 }
 
 ULONG Profiler::AddRef()
 {
-
-    return ::InterlockedIncrement(&_referenceCounter);
+	return ::InterlockedIncrement(&_referenceCounter);
 }
 
 ULONG Profiler::Release()
 {
-    auto newValue = ::InterlockedDecrement(&_referenceCounter);
+	auto newValue = ::InterlockedDecrement(&_referenceCounter);
 
-    if (newValue == 0)
-    {
-        delete this;
-    }
+	if (newValue == 0)
+	{
+		delete this;
+	}
 
-    return newValue;
+	return newValue;
 }

@@ -21,8 +21,9 @@ namespace GraphLibrary.Dgml
         /// </summary>
         private readonly Dictionary<string, string> _nodeNamesToId;
 
-        private int _idCounter;
         private readonly Dictionary<string, Dictionary<string, string>> _categories;
+
+        private int _idCounter;
 
         public DgmlFileBuilder()
         {
@@ -110,6 +111,7 @@ namespace GraphLibrary.Dgml
                 {
                     writer.WriteAttributeString("Category", edge.Category);
                 }
+
                 writer.WriteEndElement();
             }
 

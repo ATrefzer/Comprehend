@@ -8,32 +8,31 @@
 
 namespace CppEssentials
 {
-    BinaryTools::BinaryTools(void)
-    {
-    }
+	BinaryTools::BinaryTools(void)
+	{
+	}
 
-    BinaryTools::~BinaryTools(void)
-    {
-    }
+	BinaryTools::~BinaryTools(void)
+	{
+	}
 
-    void BinaryTools::SwapBuffer(byte * buffer, UInt32 length)
-    {
-        if (length == 0 || length == 1)
-        {
-            return;
-        }
+	void BinaryTools::SwapBuffer(byte* buffer, UInt32 length)
+	{
+		if (length == 0 || length == 1)
+		{
+			return;
+		}
 
-        byte temp = 0;
-        byte * end = buffer + length - 1;
+		byte temp = 0;
+		byte* end = buffer + length - 1;
 
-        while (buffer < end)
-        {
-            temp = *buffer;
-            *buffer = *end;
-            *end = temp;
-            buffer++;
-            end--;
-        }
-    }
-
+		while (buffer < end)
+		{
+			temp = *buffer;
+			*buffer = *end;
+			*end = temp;
+			buffer++;
+			end--;
+		}
+	}
 }

@@ -1,6 +1,6 @@
 ﻿namespace Launcher.Execution
 {
-    interface IProgress
+    internal interface IProgress
     {
         void Progress(string message, int percent);
     }

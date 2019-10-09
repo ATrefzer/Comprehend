@@ -110,7 +110,7 @@ namespace CppEssentials
 		}
 
 		memcpy_s(_cache + _cachedBytes, CACHE_SIZE, data, length);
-		_cachedBytes += length;		
+		_cachedBytes += length;
 	}
 
 	void OutputFileStream::Flush()

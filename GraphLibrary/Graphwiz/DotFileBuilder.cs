@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace GraphLibrary.Graphwiz
 {
     /// <summary>
     /// Builder class to create a directed graph file to be processed with Graphwiz.
     /// </summary>
-    class DotFileBuilder
+    internal class DotFileBuilder
     {
+        private readonly List<Edge> _edges;
+
         public DotFileBuilder()
         {
             _edges = new List<Edge>();
         }
+
         public void AddEdge(string sourceNode, string targetNode)
         {
             _edges.Add(new Edge(sourceNode, targetNode));
@@ -22,7 +23,7 @@ namespace GraphLibrary.Graphwiz
 
         public void WriteOutput(string path)
         {
-            using (StreamWriter writer = new StreamWriter(path, false, Encoding.ASCII))
+            using (var writer = new StreamWriter(path, false, Encoding.ASCII))
             {
                 writer.WriteLine("digraph G");
 
@@ -30,16 +31,14 @@ namespace GraphLibrary.Graphwiz
 
                 writer.WriteLine("{");
 
-                foreach (Edge edge in _edges)
+                foreach (var edge in _edges)
                 {
-                    string output = string.Format("{0} -> {1}", edge.Source, edge.Target);
+                    var output = string.Format("{0} -> {1}", edge.Source, edge.Target);
                     writer.WriteLine(output);
                 }
 
                 writer.WriteLine("}");
             }
         }
-
-        private List<Edge> _edges;
     }
 }

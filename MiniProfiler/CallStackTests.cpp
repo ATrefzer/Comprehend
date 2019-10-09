@@ -26,8 +26,6 @@ class ProfilerApiMock : public IProfilerApi
 	{
 		return std::wstring(L"ModuleName_") + std::to_wstring(functionId);
 	}
-
-	
 };
 
 // Excluded from release build

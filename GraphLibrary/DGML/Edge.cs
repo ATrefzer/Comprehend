@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace GraphLibrary.Dgml
+﻿namespace GraphLibrary.Dgml
 {
     /// <summary>
-    /// Represents an edge to be rendered.   
+    /// Represents an edge to be rendered.
     /// </summary>
     internal class Edge
     {
@@ -27,6 +22,5 @@ namespace GraphLibrary.Dgml
         public string Target { get; set; }
 
         public string Category { get; set; }
-        
     }
 }

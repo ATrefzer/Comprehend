@@ -35,7 +35,7 @@ namespace Launcher
             wnd._trace.DataContext = _traceViewModel;
             wnd._analyze.DataContext = _analyzeViewModel;
 
-            Application.Current.MainWindow = wnd;
+            Current.MainWindow = wnd;
             wnd.Show();
         }
 

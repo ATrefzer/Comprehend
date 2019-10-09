@@ -4,7 +4,7 @@ using System.Windows;
 
 namespace Launcher.Execution
 {
-    sealed class BackgroundExecutionService
+    internal sealed class BackgroundExecutionService
     {
         private readonly Window _wnd;
 

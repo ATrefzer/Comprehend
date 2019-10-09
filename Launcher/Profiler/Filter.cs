@@ -107,7 +107,7 @@ namespace Launcher.Profiler
             }
 
             // Only include filters or include and exclude filters: Default is hidden.
-            bool hidden = true;
+            var hidden = true;
             if (!_includeRules.Any() && _excludeRules.Any())
             {
                 // Only exclude filters: default is visible

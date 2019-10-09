@@ -43,7 +43,7 @@ FunctionInfo* ProfilerApi::CreateFunctionInfo(FunctionID funcId)
 	numChars = sizeof(typeName) / sizeof(wchar_t);
 	pMDImport->GetTypeDefProps(classToken, typeName, numChars, nullptr, nullptr, nullptr);
 
-	
+
 	return new FunctionInfo(funcId, parts._name, typeName, funcName, attributes);
 }
 

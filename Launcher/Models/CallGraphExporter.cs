@@ -1,15 +1,12 @@
-﻿using GraphLibrary.Dgml;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
+
+using GraphLibrary.Dgml;
 
 namespace Launcher.Models
 {
     // TODO inject export format.
-    class CallGraphExporter
+    internal class CallGraphExporter
     {
         private readonly HashSet<(ulong, ulong)> _processed = new HashSet<(ulong, ulong)>();
 
@@ -22,12 +19,12 @@ namespace Launcher.Models
             builder.WriteOutput(path);
         }
 
-        bool IsEntry(FunctionCall call)
+        private bool IsEntry(FunctionCall call)
         {
             return call.IsEntry;
         }
 
-        bool IsIncluded(FunctionCall call)
+        private bool IsIncluded(FunctionCall call)
         {
             return !call.IsFiltered /*&& call.IsPublic*/;
         }
@@ -57,7 +54,7 @@ namespace Launcher.Models
         /// <summary>
         /// Algorithm.
         /// Start with all visible functions. (Recursively) iterate all children. Regardless
-        /// if hidden or not. But we remember the last visible ancestor when we walk down the 
+        /// if hidden or not. But we remember the last visible ancestor when we walk down the
         /// call tree. We only draw edges from the last visible ancestor to visible functions.
         /// </summary>
         private void Build(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
@@ -79,6 +76,7 @@ namespace Launcher.Models
                     {
                         continue;
                     }
+
                     _processed.Add(link);
                 }
 

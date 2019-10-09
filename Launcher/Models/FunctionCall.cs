@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Policy;
 
 using Launcher.Profiler;
 
@@ -53,7 +52,7 @@ namespace Launcher.Models
 
             // Start with direct parents
             var toProcess = new Queue<FunctionCall>(Parents);
-            
+
             while (toProcess.Any())
             {
                 var parent = toProcess.Dequeue();

@@ -17,7 +17,7 @@ namespace Launcher.Execution
         {
             Dispatcher?.BeginInvoke(new Action(() =>
                                                {
-                                                  // TODO write text
+                                                   // TODO write text
                                                    _progressBar.Value = percent;
                                                }));
         }

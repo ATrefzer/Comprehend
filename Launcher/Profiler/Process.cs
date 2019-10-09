@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Launcher.Profiler
 {
-    class Process
+    internal class Process
     {
         public static async Task StartAsync(string target, string profilerDirectory, string outputDirectory)
         {
@@ -40,22 +40,15 @@ namespace Launcher.Profiler
 
         private static bool Is64Bit(string path)
         {
-            try
-            {
-                // Launcher is compiled x64 always.
+            // Launcher is compiled x64 always.
 
-                Assembly assembly = Assembly.LoadFile(Path.GetFullPath(path));
-                Module manifestModule = assembly.ManifestModule;
-                PortableExecutableKinds peKind;
-                ImageFileMachine machine;
-                manifestModule.GetPEKind(out peKind, out machine);
+            var assembly = Assembly.LoadFile(Path.GetFullPath(path));
+            var manifestModule = assembly.ManifestModule;
+            PortableExecutableKinds peKind;
+            ImageFileMachine machine;
+            manifestModule.GetPEKind(out peKind, out machine);
 
-                return machine == ImageFileMachine.AMD64;
-            }
-            catch (BadImageFormatException ex)
-            {
-                throw;
-            }
+            return machine == ImageFileMachine.AMD64;
         }
     }
 }

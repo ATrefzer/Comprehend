@@ -1,5 +1,16 @@
 @exclude_function_patterns
-mscorlib..*
+mscorlib\..*
+WindowsBase\..*
+PresentationFramework\..*
+PresentationCore\..*
+System\..*
+RuntimeFrame\..*
+log4net\..*
+Microsoft\..*
+get_
+set_
+
 .*.ctor.*
 .*>b__2_0
 .*>b__3_0
+Cryptic_.*
