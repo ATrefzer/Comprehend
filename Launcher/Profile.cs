@@ -2,11 +2,11 @@
 
 namespace Launcher
 {
-    internal class Trace
+    internal class Profile
     {
         private readonly string _directory;
 
-        public Trace(string directory, string baseFile)
+        public Profile(string directory, string baseFile)
         {
             _directory = directory;
             BaseFile = baseFile;

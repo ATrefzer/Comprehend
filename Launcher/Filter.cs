@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,8 +8,9 @@ namespace Launcher
 {
     internal class Filter
     {
-        private readonly List<string> _excludeRules = new List<string>();
-        private readonly List<string> _includeRules = new List<string>();
+        private readonly List<Regex> _excludeRules = new List<Regex>();
+        private readonly List<Regex> _includeRules = new List<Regex>();
+        private readonly List<Regex> _entryRules = new List<Regex>();
 
         private Filter()
         {
@@ -28,8 +30,9 @@ namespace Launcher
 
             var filter = new Filter();
 
-            var excluding = true;
+            var excluding = false;
             var including = false;
+            var entry = false;
 
             var lines = File.ReadAllLines(file);
             foreach (var line in lines)
@@ -45,10 +48,12 @@ namespace Launcher
                     continue;
                 }
 
+
                 if (trimmed == "@exclude_function_patterns")
                 {
                     excluding = true;
                     including = false;
+                    entry = false;
                     continue;
                 }
 
@@ -56,17 +61,34 @@ namespace Launcher
                 {
                     excluding = false;
                     including = true;
+                    entry = false;
+                    continue;
+                }
+
+                if (trimmed == "@entry_functions")
+                {
+                    excluding = false;
+                    including = false;
+                    entry = true;
                     continue;
                 }
 
                 if (excluding)
                 {
-                    filter._excludeRules.Add(trimmed);
+                    var pattern = new Regex(trimmed, RegexOptions.Compiled);
+                    filter._excludeRules.Add(pattern);
                 }
 
                 if (including)
                 {
-                    filter._includeRules.Add(trimmed);
+                    var pattern = new Regex(trimmed, RegexOptions.Compiled);
+                    filter._includeRules.Add(pattern);
+                }
+
+                if (entry)
+                {
+                    var pattern = new Regex(trimmed, RegexOptions.Compiled);
+                    filter._entryRules.Add(pattern);
                 }
             }
 
@@ -74,9 +96,27 @@ namespace Launcher
         }
 
 
+        public bool IsEntry(string function)
+        {
+            if (!_entryRules.Any())
+            {
+                return true;
+            }
+
+            foreach (var rule in _entryRules)
+            {
+                if (rule.IsMatch(function))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool IsHidden(string function)
         {
-            // 1. No filtes at all, default is everything is visible
+            // 1. No filters at all, default is everything is visible
             // 2. Only include filters, default is everything is hidden
             // 3. Only exclude filters, default in everything is visible
             // 4. Both filters, default is everything is hidden, then include is applied, 
@@ -99,7 +139,8 @@ namespace Launcher
 
             foreach (var rule in _includeRules)
             {
-                if (Regex.IsMatch(function, rule))
+                
+                if (rule.IsMatch(function))
                 {
                     hidden = false;
                     break;
@@ -110,12 +151,13 @@ namespace Launcher
             // We don't have any include rules. Default is visible.
             foreach (var rule in _excludeRules)
             {
-                if (Regex.IsMatch(function, rule))
+                if (rule.IsMatch(function))
                 {
                     hidden = true;
                     break;
                 }
             }
+
 
            
             return hidden;

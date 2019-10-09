@@ -25,17 +25,19 @@ namespace Launcher
             _traceViewModel.Target = Settings.Default.LastTarget;
             _traceViewModel.OutputDirectory = outputDirectory;
             _analyzeViewModel.WorkingDirectory = outputDirectory;
-            _traceViewModel.TraceSourceChanged += _analyzeViewModel.RefreshAvailableTraces;
-            _analyzeViewModel.RefreshAvailableTraces(null, new TracesArg { Path = outputDirectory });
+            _traceViewModel.TraceSourceChanged += _analyzeViewModel.RefreshAvailableProfiles;
+            _analyzeViewModel.RefreshAvailableProfiles(null, new TracesArg { Path = outputDirectory });
 
             wnd._trace.DataContext = _traceViewModel;
             wnd._analyze.DataContext = _analyzeViewModel;
+
+            Application.Current.MainWindow = wnd;
             wnd.Show();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            _traceViewModel.TraceSourceChanged -= _analyzeViewModel.RefreshAvailableTraces;
+            _traceViewModel.TraceSourceChanged -= _analyzeViewModel.RefreshAvailableProfiles;
 
             Settings.Default.LastTarget = _traceViewModel.Target;
             Settings.Default.Save();

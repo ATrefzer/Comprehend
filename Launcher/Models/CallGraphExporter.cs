@@ -24,7 +24,7 @@ namespace Launcher.Models
         private void Build(DgmlFileBuilder builder, CallGraphModel model)
         {
             _processed.Clear();
-            foreach (var func in model.AllFunctions.Where(f => !f.IsHidden))
+            foreach (var func in model.AllFunctions.Where(f => !f.IsHidden && f.IsEntry))
             {
                 // Start with all visible functions and add them to the graph
                 Build(builder, null, func);

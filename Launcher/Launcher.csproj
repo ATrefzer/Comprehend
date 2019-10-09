@@ -89,7 +89,10 @@
     <Compile Include="Common\InvertBoolConverter.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="Models\CallGraphExporter.cs" />
-    <Compile Include="Trace.cs" />
+    <Compile Include="Profile.cs" />
+    <Compile Include="ProgressWindow.xaml.cs">
+      <DependentUpon>ProgressWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TracesArg.cs" />
     <Compile Include="TracingViewModel.cs" />
     <Compile Include="Models\FunctionCall.cs" />
@@ -97,6 +100,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ProgressWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\CallGraphModel.cs" />

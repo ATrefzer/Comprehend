@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
-
-using GraphLibrary.Dgml;
 
 using Launcher.Models;
 
@@ -17,15 +14,14 @@ using Prism.Commands;
 
 namespace Launcher
 {
-
     internal class AnalyzerViewModel : INotifyPropertyChanged
     {
-        private Trace _selectedTrace;
+        private Profile _selectedProfile;
 
-     
+
         public AnalyzerViewModel()
         {
-            GenerateFilteredGraphCommand = new DelegateCommand(ExecuteGenerateFilteredGraph);
+            GenerateFilteredGraphCommand = new DelegateCommand(async () => await ExecuteGenerateFilteredGraphAsync());
 
             //GenerateFilteredGraphCommand = new DelegateCommand(ExecuteGenerateFilteredGraph, IsTraceSelected);
             EditFilterCommand = new DelegateCommand(ExecuteEditFilter);
@@ -36,14 +32,14 @@ namespace Launcher
         public ICommand GenerateFilteredGraphCommand { get; }
         public ICommand EditFilterCommand { get; }
 
-        public Trace SelectedTrace
+        public Profile SelectedProfile
         {
-            get => _selectedTrace;
+            get => _selectedProfile;
             set
             {
-                if (_selectedTrace != value)
+                if (_selectedProfile != value)
                 {
-                    _selectedTrace = value;
+                    _selectedProfile = value;
                     OnPropertyChanged();
 
                     //CommandManager.InvalidateRequerySuggested();
@@ -51,12 +47,12 @@ namespace Launcher
             }
         }
 
-        public ObservableCollection<Trace> AvailableTraces { get; } = new ObservableCollection<Trace>();
+        public ObservableCollection<Profile> AvailableProfiles { get; } = new ObservableCollection<Profile>();
 
-        public void RefreshAvailableTraces(object sender, TracesArg args)
+        public void RefreshAvailableProfiles(object sender, TracesArg args)
         {
             WorkingDirectory = args.Path;
-            RefreshAvailableTraces();
+            RefreshAvailableProfiles();
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -66,7 +62,7 @@ namespace Launcher
 
         private bool IsTraceSelected()
         {
-            return SelectedTrace != null;
+            return SelectedProfile != null;
         }
 
         private string GetFilterFilePath()
@@ -93,9 +89,10 @@ namespace Launcher
 
             Process.Start(filterDef);
         }
-        private void ExecuteGenerateFilteredGraph()
+
+        private async Task ExecuteGenerateFilteredGraphAsync()
         {
-            var selection = SelectedTrace;
+            var selection = SelectedProfile;
             if (selection == null)
             {
                 Debug.Assert(false);
@@ -104,20 +101,38 @@ namespace Launcher
 
             var filter = Filter.FromFile(GetFilterFilePath());
 
-            //var filter = Filter.Default();
-            var parser = new ProfileParser();
-            var eventStream = parser.Parse(selection.IndexFile, selection.EventFile);
-            var model = CallGraphModel.FromEventStream(eventStream, filter);
+            var progressWindow = new ProgressWindow();
+            progressWindow.Owner = Application.Current.MainWindow;
+            progressWindow._progressBar.Value = 0;
+            progressWindow.Show();
 
-            var visibleFuncs = model.AllFunctions.Where(f => f.IsHidden == false).ToList();
+            await Task.Run(() =>
+                     {
 
-            var exporter = new CallGraphExporter();
-            exporter.Export(model, Path.Combine(WorkingDirectory, SelectedTrace + ".graph.dgml"));
+                         //var filter = Filter.Default();
+                         var parser = new ProfileParser(progressWindow);
+
+                         // Add filter here only for performance.
+                         var eventStream = parser.Parse(selection.IndexFile, selection.EventFile, filter);
+
+                         var model = CallGraphModel.FromEventStream(eventStream);
+
+                         // Write output file
+                         var exporter = new CallGraphExporter();
+                         var file = Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
+                         exporter.Export(model, file);
+
+                     });
+
+            // Dispose
+            progressWindow._progressBar.Value = 100;
+            progressWindow.Hide();
+
         }
 
-        private void RefreshAvailableTraces()
+        private void RefreshAvailableProfiles()
         {
-            AvailableTraces.Clear();
+            AvailableProfiles.Clear();
 
             if (!Directory.Exists(WorkingDirectory))
             {
@@ -129,8 +144,8 @@ namespace Launcher
             {
                 var fi = new FileInfo(file);
                 var baseName = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
-                var trace = new Trace(WorkingDirectory, baseName);
-                AvailableTraces.Add(trace);
+                var trace = new Profile(WorkingDirectory, baseName);
+                AvailableProfiles.Add(trace);
             }
         }
     }

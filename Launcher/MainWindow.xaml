@@ -40,7 +40,7 @@
 
     <TabControl IsEnabled="{Binding IsRunning, Converter={StaticResource InvertBool}}"
                 x:Name="_trace">
-        <TabItem Header="Capture Trace">
+        <TabItem Header="Capture Profile">
             <DockPanel>
 
                 <StackPanel DockPanel.Dock="Bottom"
@@ -109,8 +109,8 @@
                 </StackPanel>
 
                 <ListView DockPanel.Dock="Left"
-                          ItemsSource="{Binding AvailableTraces}"
-                          SelectedItem="{Binding SelectedTrace}"/>
+                          ItemsSource="{Binding AvailableProfiles}"
+                          SelectedItem="{Binding SelectedProfile}"/>
 
             </DockPanel>
 

@@ -62,6 +62,17 @@ namespace HelloWorld_x86
             return result;
         }
 
+        private static void Poly(int i)
+        {
+            Console.WriteLine("Poly: int");
+            Poly();
+        }
+
+        private static void Poly()
+        {
+            Console.WriteLine("Poly");
+        }
+
         private static void Main(string[] args)
         {
             Console.WriteLine(Mult(2, 3));
@@ -72,6 +83,9 @@ namespace HelloWorld_x86
             app.RunCycle();
             app.RunRecursion();
             //Console.ReadKey();
+
+            Poly(2);
+            Poly();
         }
         private static void AppOnInitialized(object sender, EventArgs e)
         {

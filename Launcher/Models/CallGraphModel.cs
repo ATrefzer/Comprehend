@@ -1,64 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
+
 
 namespace Launcher.Models
 {
     internal class CallGraphModel
     {
-        private CallGraphModel(List<FunctionCall> model)
+        private static readonly Dictionary<ulong, Stack<FunctionCall>> _tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
+
+        // All functions resolved
+        private static readonly Dictionary<ulong, FunctionCall> _functions = new Dictionary<ulong, FunctionCall>();
+        private static Filter _filter = Filter.Default();
+
+        public CallGraphModel(List<FunctionCall> model)
         {
             AllFunctions = model;
         }
 
         public List<FunctionCall> AllFunctions { get; }
 
-        private static Dictionary<ulong, Stack<FunctionCall>> _tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
-        private static Dictionary<ulong, FunctionCall> _functions = new Dictionary<ulong, FunctionCall>();
-        private static Filter _filter = Filter.Default();
-        static FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
-        {          
-            // Find active function
-            FunctionCall activeFunc = null;
-            if (stack.Count > 0)
-            {
-                activeFunc = stack.Peek();
-            }
 
-            return activeFunc;
-
-        }
-
-        private static Stack<FunctionCall> GetStackByThreadId(ulong threadId)
+        public static CallGraphModel FromEventStream(IEnumerable<ProfilerEvent> stream)
         {
-            // Find the correct thread such that we find the correct parent function.
-            if (!_tidToStack.TryGetValue(threadId, out var stack))
-            {
-                stack = new Stack<FunctionCall>();
-                _tidToStack.Add(threadId, stack);
-            }
-
-            return stack;
-        }
-
-        private static FunctionCall GetEnteredFunction(ProfilerEvent entry)
-        {
-            FunctionCall enterFunc = null;
-            if (!_functions.TryGetValue(entry.FunctioId, out enterFunc))
-            {
-                enterFunc = CreateFunctionCall(entry, _filter);
-                _functions.Add(enterFunc.Id, enterFunc);
-            }
-            return enterFunc;
-        }
-
-
-        public static CallGraphModel FromEventStream(IEnumerable<ProfilerEvent> stream, Filter filter)
-        {
-            _filter = filter;
             _tidToStack.Clear();
             _functions.Clear();
+
+            int numEvent = 0;
 
             foreach (var entry in stream)
             {
@@ -73,7 +40,7 @@ namespace Launcher.Models
 
                     if (activeFunc != null)
                     {
-                        if (ReferenceEquals(activeFunc, enterFunc)) 
+                        if (ReferenceEquals(activeFunc, enterFunc))
                         {
                             activeFunc.Recursive = true;
                         }
@@ -98,7 +65,7 @@ namespace Launcher.Models
                     var stack = GetStackByThreadId(entry.ThreadId);
                     var activeFunc = GetActiveFunction(stack);
 
-                    if (activeFunc != null && activeFunc.Name == entry.FunctionName)
+                    if (activeFunc != null && activeFunc.Name == entry.Func.Name)
                     {
                         stack.Pop();
 
@@ -108,15 +75,16 @@ namespace Launcher.Models
                     }
                     else
                     {
+
                         // Ignore. We did not start recording at the time.
                     }
                 }
                 else if (entry.Token == Tokens.TokenTailCall)
                 {
                     FunctionCall newFunc = null;
-                    if (!_functions.TryGetValue(entry.FunctioId, out newFunc))
+                    if (!_functions.TryGetValue(entry.Func.Id, out newFunc))
                     {
-                        newFunc = CreateFunctionCall(entry, filter);
+                        newFunc = CreateFunctionCall(entry);
                         newFunc.TailCall = true;
                         _functions.Add(newFunc.Id, newFunc);
                     }
@@ -136,9 +104,46 @@ namespace Launcher.Models
             return model;
         }
 
+        private static FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
+        {
+            // Find active function
+            FunctionCall activeFunc = null;
+            if (stack.Count > 0)
+            {
+                activeFunc = stack.Peek();
+            }
+
+            return activeFunc;
+        }
+
+        private static Stack<FunctionCall> GetStackByThreadId(ulong threadId)
+        {
+            // Find the correct thread such that we find the correct parent function.
+            if (!_tidToStack.TryGetValue(threadId, out var stack))
+            {
+                stack = new Stack<FunctionCall>();
+                _tidToStack.Add(threadId, stack);
+            }
+
+            return stack;
+        }
+
+        private static FunctionCall GetEnteredFunction(ProfilerEvent entry)
+        {
+            FunctionCall enterFunc = null;
+            if (!_functions.TryGetValue(entry.Func.Id, out enterFunc))
+            {
+                enterFunc = CreateFunctionCall(entry);
+                _functions.Add(enterFunc.Id, enterFunc);
+            }
+
+            return enterFunc;
+        }
+
         private static void MarkAsAncestorOfVisibleChild(FunctionCall activeFunc)
         {
-            HashSet<ulong> processedParent = new HashSet<ulong>();
+            var processedParent = new HashSet<ulong>();
+
             // Mark all parents that the have at least one visible child
             var parents = new Queue<FunctionCall>();
             parents.Enqueue(activeFunc);
@@ -182,13 +187,10 @@ namespace Launcher.Models
             return exitFunc.IsHidden && exitFunc.HasVisibleChildren == false;
         }
 
-        private static FunctionCall CreateFunctionCall(ProfilerEvent entry, Filter filter)
+        private static FunctionCall CreateFunctionCall(ProfilerEvent entry)
         {
             FunctionCall newFunc;
-            newFunc = new FunctionCall();
-            newFunc.Id = entry.FunctioId;
-            newFunc.Name = entry.FunctionName;
-            newFunc.IsHidden = filter.IsHidden(entry.FunctionName);
+            newFunc = new FunctionCall(entry.Func);
             return newFunc;
         }
     }
