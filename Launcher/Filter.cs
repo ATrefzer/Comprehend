@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -30,9 +29,7 @@ namespace Launcher
 
             var filter = new Filter();
 
-            var excluding = false;
-            var including = false;
-            var entry = false;
+            List<Regex> rules = null;
 
             var lines = File.ReadAllLines(file);
             foreach (var line in lines)
@@ -48,47 +45,28 @@ namespace Launcher
                     continue;
                 }
 
-
                 if (trimmed == "@exclude_function_patterns")
                 {
-                    excluding = true;
-                    including = false;
-                    entry = false;
+                    rules = filter._excludeRules;
                     continue;
                 }
 
                 if (trimmed == "@include_function_patterns")
                 {
-                    excluding = false;
-                    including = true;
-                    entry = false;
+                    rules = filter._includeRules;
                     continue;
                 }
 
                 if (trimmed == "@entry_functions")
                 {
-                    excluding = false;
-                    including = false;
-                    entry = true;
+                    rules = filter._entryRules;
                     continue;
                 }
 
-                if (excluding)
+                if (rules != null)
                 {
                     var pattern = new Regex(trimmed, RegexOptions.Compiled);
-                    filter._excludeRules.Add(pattern);
-                }
-
-                if (including)
-                {
-                    var pattern = new Regex(trimmed, RegexOptions.Compiled);
-                    filter._includeRules.Add(pattern);
-                }
-
-                if (entry)
-                {
-                    var pattern = new Regex(trimmed, RegexOptions.Compiled);
-                    filter._entryRules.Add(pattern);
+                    rules.Add(pattern);
                 }
             }
 
