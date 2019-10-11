@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using GraphLibrary;
 using GraphLibrary.Dgml;
 
 namespace Launcher.Models
 {
-    // TODO inject export format.
     internal class CallGraphExporter
     {
         private readonly HashSet<(ulong, ulong)> _processed = new HashSet<(ulong, ulong)>();
 
-        internal void Export(CallGraphModel model, string path)
+        internal void Export(CallGraphModel model, IGraphBuilder builder)
         {
-            var builder = new DgmlFileBuilder();
+            _processed.Clear();
             builder.AddCategory("indirect", "StrokeDashArray", "1 1");
             Build(builder, model);
 
-            builder.WriteOutput(path);
         }
 
         private bool IsEntry(FunctionCall call)
@@ -29,7 +28,7 @@ namespace Launcher.Models
             return !call.IsFiltered /*&& call.IsPublic*/;
         }
 
-        private void Build(DgmlFileBuilder builder, CallGraphModel model)
+        private void Build(IGraphBuilder builder, CallGraphModel model)
         {
             _processed.Clear();
 
@@ -57,7 +56,7 @@ namespace Launcher.Models
         /// if hidden or not. But we remember the last visible ancestor when we walk down the
         /// call tree. We only draw edges from the last visible ancestor to visible functions.
         /// </summary>
-        private void Build(DgmlFileBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
+        private void Build(IGraphBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
         {
             // Assumption: We start with the first visible parent. Anything hidden above is ignored.
 
@@ -81,10 +80,10 @@ namespace Launcher.Models
                 }
 
                 // Display recursion
-                if (lastVisibleAncestor != null && lastVisibleAncestor.Recursive)
-                {
-                    builder.AddEdge(lastVisibleAncestor.Name, lastVisibleAncestor.Name);
-                }
+                //if (lastVisibleAncestor != null && lastVisibleAncestor.Recursive)
+                //{
+                //    builder.AddEdge(lastVisibleAncestor.Name, lastVisibleAncestor.Name);
+                //}
 
                 if (lastVisibleAncestor != null && IsIncluded(target))
                 {

@@ -8,6 +8,11 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
+
+using GraphLibrary;
+using GraphLibrary.Dgml;
+using GraphLibrary.Msagl;
 
 using Launcher.Execution;
 using Launcher.Models;
@@ -95,7 +100,8 @@ namespace Launcher
             Process.Start(filterDef);
         }
 
-        private void ProcessProfile(IProgress progress, Profile profile)
+
+        private CallGraphModel ProcessProfile(IProgress progress, Profile profile)
         {
             //var filter = Filter.Default();
             var filter = Filter.FromFile(GetFilterFilePath());
@@ -107,10 +113,12 @@ namespace Launcher
 
             var model = CallGraphModel.FromEventStream(eventStream);
 
-            // Write output file
-            var exporter = new CallGraphExporter();
-            var file = Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
-            exporter.Export(model, file);
+            return model;
+        }
+
+        string GetOutputDgmlFile(Profile profile)
+        {
+            return Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
         }
 
         private async Task ExecuteGenerateFilteredGraphAsync()
@@ -122,9 +130,25 @@ namespace Launcher
                 return;
             }
 
+            CallGraphModel model = null;
             try
             {
-                await _backgroundService.RunWithProgress(progress => ProcessProfile(progress, profile));
+                await _backgroundService.RunWithProgress(progress => model = ProcessProfile(progress, profile));
+
+                var exporter = new CallGraphExporter();
+
+                if (model != null)
+                {
+                    // Export to dgml
+                    var dgml = new DgmlFileBuilder();
+                    exporter.Export(model, dgml);
+                    dgml.WriteOutput(GetOutputDgmlFile(profile));
+
+                    // Show graph in window
+                    var msagl = new MsaglGraphWrapper();
+                    exporter.Export(model, msagl);
+                    msagl.ShowResult();
+                }
             }
             catch (Exception ex)
             {

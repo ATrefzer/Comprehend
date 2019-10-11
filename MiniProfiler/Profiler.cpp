@@ -10,7 +10,7 @@
 #include "Common/BinaryWriter.h"
 #include "Common/Encodings.h"
 #include "Common/Environment.h"
-#include "common/FilePath.h"
+#include "Common/FilePath.h"
 #include "Callbacks.h"
 
 // http://www.blong.com/conferences/dcon2003/internals/profiling.htm
@@ -33,14 +33,8 @@ UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOO
 }
 
 
-#ifndef WIN32
-#else
-#define PROFILER_CALLTYPE EXTERN_C void STDMETHODCALLTYPE
-#endif
-
 
 #ifndef _WIN64
-
 
 void __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 void __stdcall LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
@@ -50,6 +44,13 @@ void __stdcall TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_
 void __stdcall EnterNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 void __stdcall LeaveNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 void __stdcall TailCallNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+
+#else
+
+// defined in assembly module hooks_x64.asm
+extern "C"  void EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+extern "C"  void LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+extern "C"  void TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
 
 #endif

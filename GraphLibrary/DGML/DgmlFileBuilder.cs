@@ -9,7 +9,7 @@ namespace GraphLibrary.Dgml
     /// <summary>
     /// Builder class to create a directed graph file to be processed with Visual Studio.
     /// </summary>
-    public class DgmlFileBuilder
+    public class DgmlFileBuilder : IGraphBuilder
     {
         /// <summary>
         /// Edges

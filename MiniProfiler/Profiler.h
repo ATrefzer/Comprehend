@@ -9,6 +9,7 @@
 #include "ProfilerApi.h"
 #include "Common/BinaryWriter.h"
 
+
 class Profiler : public ICorProfilerCallback8
 {
 private:

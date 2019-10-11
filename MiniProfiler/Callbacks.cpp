@@ -4,11 +4,12 @@
 
 ProfileWriter* _callTrace;
 
-// Note: Naked function calls below needs __stdcall!
+// Note: Naked function call needs __stdcall!
 void __stdcall OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
+	// Same function may be assigned the same function ids.
 	_callTrace->OnEnter(functionIDOrClientID.functionID);
-	// TODO function ids may change!
+	
 	/*
 	 *
 	 * ULONG pcbArgumentInfo = 0;

@@ -26,7 +26,7 @@ namespace Launcher.Models
             _tidToStack.Clear();
             _functions.Clear();
 
-            var numEvent = 0;
+            //var numEvent = 0;
 
             foreach (var entry in stream)
             {
