@@ -17,6 +17,7 @@ FunctionInfo* ProfileWriter::AddFunctionInfo(FunctionID funcId)
 {
 	auto info = _api->CreateFunctionInfo(funcId);
 
+	// TOD
 	// No duplicates found.
 
 	EnterCriticalSection(&_cs);
@@ -111,20 +112,9 @@ void ProfileWriter::WriteIndexFile(TextFileWriter& writer)
 		}
 
 		auto func = iter->second;
+
 		writer.WriteString(std::to_wstring(func->_id));
 		writer.WriteString(L"\t");
-
-		std::wstring fullName = func->GetFullName();
-
-		//// Get rid of spaces
-		//for (int i = 0; i < fullName.size(); i++)
-		//{
-		//	if (fullName[i] == L' ')
-		//	{
-		//		fullName[i] = L'_';
-		//	}
-		//}
-
 		writer.WriteString(func->GetFullName());
 		writer.WriteString(L"\t");
 		writer.WriteString(func->IsPublic() == true ? L"+" : L"-");

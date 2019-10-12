@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -8,9 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
-using GraphLibrary;
 using GraphLibrary.Dgml;
 using GraphLibrary.Msagl;
 
@@ -24,16 +23,16 @@ using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
-    internal class AnalyzerViewModel : INotifyPropertyChanged
+    internal class CallGraphViewModel : INotifyPropertyChanged
     {
         private readonly BackgroundExecutionService _backgroundService;
         private Profile _selectedProfile;
 
 
-        public AnalyzerViewModel(BackgroundExecutionService backgroundService)
+        public CallGraphViewModel(BackgroundExecutionService backgroundService)
         {
             _backgroundService = backgroundService;
-            GenerateFilteredGraphCommand = new DelegateCommand(async () => await ExecuteGenerateFilteredGraphAsync());
+            GenerateCallGraphCommand = new DelegateCommand(async () => await ExecuteGenerateCallGraphAsync());
 
             //GenerateFilteredGraphCommand = new DelegateCommand(ExecuteGenerateFilteredGraph, IsTraceSelected);
             EditFilterCommand = new DelegateCommand(ExecuteEditFilter);
@@ -41,7 +40,7 @@ namespace Launcher
 
         public event PropertyChangedEventHandler PropertyChanged;
         public string WorkingDirectory { get; set; }
-        public ICommand GenerateFilteredGraphCommand { get; }
+        public ICommand GenerateCallGraphCommand { get; }
         public ICommand EditFilterCommand { get; }
 
         public Profile SelectedProfile
@@ -64,10 +63,16 @@ namespace Launcher
 
         public bool IsProfileSelected => SelectedProfile != null;
 
-        public void RefreshAvailableProfiles(object sender, TracesArg args)
+        public void RefreshAvailableProfiles(string workingDirectory, List<Profile> availableProfiles)
         {
-            WorkingDirectory = args.Path;
-            RefreshAvailableProfiles();
+            WorkingDirectory = workingDirectory;
+            AvailableProfiles.Clear();
+            foreach (var profile in availableProfiles)
+            {
+                AvailableProfiles.Add(profile);
+            }
+
+            SelectedProfile = null;
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -116,12 +121,12 @@ namespace Launcher
             return model;
         }
 
-        string GetOutputDgmlFile(Profile profile)
+        private string GetOutputDgmlFile(Profile profile)
         {
             return Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
         }
 
-        private async Task ExecuteGenerateFilteredGraphAsync()
+        private async Task ExecuteGenerateCallGraphAsync()
         {
             var profile = SelectedProfile;
             if (profile == null)
@@ -145,7 +150,7 @@ namespace Launcher
                     dgml.WriteOutput(GetOutputDgmlFile(profile));
 
                     // Show graph in window
-                    var msagl = new MsaglGraphWrapper();
+                    var msagl = new MsaglGrapBuilder();
                     exporter.Export(model, msagl);
                     msagl.ShowResult();
                 }
@@ -153,25 +158,6 @@ namespace Launcher
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Reading profile file failed!");
-            }
-        }
-
-        private void RefreshAvailableProfiles()
-        {
-            AvailableProfiles.Clear();
-
-            if (!Directory.Exists(WorkingDirectory))
-            {
-                return;
-            }
-
-            var files = Directory.EnumerateFiles(WorkingDirectory, "*.index");
-            foreach (var file in files)
-            {
-                var fi = new FileInfo(file);
-                var baseName = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
-                var trace = new Profile(WorkingDirectory, baseName);
-                AvailableProfiles.Add(trace);
             }
         }
     }

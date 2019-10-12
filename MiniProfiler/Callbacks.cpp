@@ -9,7 +9,7 @@ void __stdcall OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_IN
 {
 	// Same function may be assigned the same function ids.
 	_callTrace->OnEnter(functionIDOrClientID.functionID);
-	
+
 	/*
 	 *
 	 * ULONG pcbArgumentInfo = 0;

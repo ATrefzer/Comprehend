@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld_x86", "HelloWorl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphLibrary", "GraphLibrary\GraphLibrary.csproj", "{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{A8A5607A-128B-46B9-9815-ECC950C15489}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,18 @@ Global
 		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|x64.Build.0 = Release|Any CPU
 		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|x86.ActiveCfg = Release|Any CPU
 		{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}.Release|x86.Build.0 = Release|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Debug|x64.Build.0 = Debug|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Debug|x86.Build.0 = Debug|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Release|x64.ActiveCfg = Release|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Release|x64.Build.0 = Release|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Release|x86.ActiveCfg = Release|Any CPU
+		{A8A5607A-128B-46B9-9815-ECC950C15489}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

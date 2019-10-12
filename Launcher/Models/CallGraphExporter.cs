@@ -2,7 +2,6 @@
 using System.Linq;
 
 using GraphLibrary;
-using GraphLibrary.Dgml;
 
 namespace Launcher.Models
 {
@@ -15,7 +14,6 @@ namespace Launcher.Models
             _processed.Clear();
             builder.AddCategory("indirect", "StrokeDashArray", "1 1");
             Build(builder, model);
-
         }
 
         private bool IsEntry(FunctionCall call)

@@ -19,6 +19,9 @@
     <Filter Include="Tests">
       <UniqueIdentifier>{0c0cbcba-decb-4df5-85ac-8049decf4fa1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assembly">
+      <UniqueIdentifier>{d41a1e2d-318c-491a-a44a-c63643fa53d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">

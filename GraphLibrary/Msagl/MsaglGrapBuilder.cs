@@ -8,20 +8,23 @@ using Microsoft.Msagl.Layout.Layered;
 
 namespace GraphLibrary.Msagl
 {
-    public class MsaglGraphWrapper : IGraphBuilder
+    public class MsaglGrapBuilder : IGraphBuilder
     {
         private readonly Graph _graph;
 
-        readonly HashSet<(string, string)> _edges = new HashSet<(string, string)>();
+        private readonly HashSet<(string, string)> _edges = new HashSet<(string, string)>();
 
-        public MsaglGraphWrapper()
+        public MsaglGrapBuilder()
         {
             _graph = new Graph();
         }
 
         public void AddEdge(string sourceNode, string targetNode)
         {
-            Debug.Assert(_edges.Add((sourceNode, targetNode)));
+            // TODO Polymorphism may cause the same edge twice. But actually these are different
+            // functions with the same name.
+            //Debug.Assert(_edges.Add((sourceNode, targetNode)));
+
             _graph.AddEdge(sourceNode, string.Empty, targetNode);
         }
 

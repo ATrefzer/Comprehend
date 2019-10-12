@@ -31,7 +31,7 @@ namespace Launcher
             RunTargetCommand = new DelegateCommand(ExecuteRunTarget);
         }
 
-        public event EventHandler<TracesArg> TraceSourceChanged;
+        public event EventHandler<TracesArg> AvailableTracesChanged;
 
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -71,7 +71,7 @@ namespace Launcher
             {
                 _outputDirectory = value;
                 OnPropertyChanged();
-                TraceSourceChanged?.Invoke(this, new TracesArg { Path = OutputDirectory });
+                AvailableTracesChanged?.Invoke(this, new TracesArg { Path = OutputDirectory });
             }
         }
 
@@ -99,7 +99,7 @@ namespace Launcher
             await Process.StartAsync(Target, directory, OutputDirectory);
 
             // Update trace list
-            TraceSourceChanged?.Invoke(this, new TracesArg { Path = OutputDirectory });
+            AvailableTracesChanged?.Invoke(this, new TracesArg { Path = OutputDirectory });
         }
 
         private void ExecuteSelectTarget()

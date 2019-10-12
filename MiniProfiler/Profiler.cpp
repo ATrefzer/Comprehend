@@ -33,7 +33,6 @@ UINT_PTR __stdcall FunctionIDMapperFunc(FunctionID funcId, void* clientData, BOO
 }
 
 
-
 #ifndef _WIN64
 
 void __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
@@ -48,9 +47,9 @@ void __stdcall TailCallNakedFuncOld(FunctionIDOrClientID functionIDOrClientID, C
 #else
 
 // defined in assembly module hooks_x64.asm
-extern "C"  void EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-extern "C"  void LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-extern "C"  void TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+extern "C" void EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+extern "C" void LeaveNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+extern "C" void TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
 
 #endif

@@ -76,7 +76,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Execution\BackgroundExecutionService.cs" />
-    <Compile Include="AnalyzerViewModel.cs" />
+    <Compile Include="CallGraphViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -93,6 +93,9 @@
     <Compile Include="Execution\ProgressWindow.xaml.cs">
       <DependentUpon>ProgressWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\SequenceModel.cs" />
+    <Compile Include="Models\SequenceModelExporter.cs" />
+    <Compile Include="SequenceViewModel.cs" />
     <Compile Include="TracesArg.cs" />
     <Compile Include="TracingViewModel.cs" />
     <Compile Include="Models\FunctionCall.cs" />

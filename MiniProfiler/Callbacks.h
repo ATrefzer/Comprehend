@@ -11,5 +11,3 @@ extern ProfileWriter* _callTrace;
 extern "C" void __stdcall OnEnter(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 extern "C" void __stdcall OnLeave(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 extern "C" void __stdcall OnTailCall(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-
-

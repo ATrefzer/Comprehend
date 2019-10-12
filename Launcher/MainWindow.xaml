@@ -8,8 +8,8 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:TracingViewModel, IsDesignTimeCreatable=True}"
         Title="Launcher"
-        Height="200"
-        Width="315">
+        Height="250"
+        Width="450">
 
     <Window.Resources>
 
@@ -93,8 +93,8 @@
             </DockPanel>
         </TabItem>
 
-        <TabItem Header="Analyze trace"
-                 x:Name="_analyze">
+        <TabItem Header="Create call graph"
+                 x:Name="_callgraphTab">
 
             <DockPanel>
                 <StackPanel Orientation="Vertical"
@@ -103,8 +103,32 @@
                     <Button Content="Edit Filter"
                             Command="{Binding EditFilterCommand}"
                             Margin="5 5 5 0"/>
-                    <Button Content="Generate Graph"
-                            Command="{Binding GenerateFilteredGraphCommand}"
+                    <Button Content="Generate"
+                            Command="{Binding GenerateCallGraphCommand}"
+                            IsEnabled="{Binding IsProfileSelected}"
+                            Margin="5 5 5 0"/>
+                </StackPanel>
+
+                <ListView DockPanel.Dock="Left"
+                          ItemsSource="{Binding AvailableProfiles}"
+                          SelectedItem="{Binding SelectedProfile}"/>
+
+            </DockPanel>
+
+        </TabItem>
+
+        <TabItem Header="Create sequence diagram"
+                 x:Name="_sequenceTab">
+
+            <DockPanel>
+                <StackPanel Orientation="Vertical"
+                            DockPanel.Dock="Right"
+                            Width=" 130">
+                    <Button Content="Edit Filter"
+                            Command="{Binding EditFilterCommand}"
+                            Margin="5 5 5 0"/>
+                    <Button Content="Generate"
+                            Command="{Binding GenerateSequenceDiagramCommand}"
                             IsEnabled="{Binding IsProfileSelected}"
                             Margin="5 5 5 0"/>
                 </StackPanel>

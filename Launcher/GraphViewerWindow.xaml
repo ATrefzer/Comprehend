@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Launcher"
         mc:Ignorable="d"
-        Title="GraphViewerWindow" Height="450" Width="800" Loaded="GraphViewerWindow_OnLoaded">
+        Title="GraphViewerWindow"
+        Height="450"
+        Width="800"
+        Loaded="GraphViewerWindow_OnLoaded">
     <Grid>
         <DockPanel x:Name="_panel"/>
     </Grid>

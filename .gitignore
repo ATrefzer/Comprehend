@@ -45,3 +45,5 @@
 /GraphLibrary/obj/Release
 /packages
 /Binaries
+/UnitTests/bin/Debug
+/UnitTests/obj/Debug

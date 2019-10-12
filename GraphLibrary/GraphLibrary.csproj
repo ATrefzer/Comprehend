@@ -52,11 +52,13 @@
     <Compile Include="Graphwiz\DotFileBuilder.cs" />
     <Compile Include="Graphwiz\Edge.cs" />
     <Compile Include="IGraphBuilder.cs" />
-    <Compile Include="Msagl\MsaglGraphWrapper.cs" />
+    <Compile Include="Msagl\MsaglGrapBuilder.cs" />
+    <Compile Include="PlantUml\PlantUmlBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
