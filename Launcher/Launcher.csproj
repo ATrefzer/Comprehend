@@ -85,6 +85,7 @@
     <Compile Include="GraphViewerWindow.xaml.cs">
       <DependentUpon>GraphViewerWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Profiler\Filter.cs" />
     <Compile Include="Models\CallGraphExporter.cs" />
     <Compile Include="Profiler\Profile.cs" />
@@ -139,11 +140,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GraphLibrary\GraphLibrary.csproj">
+    <ProjectReference Include="..\GraphFormats\GraphFormats.csproj">
       <Project>{906fea96-7b8f-4d82-8af3-d79ce1ef22ee}</Project>
-      <Name>GraphLibrary</Name>
+      <Name>GraphFormats</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

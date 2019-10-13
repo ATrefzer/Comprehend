@@ -1,7 +1,5 @@
 ﻿using System.IO;
-
 using GraphLibrary.PlantUml;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests

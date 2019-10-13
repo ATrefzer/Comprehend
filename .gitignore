@@ -47,3 +47,5 @@
 /Binaries
 /UnitTests/bin/Debug
 /UnitTests/obj/Debug
+/GraphFormats/bin
+/GraphFormats/obj

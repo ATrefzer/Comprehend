@@ -5,13 +5,8 @@ using Launcher.Profiler;
 
 namespace Launcher.Models
 {
-    internal class CallGraphModel
+    internal class CallGraphModel : BaseModel
     {
-        private static readonly Dictionary<ulong, Stack<FunctionCall>> _tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
-
-        // All functions resolved
-        private static readonly Dictionary<ulong, FunctionCall> _functions = new Dictionary<ulong, FunctionCall>();
-        private static Filter _filter = Filter.Default();
 
         public CallGraphModel(List<FunctionCall> model)
         {
@@ -23,8 +18,7 @@ namespace Launcher.Models
 
         public static CallGraphModel FromEventStream(IEnumerable<ProfilerEvent> stream)
         {
-            _tidToStack.Clear();
-            _functions.Clear();
+            Clear(); // TODO inside base
 
             //var numEvent = 0;
 
@@ -35,7 +29,7 @@ namespace Launcher.Models
                     // 1. Mark as child of the active function
                     // 2. Push as active function
 
-                    var stack = GetStackByThreadId(entry.ThreadId);
+                    var stack = GetOrCreateStackByThreadId(entry.ThreadId);
                     var enterFunc = GetEnteredFunction(entry);
                     var activeFunc = GetActiveFunction(stack);
 
@@ -63,7 +57,7 @@ namespace Launcher.Models
                 }
                 else if (entry.Token == Tokens.TokenLeave)
                 {
-                    var stack = GetStackByThreadId(entry.ThreadId);
+                    var stack = GetOrCreateStackByThreadId(entry.ThreadId);
                     var activeFunc = GetActiveFunction(stack);
 
                     if (activeFunc != null && activeFunc.Name == entry.Func.Name)
@@ -81,8 +75,7 @@ namespace Launcher.Models
                 }
                 else if (entry.Token == Tokens.TokenTailCall)
                 {
-                    FunctionCall newFunc = null;
-                    if (!_functions.TryGetValue(entry.Func.Id, out newFunc))
+                    if (!_functions.TryGetValue(entry.Func.Id, out var newFunc))
                     {
                         newFunc = CreateFunctionCall(entry);
                         newFunc.TailCall = true;
@@ -100,47 +93,12 @@ namespace Launcher.Models
             }
 
             var model = new CallGraphModel(_functions.Values.ToList());
-            _tidToStack.Clear();
-            _functions.Clear();
-            _filter = Filter.Default();
+           Clear(); // TODO inside base
             return model;
         }
 
-        private static FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
-        {
-            // Find active function
-            FunctionCall activeFunc = null;
-            if (stack.Count > 0)
-            {
-                activeFunc = stack.Peek();
-            }
 
-            return activeFunc;
-        }
 
-        private static Stack<FunctionCall> GetStackByThreadId(ulong threadId)
-        {
-            // Find the correct thread such that we find the correct parent function.
-            if (!_tidToStack.TryGetValue(threadId, out var stack))
-            {
-                stack = new Stack<FunctionCall>();
-                _tidToStack.Add(threadId, stack);
-            }
-
-            return stack;
-        }
-
-        private static FunctionCall GetEnteredFunction(ProfilerEvent entry)
-        {
-            FunctionCall enterFunc = null;
-            if (!_functions.TryGetValue(entry.Func.Id, out enterFunc))
-            {
-                enterFunc = CreateFunctionCall(entry);
-                _functions.Add(enterFunc.Id, enterFunc);
-            }
-
-            return enterFunc;
-        }
 
         private static void MarkAllAncestorOfVisibleChild(FunctionCall activeFunc)
         {
@@ -195,11 +153,6 @@ namespace Launcher.Models
             return exitFunc.IsFiltered && exitFunc.HasVisibleChildren == false;
         }
 
-        private static FunctionCall CreateFunctionCall(ProfilerEvent entry)
-        {
-            FunctionCall newFunc;
-            newFunc = new FunctionCall(entry.Func);
-            return newFunc;
-        }
+    
     }
 }

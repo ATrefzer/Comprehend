@@ -7,7 +7,7 @@ using Launcher.Execution;
 
 namespace Launcher.Profiler
 {
-    internal class ProfilerEvent
+    public class ProfilerEvent
     {
         public Tokens Token { get; set; }
 
@@ -17,7 +17,7 @@ namespace Launcher.Profiler
         public ulong ThreadId { get; set; }
     }
 
-    internal enum Tokens
+    public enum Tokens
     {
         TokenCreateThread,
         TokenDestroyThread,

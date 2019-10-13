@@ -5,12 +5,17 @@ using System.Text.RegularExpressions;
 
 namespace Launcher.Profiler
 {
-    internal class Filter
+    public class Filter
     {
         private readonly List<Regex> _excludeRules = new List<Regex>();
         private readonly List<Regex> _includeRules = new List<Regex>();
         private readonly List<Regex> _entryRules = new List<Regex>();
 
+
+        public List<Regex> GetEntryFunctions()
+        {
+            return _entryRules.ToList();
+        }
         private Filter()
         {
         }

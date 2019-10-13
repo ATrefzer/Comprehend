@@ -3,8 +3,16 @@ using System.Linq;
 
 using GraphLibrary;
 
+
 namespace Launcher.Models
 {
+    /// <summary>
+    /// Selects the entry function and compacts all hidden calls.
+    /// 
+    /// Note:
+    /// The filter was applied already when processing the profiler events.
+    /// When a hidden function has only hidden children it was removed immediately.
+    /// </summary>
     internal class CallGraphExporter
     {
         private readonly HashSet<(ulong, ulong)> _processed = new HashSet<(ulong, ulong)>();

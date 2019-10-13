@@ -15,3 +15,5 @@ set_
 .*>b__3_0
 Cryptic_.*
 
+@entry_functions
+Main

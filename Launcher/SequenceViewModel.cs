@@ -108,6 +108,11 @@ namespace Launcher
             //var filter = Filter.Default();
             var filter = Filter.FromFile(GetFilterFilePath());
 
+            if (filter.GetEntryFunctions().Count != 1)
+            {
+                throw new Exception("To generate a sequence diagram you need one entry function!");
+            }
+
             var parser = new ProfileParser(progress);
 
             // Add filter here only for performance.
@@ -120,7 +125,7 @@ namespace Launcher
 
         private string GetOutputPlantumlFile(Profile profile)
         {
-            return Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
+            return Path.Combine(WorkingDirectory, SelectedProfile + ".graph.plantuml");
         }
 
         private async Task ExecuteGenerateSequenceDiagramAsync()

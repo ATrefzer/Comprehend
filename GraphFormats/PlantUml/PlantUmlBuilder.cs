@@ -59,6 +59,11 @@ namespace GraphLibrary.PlantUml
         {
         }
 
+        string CleanUpInvalidChars(string input)
+        {
+            return input.Replace('`', '_').Replace('<', '_').Replace('>', '_');
+        }
+
         public void WriteOutput(string file)
         {
             using (var writer = new StreamWriter(file, false))
@@ -75,7 +80,7 @@ namespace GraphLibrary.PlantUml
                         if (edge.Item1 != null)
                         {
                             // For the first call we do not have a 
-                            writer.WriteLine($"{edge.Item1} -> {edge.Item2} : {edge.Item3}");
+                            writer.WriteLine($"{CleanUpInvalidChars(edge.Item1)} -> {CleanUpInvalidChars(edge.Item2)} : {CleanUpInvalidChars(edge.Item3)}");
                         }
                     }
 
