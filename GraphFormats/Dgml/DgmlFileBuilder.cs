@@ -33,6 +33,8 @@ namespace GraphLibrary.Dgml
             _idCounter = 0;
         }
 
+   
+
         public void AddCategory(string category, string property, string value)
         {
             if (!_categories.TryGetValue(category, out var properties))

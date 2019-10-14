@@ -11,7 +11,9 @@ namespace GraphLibrary.PlantUml
     public class PlantUmlBuilder : IGraphBuilder
     {
         // SourceType, TargetType, Method
-        private readonly List<(string, string, string)> _orderedEdges = new List<(string, string, string)>();
+        private readonly List<Edge> _orderedEdge = new List<Edge>();
+
+        private readonly Dictionary<string, Dictionary<string, string>> _categories = new Dictionary<string, Dictionary<string, string>>();
 
         public Parts SplitFullName(string name)
         {
@@ -38,31 +40,53 @@ namespace GraphLibrary.PlantUml
         public void AddEdge(string sourceNode, string targetNode)
         {
             // A node is a function that calls another function!
-            var sourceParts = SplitFullName(sourceNode);
-            var targetParts = SplitFullName(targetNode);
+            var edge = CreateEdge(sourceNode, targetNode);
+            _orderedEdge.Add(edge);
+        }
 
-            _orderedEdges.Add((sourceParts.TypeName, targetParts.TypeName, targetParts.Function));
+        // Supported: color
+        public void AddCategory(string category, string property, string value)
+        {
+            if (!_categories.TryGetValue(category, out var properties))
+            {
+                properties = new Dictionary<string, string>();
+                _categories.Add(category, properties);
+            }
+
+            if (!properties.ContainsKey(property))
+            {
+                properties.Add(property, value);
+            }
+            else
+            {
+                properties[property] = value;
+            }
         }
 
         public void AddEdge(string sourceNode, string targetNode, string category)
         {
-            // TODO category
 
             // A node is a function that calls another function!
-            var sourceParts = SplitFullName(sourceNode);
-            var targetParts = SplitFullName(targetNode);
-
-            _orderedEdges.Add((sourceParts.TypeName, targetParts.TypeName, targetParts.Function));
+            var edge = CreateEdge(sourceNode, targetNode);
+            edge.Color = FindProperty(category, "color");
+            _orderedEdge.Add(edge);
         }
-
-        public void AddCategory(string category, string property, string value)
+        string FindProperty(string category, string property)
         {
-        }
+            if (_categories == null)
+                return null;
 
-        string CleanUpInvalidChars(string input)
-        {
-            return input.Replace('`', '_').Replace('<', '_').Replace('>', '_');
+            if (_categories.TryGetValue(category, out var properties))
+            {
+                if (properties.TryGetValue(property, out var value))
+                {
+                    return value;
+                }
+            }
+
+            return null;
         }
+      
 
         public void WriteOutput(string file)
         {
@@ -73,14 +97,20 @@ namespace GraphLibrary.PlantUml
 
                 //writer.WriteLine("actor client");
 
-                if (_orderedEdges.Any())
+                if (_orderedEdge.Any())
                 {
-                    foreach (var edge in _orderedEdges)
+                    foreach (var edge in _orderedEdge)
                     {
-                        if (edge.Item1 != null)
+                        if (edge.SourceType != null)
                         {
-                            // For the first call we do not have a 
-                            writer.WriteLine($"{CleanUpInvalidChars(edge.Item1)} -> {CleanUpInvalidChars(edge.Item2)} : {CleanUpInvalidChars(edge.Item3)}");
+                            if (string.IsNullOrEmpty(edge.Color))
+                            {
+                                writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
+                            }
+                            else
+                            {
+                                writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -[{edge.Color}]-> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
+                            }
                         }
                     }
 
@@ -91,11 +121,39 @@ namespace GraphLibrary.PlantUml
             }
         }
 
+
+        private Edge CreateEdge(string sourceNode, string targetNode)
+        {
+            var sourceParts = SplitFullName(sourceNode);
+            var targetParts = SplitFullName(targetNode);
+
+            var edge = new Edge();
+            edge.SourceType = sourceParts.TypeName;
+            edge.TargetType = targetParts.TypeName;
+            edge.TargetFunction = targetParts.Function;
+            return edge;
+        }
+
+        private string CleanUpInvalidChars(string input)
+        {
+            return input.Replace('`', '_').Replace('<', '_').Replace('>', '_');
+        }
+
         public class Parts
         {
             public string Module;
             public string TypeName;
             public string Function;
+        }
+
+        private class Edge
+        {
+            public string TargetFunction { get; set; }
+            public string TargetType { get; set; }
+            public string SourceType { get; set; }
+
+            // Optional
+            public string Color { get; set; }
         }
     }
 }

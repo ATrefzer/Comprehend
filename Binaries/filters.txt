@@ -10,6 +10,9 @@ Microsoft\..*
 get_
 set_
 
+
+//CycleB
+
 .*.ctor.*
 .*>b__2_0
 .*>b__3_0

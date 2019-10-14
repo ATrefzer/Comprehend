@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
+using GraphFormats.Msagl;
+
 using GraphLibrary.Dgml;
-using GraphLibrary.Msagl;
 
 using Launcher.Execution;
 using Launcher.Models;

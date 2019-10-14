@@ -2,11 +2,13 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 
+using GraphLibrary;
+
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.GraphViewerGdi;
 using Microsoft.Msagl.Layout.Layered;
 
-namespace GraphLibrary.Msagl
+namespace GraphFormats.Msagl
 {
     public class MsaglGrapBuilder : IGraphBuilder
     {

@@ -147,6 +147,7 @@ namespace Launcher
                 if (model != null)
                 {
                     var builder = new PlantUmlBuilder();
+                    builder.AddCategory("indirect", "color", "#0000FF");
                     exporter.Export(model, builder);
                     builder.WriteOutput(GetOutputPlantumlFile(profile));
                 }
