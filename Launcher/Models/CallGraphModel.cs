@@ -5,6 +5,10 @@ using Launcher.Profiler;
 
 namespace Launcher.Models
 {
+ 
+    /// <summary>
+    /// Pre-filtered, but contains all hidden calls that contain visible targets.
+    /// </summary>
     internal class CallGraphModel : BaseModel
     {
 

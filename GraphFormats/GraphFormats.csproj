@@ -51,6 +51,7 @@
     <Compile Include="Dgml\Edge.cs" />
     <Compile Include="Graphwiz\DotFileBuilder.cs" />
     <Compile Include="Graphwiz\Edge.cs" />
+    <Compile Include="ISequencehBuilder.cs" />
     <Compile Include="IGraphBuilder.cs" />
     <Compile Include="Msagl\MsaglGrapBuilder.cs" />
     <Compile Include="PlantUml\PlantUmlBuilder.cs" />

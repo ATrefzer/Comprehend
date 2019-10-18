@@ -2,14 +2,17 @@
 using System.IO;
 using System.Linq;
 
-namespace GraphLibrary.PlantUml
+using GraphLibrary;
+
+namespace GraphFormats.PlantUml
 {
     /// <summary>
     /// Dumps profiler info to plantuml format.
     /// We receive graph node information as a function in the form module!namespace_and_type.function.
     /// </summary>
-    public class PlantUmlBuilder : IGraphBuilder
+    public class PlantUmlBuilder : ISequenceBuilder
     {
+
         // SourceType, TargetType, Method
         private readonly List<Edge> _orderedEdge = new List<Edge>();
 
@@ -63,6 +66,20 @@ namespace GraphLibrary.PlantUml
             }
         }
 
+        public void Activate(string targetNode)
+        {
+            // Activate a target
+            var edge = CreateActivation(targetNode);
+            _orderedEdge.Add(edge);
+        }
+
+        public void Deactivate(string sourceNode)
+        {
+            // Deactivate the source
+            var edge = CreateDeactivation(sourceNode);
+            _orderedEdge.Add(edge);
+        }
+
         public void AddEdge(string sourceNode, string targetNode, string category)
         {
 
@@ -101,9 +118,21 @@ namespace GraphLibrary.PlantUml
                 {
                     foreach (var edge in _orderedEdge)
                     {
-                        if (edge.SourceType != null)
+                        //if (edge.SourceType != null)
                         {
-                            if (string.IsNullOrEmpty(edge.Color))
+                            if (edge.IsActivation)
+                            {
+                                if (edge.TargetType != null)
+                                {
+                                    writer.WriteLine($"activate {CleanUpInvalidChars(edge.TargetType)}");
+                                }
+                            }
+                            else if (edge.IsDeactivation)
+                            {
+                                if (edge.SourceType != null)
+                                writer.WriteLine($"deactivate {CleanUpInvalidChars(edge.SourceType)}");
+                            }
+                            else if (string.IsNullOrEmpty(edge.Color))
                             {
                                 writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
                             }
@@ -121,6 +150,28 @@ namespace GraphLibrary.PlantUml
             }
         }
 
+
+
+        private Edge CreateDeactivation(string sourceNode)
+        {
+            // After source called the last function we deactivate it.
+            var sourceParts = SplitFullName(sourceNode);
+
+            var edge = new Edge();
+            edge.SourceType = sourceParts.TypeName;
+            edge.IsDeactivation = true;
+            return edge;
+        }
+
+        private Edge CreateActivation(string targetNode)
+        {
+            var targetParts = SplitFullName(targetNode);
+
+            var edge = new Edge();
+            edge.TargetType = targetParts.TypeName;
+            edge.IsActivation = true;
+            return edge;
+        }
 
         private Edge CreateEdge(string sourceNode, string targetNode)
         {
@@ -148,12 +199,15 @@ namespace GraphLibrary.PlantUml
 
         private class Edge
         {
+
             public string TargetFunction { get; set; }
             public string TargetType { get; set; }
             public string SourceType { get; set; }
 
             // Optional
             public string Color { get; set; }
+            public bool IsActivation { get; set; }
+            public bool IsDeactivation { get; set; }
         }
     }
 }

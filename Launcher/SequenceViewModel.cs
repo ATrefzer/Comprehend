@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-using GraphLibrary.PlantUml;
+using GraphFormats.PlantUml;
 
 using Launcher.Execution;
 using Launcher.Models;

@@ -60,6 +60,10 @@ namespace HelloWorld_x86
     {
         public static void Main(string[] args)
         {
+            Mult(2, 3);
+            Mult(2, 3);
+            Add(1, 2);
+
             Console.WriteLine(Mult(2, 3));
             var app = new App();
             app.Initialized += AppOnInitialized;

@@ -11,7 +11,7 @@ get_
 set_
 
 
-//CycleB
+CycleB
 
 .*.ctor.*
 .*>b__2_0

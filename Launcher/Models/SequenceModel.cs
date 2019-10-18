@@ -6,10 +6,15 @@ using Launcher.Profiler;
 
 namespace Launcher.Models
 {
+    /// <summary>
+    /// Pre-filtered to call stacks for a single function, but contains all hidden calls that contain visible targets.
+    ///
+    /// As helper for following processing steps we add a token when a function is finished.
+    /// Otherwise we cannot distinguish when a function is finished.
+    /// This token has only the first item present, the second is null.
+    /// </summary>
     internal class SequenceModel : BaseModel
     {
-        // TODO allow variations
-
         private static Dictionary<ulong, List<(FunctionCall, FunctionCall)>> _threadIdToSequence;
       
         public List<List<(FunctionCall, FunctionCall)>> SequenceVariations {
@@ -57,6 +62,7 @@ namespace Launcher.Models
                     bool isEntry = enterFunc.IsEntry;
                     if (stack == null && isEntry)
                     {
+                        // Create stack only if we find an entry function
                         stack = GetOrCreateStackByThreadId(entry.ThreadId);
                     }
                    
@@ -88,15 +94,23 @@ namespace Launcher.Models
                     {
                         // We are currently tracking a sequence
                         var activeFunc = GetActiveFunction(stack);
-                        if (activeFunc != null && activeFunc.Name == entry.Func.Name)
-                        {
-                            stack.Pop();
 
+                        if (activeFunc != null && activeFunc.Name == entry.Func.Name) 
+                        {
+                            // Deactivate this functions
+                            var leaveFunc = stack.Pop();
+
+                            var sequence = GetOrCreateSequence(entry.ThreadId);
+
+                            // (*) Add a token in the sequence to signal when a function is done.
+                            sequence.Add((leaveFunc, null));
+
+                            // Sequence complete
                             if (!stack.Any())
                             {
-                                // Sequence is complete
-                                sequenceVariations.Add(GetOrCreateSequence(entry.ThreadId));
+                                sequenceVariations.Add(sequence);
 
+                                // Stop tracking calls.
                                 _threadIdToSequence.Remove(entry.ThreadId);
                                 _tidToStack.Remove(entry.ThreadId);
                             }
