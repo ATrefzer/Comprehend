@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -15,13 +16,14 @@ using Prism.Commands;
 
 namespace Launcher
 {
-    internal class TracingViewModel : INotifyPropertyChanged
+    internal class TracingViewModel : INotifyPropertyChanged, IDisposable
     {
         private string _target;
 
         private bool _isRunning;
 
-
+        private EventWaitHandle _recordingStateChanged;
+        private EventWaitHandle _recordingState;
         private string _outputDirectory;
 
         public TracingViewModel()
@@ -29,6 +31,10 @@ namespace Launcher
             SelectOutputDirectoryCommand = new DelegateCommand(ExecuteSelectOutputDirectory);
             SelectTargetCommand = new DelegateCommand(ExecuteSelectTarget);
             RunTargetCommand = new DelegateCommand(ExecuteRunTarget);
+
+            // TODO only one launcher possible ok?
+            _recordingStateChanged = new EventWaitHandle(false, EventResetMode.AutoReset, "MiniProfiler_RecordingStateChanged_Event");
+            _recordingState = new EventWaitHandle(false, EventResetMode.ManualReset, "MiniProfiler_RecordingState_Event");
         }
 
         public event EventHandler<TracesArg> AvailableTracesChanged;
@@ -121,6 +127,12 @@ namespace Launcher
             {
                 OutputDirectory = dialog.FileName;
             }
+        }
+
+        public void Dispose()
+        {
+            _recordingStateChanged?.Dispose();
+            _recordingState?.Dispose();
         }
     }
 }

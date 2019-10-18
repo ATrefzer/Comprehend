@@ -55,18 +55,49 @@ extern "C" void TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR
 #endif
 
 
+void Profiler::ControllingThread()
+{
+	while (true)
+	{
+		HANDLE events[2];
+		events[0] = _stop;
+		events[1] = _recordingStateChanged;
+		DWORD result = ::WaitForMultipleObjects(2, events, FALSE, INFINITE);
+
+		if (result == WAIT_OBJECT_0)
+		{
+			// Shutdown was called
+		
+			::OutputDebugString(L"\nTerminating controlling thread.");
+			break;
+		}
+
+
+		// Update tracking state			
+		::OutputDebugString(L"\nUpdating tracking state");
+	}
+}
+
 Profiler::Profiler() : _referenceCounter(0)
 {
 	_writer = nullptr;
 	_api = nullptr;
+	
 }
 
 Profiler::~Profiler()
 {
-	if (_callTrace != nullptr)
+	if (_stop != nullptr)
 	{
-		_callTrace->Release();
-		_callTrace = nullptr;
+		::CloseHandle(_stop);
+	}
+	if (_recordingStateChanged != nullptr)
+	{
+		::CloseHandle(_recordingStateChanged);
+	}
+	if (_recordingStateChanged != nullptr)
+	{
+		::CloseHandle(_recordingState);
 	}
 }
 
@@ -74,6 +105,18 @@ wstring g_module;
 
 HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 {
+	// We expect the launching process to provide these events TODO can be optional
+	_recordingStateChanged = ::OpenEvent(SYNCHRONIZE , FALSE, L"MiniProfiler_RecordingStateChanged_Event");
+	_recordingState = ::OpenEvent(SYNCHRONIZE , FALSE, L"MiniProfiler_RecordingState_Event");
+
+	_stop = ::CreateEvent(nullptr, TRUE, FALSE, nullptr);
+	
+	if (_recordingStateChanged == nullptr || _recordingState == nullptr || _stop == nullptr)
+	{
+		OutputDebugString (L"Event setup failed");
+		return E_FAIL;	
+	}
+	
 	// Disable profiling for sub processes
 	CppEssentials::Environment::SetVariableToEnvironment(L"COR_ENABLE_PROFILING", L"0");
 
@@ -131,24 +174,24 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 		printf("ERROR: Profiler SetEnterLeaveFunctionHooks3WithInfo failed (HRESULT: %d)", hr);
 	}
 
+	// Run controlling thread to detect start stop events
+	_controller = std::thread(&Profiler::ControllingThread, this);
+
 	return S_OK;
 }
 
-void Profiler::WriteIndexFile()
-{
-	CppEssentials::TextFileWriter writer;
-	const auto indexFile = CppEssentials::FilePath::Combine(_outputDirectory, _module + L".index");
-	writer.Open(indexFile, CppEssentials::FileOpenMode::CreateNew, CppEssentials::UTF16LittleEndianEncoder());
-	_callTrace->WriteIndexFile(writer);
-	writer.Close();
 
-	::OutputDebugString(L"\nIndex written");
-}
 
 HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 {
 	::OutputDebugString(L"\nProfiler::Shutdown");
 
+	::OutputDebugString(L"\nStopping controlling thread.");
+	SetEvent(_stop);
+	if (_controller.joinable())
+	{
+		_controller.join();
+	}
 
 	WriteIndexFile();
 
@@ -170,6 +213,10 @@ HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 		delete _api;
 		_api = nullptr;
 	}
+
+	// TODO sometimes the process is terminated too early.
+	::MessageBox(0, L"Shutdown done!", L"", 0);
+	::OutputDebugString(L"\nShutdown done");
 
 	return S_OK;
 }
@@ -678,4 +725,16 @@ ULONG Profiler::Release()
 	}
 
 	return newValue;
+}
+
+
+void Profiler::WriteIndexFile()
+{
+	CppEssentials::TextFileWriter writer;
+	const auto indexFile = CppEssentials::FilePath::Combine(_outputDirectory, _module + L".index");
+	writer.Open(indexFile, CppEssentials::FileOpenMode::CreateNew, CppEssentials::UTF16LittleEndianEncoder());
+	_callTrace->WriteIndexFile(writer);
+	writer.Close();
+
+	::OutputDebugString(L"\nIndex written");
 }

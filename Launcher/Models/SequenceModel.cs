@@ -7,7 +7,7 @@ using Launcher.Profiler;
 namespace Launcher.Models
 {
     /// <summary>
-    /// Pre-filtered to call stacks for a single function, but contains all hidden calls that contain visible targets.
+    /// Pre-filtered to call stacks for a single function, but contains all hidden outgoing calls.
     ///
     /// As helper for following processing steps we add a token when a function is finished.
     /// Otherwise we cannot distinguish when a function is finished.

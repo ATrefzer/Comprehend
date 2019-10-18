@@ -72,10 +72,12 @@ namespace HelloWorld_x86
             app.RunCycle();
             app.RunRecursion();
 
-            //Console.ReadKey();
+          
 
             Poly(2);
             Poly();
+
+            Console.ReadKey();
         }
 
         private static int Add(int a, int b)

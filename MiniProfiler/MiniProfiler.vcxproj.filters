@@ -81,6 +81,9 @@
     <ClInclude Include="ProfileWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Common\SynchronizationPrimitives.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -136,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="ProfileWriter.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\SynchronizationPrimitives.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

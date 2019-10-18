@@ -8,6 +8,7 @@
 #include "corprof.h"
 #include "ProfilerApi.h"
 #include "Common/BinaryWriter.h"
+#include <thread>
 
 
 class Profiler : public ICorProfilerCallback8
@@ -20,6 +21,15 @@ private:
 	std::wstring _module;
 	std::wstring _outputDirectory;
 
+	std::thread _controller;
+
+
+	HANDLE _stop;
+	HANDLE _recordingStateChanged;
+	HANDLE _recordingState;
+
+
+	void ControllingThread();
 
 public:
 	Profiler();
