@@ -49,3 +49,5 @@
 /UnitTests/obj/Debug
 /GraphFormats/bin
 /GraphFormats/obj
+/UnitTests/bin/Release
+/UnitTests/obj/Release

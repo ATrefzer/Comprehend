@@ -22,9 +22,11 @@ namespace Launcher
 
         private bool _isRunning;
 
-        private EventWaitHandle _recordingStateChanged;
-        private EventWaitHandle _recordingState;
+        private readonly EventWaitHandle _recordingStateChanged;
+        private readonly EventWaitHandle _recordingState;
         private string _outputDirectory;
+
+        private bool _isProfilingEnabled = true;
 
         public TracingViewModel()
         {
@@ -81,6 +83,34 @@ namespace Launcher
             }
         }
 
+        public bool IsProfilingEnabled
+        {
+            get => _isProfilingEnabled;
+            set
+            {
+                _isProfilingEnabled = value;
+                if (value)
+                {
+                    // Manual
+                    _recordingState.Set();
+                }
+                else
+                {
+                    _recordingState.Reset();
+                }
+
+                // Auto reset
+                _recordingStateChanged.Set();
+                OnPropertyChanged();
+            }
+        }
+
+        public void Dispose()
+        {
+            _recordingStateChanged?.Dispose();
+            _recordingState?.Dispose();
+        }
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -127,12 +157,6 @@ namespace Launcher
             {
                 OutputDirectory = dialog.FileName;
             }
-        }
-
-        public void Dispose()
-        {
-            _recordingStateChanged?.Dispose();
-            _recordingState?.Dispose();
         }
     }
 }

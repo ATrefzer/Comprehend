@@ -38,7 +38,7 @@
 
     </Window.Resources>
 
-    <TabControl IsEnabled="{Binding IsRunning, Converter={StaticResource InvertBool}}"
+    <TabControl 
                 x:Name="_trace">
         <TabItem Header="Capture Profile">
             <DockPanel>
@@ -53,6 +53,7 @@
                 <StackPanel Margin="5">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition/>
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
@@ -87,6 +88,9 @@
                                 Content="..."
                                 Command="{Binding SelectOutputDirectoryCommand}"
                                 Style="{StaticResource DotButton}"/>
+
+                        <Label Grid.Row="2" Grid.Column="0" Content="Enable Profiling" />
+                        <CheckBox  Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding IsProfilingEnabled}"/>
                     </Grid>
                 </StackPanel>
 

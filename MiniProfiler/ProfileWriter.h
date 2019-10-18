@@ -27,6 +27,14 @@ public:
 
 	// Ownership stays within this class.
 	FunctionInfo* AddFunctionInfo(FunctionID funcId);
+	void Enable()
+	{
+		_isEnabled = true;
+	}
+	void Disable()
+	{
+		_isEnabled = false;
+	}
 
 private:
 
@@ -34,6 +42,7 @@ private:
 
 private:
 
+	bool _isEnabled = true;
 	IProfilerApi* _api;
 	std::unordered_map<UINT_PTR, FunctionInfo*> _funcInfos;
 	CppEssentials::BinaryWriter* _writer;

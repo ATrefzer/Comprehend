@@ -29,6 +29,7 @@ private:
 	HANDLE _recordingState;
 
 
+	void UpdateEnableState();
 	void ControllingThread();
 
 public:

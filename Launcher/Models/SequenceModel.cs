@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using Launcher.Profiler;
@@ -8,7 +7,6 @@ namespace Launcher.Models
 {
     /// <summary>
     /// Pre-filtered to call stacks for a single function, but contains all hidden outgoing calls.
-    ///
     /// As helper for following processing steps we add a token when a function is finished.
     /// Otherwise we cannot distinguish when a function is finished.
     /// This token has only the first item present, the second is null.
@@ -16,10 +14,6 @@ namespace Launcher.Models
     internal class SequenceModel : BaseModel
     {
         private static Dictionary<ulong, List<(FunctionCall, FunctionCall)>> _threadIdToSequence;
-      
-        public List<List<(FunctionCall, FunctionCall)>> SequenceVariations {
-            get; 
-        }
 
         private static Filter _filter = Filter.Default();
 
@@ -28,29 +22,13 @@ namespace Launcher.Models
             SequenceVariations = sequence;
         }
 
-        static List<(FunctionCall, FunctionCall)> GetOrCreateSequence(ulong threadId)
-        {
-            if (_threadIdToSequence == null)
-            {
-                _threadIdToSequence = new Dictionary<ulong, List<(FunctionCall, FunctionCall)>>();
-            }
-
-
-            if (!_threadIdToSequence.TryGetValue(threadId, out var sequence))
-            {
-                sequence = new List<(FunctionCall, FunctionCall)>();
-                _threadIdToSequence.Add(threadId, sequence);
-            }
-
-            return sequence;
-        }
+        public List<List<(FunctionCall, FunctionCall)>> SequenceVariations { get; }
 
         public static SequenceModel FromEventStream(IEnumerable<ProfilerEvent> eventStream)
         {
             var sequenceVariations = new List<List<(FunctionCall, FunctionCall)>>();
-           Clear();
+            Clear();
 
-         
             foreach (var entry in eventStream)
             {
                 if (entry.Token == Tokens.TokenEnter)
@@ -59,13 +37,13 @@ namespace Launcher.Models
 
                     var stack = FindStackByThreadId(entry.ThreadId);
 
-                    bool isEntry = enterFunc.IsEntry;
+                    var isEntry = enterFunc.IsEntry;
                     if (stack == null && isEntry)
                     {
                         // Create stack only if we find an entry function
                         stack = GetOrCreateStackByThreadId(entry.ThreadId);
                     }
-                   
+
                     var activeFunc = GetActiveFunction(stack);
                     if (activeFunc != null)
                     {
@@ -79,13 +57,11 @@ namespace Launcher.Models
                         {
                             sequence.Add((activeFunc, enterFunc));
                         }
-
                     }
 
                     // Here the stack may be null if the entry function is not found so var.
                     // This is the new active function 
                     stack?.Push(enterFunc);
-
                 }
                 else if (entry.Token == Tokens.TokenLeave)
                 {
@@ -95,7 +71,7 @@ namespace Launcher.Models
                         // We are currently tracking a sequence
                         var activeFunc = GetActiveFunction(stack);
 
-                        if (activeFunc != null && activeFunc.Name == entry.Func.Name) 
+                        if (activeFunc != null && activeFunc.Name == entry.Func.Name)
                         {
                             // Deactivate this functions
                             var leaveFunc = stack.Pop();
@@ -120,7 +96,6 @@ namespace Launcher.Models
                             // Ignore. We did not start recording at the time.
                         }
                     }
-                   
                 }
                 else if (entry.Token == Tokens.TokenTailCall)
                 {
@@ -135,8 +110,15 @@ namespace Launcher.Models
                 }
                 else if (entry.Token == Tokens.TokenDestroyThread)
                 {
-                    _tidToStack.Remove(entry.ThreadId);
-                    _threadIdToSequence.Remove(entry.ThreadId);
+                    if (_tidToStack.ContainsKey(entry.ThreadId))
+                    {
+                        _tidToStack.Remove(entry.ThreadId);
+                    }
+
+                    if (_threadIdToSequence != null && _threadIdToSequence.ContainsKey(entry.ThreadId))
+                    {
+                        _threadIdToSequence.Remove(entry.ThreadId);
+                    }
 
                     // TODO close all open methods(!)
                 }
@@ -147,8 +129,20 @@ namespace Launcher.Models
             return model;
         }
 
+        private static List<(FunctionCall, FunctionCall)> GetOrCreateSequence(ulong threadId)
+        {
+            if (_threadIdToSequence == null)
+            {
+                _threadIdToSequence = new Dictionary<ulong, List<(FunctionCall, FunctionCall)>>();
+            }
 
-      
+            if (!_threadIdToSequence.TryGetValue(threadId, out var sequence))
+            {
+                sequence = new List<(FunctionCall, FunctionCall)>();
+                _threadIdToSequence.Add(threadId, sequence);
+            }
 
+            return sequence;
+        }
     }
 }

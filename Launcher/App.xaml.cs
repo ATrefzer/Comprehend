@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 
 using Launcher.Execution;
@@ -58,10 +59,14 @@ namespace Launcher
                 var files = Directory.EnumerateFiles(workingDirectory, "*.index");
                 foreach (var file in files)
                 {
+                    
                     var fi = new FileInfo(file);
                     var baseName = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
                     var trace = new Profile(workingDirectory, baseName);
-                    availableProfiles.Add(trace);
+                    if (File.Exists(trace.EventFile))
+                    {
+                        availableProfiles.Add(trace);
+                    }
                 }
             }
 

@@ -55,6 +55,32 @@ extern "C" void TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR
 #endif
 
 
+   BOOL IsSignaled(HANDLE hEvent)
+    {
+        BOOL bSignaled = FALSE;
+        DWORD dwResult = WaitForSingleObject(hEvent, 0);
+        if (dwResult == WAIT_OBJECT_0)
+        {
+            bSignaled = TRUE;
+        }
+
+        return bSignaled;
+    }
+
+void Profiler::UpdateEnableState()
+{
+	// Update tracking state			
+	::OutputDebugString(L"\nUpdating tracking state");
+	if (IsSignaled(_recordingState))
+	{
+		_callTrace->Enable();
+	}
+	else
+	{
+		_callTrace->Disable();
+	}
+}
+
 void Profiler::ControllingThread()
 {
 	while (true)
@@ -62,7 +88,7 @@ void Profiler::ControllingThread()
 		HANDLE events[2];
 		events[0] = _stop;
 		events[1] = _recordingStateChanged;
-		DWORD result = ::WaitForMultipleObjects(2, events, FALSE, INFINITE);
+		const auto result = ::WaitForMultipleObjects(2, events, FALSE, INFINITE);
 
 		if (result == WAIT_OBJECT_0)
 		{
@@ -72,9 +98,7 @@ void Profiler::ControllingThread()
 			break;
 		}
 
-
-		// Update tracking state			
-		::OutputDebugString(L"\nUpdating tracking state");
+		UpdateEnableState();
 	}
 }
 
@@ -82,6 +106,10 @@ Profiler::Profiler() : _referenceCounter(0)
 {
 	_writer = nullptr;
 	_api = nullptr;
+   	_recordingStateChanged = nullptr;
+   	_recordingState = nullptr;
+   	_stop = nullptr;
+   	
 	
 }
 
@@ -156,6 +184,9 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 
 	// No Ownership
 	_callTrace = new ProfileWriter(_api, _writer);
+
+	// Events ready and ProfileWrite created.
+	UpdateEnableState();
 
 	corProfilerInfo->SetFunctionIDMapper2(FunctionIDMapperFunc, nullptr);
 

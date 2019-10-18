@@ -52,6 +52,11 @@ void ProfileWriter::Release()
 
 void ProfileWriter::OnEnter(FunctionID funcId)
 {
+	if (!_isEnabled)
+	{
+		return;
+	}
+	
 	auto tid = _api->GetThreadId();
 
 	EnterCriticalSection(&_cs);
@@ -65,6 +70,12 @@ void ProfileWriter::OnLeave(FunctionID funcId)
 {
 	// It is possible that we find the same function name with different ids(!)
 
+	if (!_isEnabled)
+	{
+		return;
+	}
+	
+
 	auto tid = _api->GetThreadId();
 
 	EnterCriticalSection(&_cs);
@@ -76,6 +87,11 @@ void ProfileWriter::OnLeave(FunctionID funcId)
 
 void ProfileWriter::OnTailCall(FunctionID funcId)
 {
+	if (!_isEnabled)
+	{
+		return;
+	}
+	
 	auto tid = _api->GetThreadId();
 
 	EnterCriticalSection(&_cs);
@@ -87,6 +103,11 @@ void ProfileWriter::OnTailCall(FunctionID funcId)
 
 void ProfileWriter::OnThreadCreated(ThreadID tid)
 {
+	if (!_isEnabled)
+	{
+		return;
+	}
+	
 	EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenCreateThread);
 	_writer->WriteUInt64(tid);
@@ -95,6 +116,11 @@ void ProfileWriter::OnThreadCreated(ThreadID tid)
 
 void ProfileWriter::OnThreadDestroyed(ThreadID tid)
 {
+	if (!_isEnabled)
+	{
+		return;
+	}
+	
 	// Note that the same ThreadID may be reused later.
 	EnterCriticalSection(&_cs);
 	_writer->WriteUInt16(TokenDestroyThread);
@@ -104,6 +130,7 @@ void ProfileWriter::OnThreadDestroyed(ThreadID tid)
 
 void ProfileWriter::WriteIndexFile(TextFileWriter& writer)
 {
+	// Independent of enable state!
 	for (auto iter = _funcInfos.begin(); iter != _funcInfos.end(); ++iter)
 	{
 		if (iter != _funcInfos.begin())
