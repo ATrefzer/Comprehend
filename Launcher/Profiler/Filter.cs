@@ -78,25 +78,6 @@ namespace Launcher.Profiler
             return filter;
         }
 
-
-        public bool IsEntry(string function)
-        {
-            if (!_entryRules.Any())
-            {
-                return true;
-            }
-
-            foreach (var rule in _entryRules)
-            {
-                if (rule.IsMatch(function))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public bool IsFiltered(string function)
         {
             // 1. No filters at all, default is everything is visible

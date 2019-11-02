@@ -30,6 +30,7 @@ namespace CppEssentials
 		if (_cache)
 		{
 			delete [] _cache;
+			_cache = nullptr;
 		}
 	}
 
@@ -121,6 +122,7 @@ namespace CppEssentials
 
 			_cachedBytes = 0;
 		}
+		
 	}
 
 	void OutputFileStream::Clear()

@@ -4,18 +4,19 @@ namespace Launcher.Profiler
 {
     internal class Profile
     {
-        private readonly string _directory;
 
         public Profile(string directory, string baseFile)
         {
-            _directory = directory;
+            Directory = directory;
             BaseFile = baseFile;
         }
 
+        public string Directory { get; set; }
+
         public string BaseFile { get; }
 
-        public string IndexFile => Path.Combine(_directory, BaseFile + ".index");
-        public string EventFile => Path.Combine(_directory, BaseFile + ".profile");
+        public string IndexFile => Path.Combine(Directory, BaseFile + ".index");
+        public string EventFile => Path.Combine(Directory, BaseFile + ".profile");
 
         public override string ToString()
         {

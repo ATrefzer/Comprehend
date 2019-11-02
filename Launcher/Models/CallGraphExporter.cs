@@ -24,10 +24,6 @@ namespace Launcher.Models
             Build(builder, model);
         }
 
-        private bool IsEntry(FunctionCall call)
-        {
-            return call.IsEntry;
-        }
 
         private bool IsIncluded(FunctionCall call)
         {
@@ -40,7 +36,7 @@ namespace Launcher.Models
 
             // Starting point: User entry functions
             var selection = new HashSet<FunctionCall>();
-            var starting = model.AllFunctions.Where(f => IsEntry(f) && IsIncluded(f)).ToList();
+            var starting = model.AllFunctions.Where(f => IsIncluded(f)).ToList();
             selection.UnionWith(starting);
 
             // Include (visible) parents

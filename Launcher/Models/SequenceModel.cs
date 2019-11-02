@@ -24,7 +24,7 @@ namespace Launcher.Models
 
         public List<List<(FunctionCall, FunctionCall)>> SequenceVariations { get; }
 
-        public static SequenceModel FromEventStream(IEnumerable<ProfilerEvent> eventStream)
+        public static SequenceModel FromEventStream(IEnumerable<ProfilerEvent> eventStream, FunctionInfo entryFunction)
         {
             var sequenceVariations = new List<List<(FunctionCall, FunctionCall)>>();
             Clear();
@@ -37,7 +37,7 @@ namespace Launcher.Models
 
                     var stack = FindStackByThreadId(entry.ThreadId);
 
-                    var isEntry = enterFunc.IsEntry;
+                    var isEntry = enterFunc.Name == entryFunction.Name;
                     if (stack == null && isEntry)
                     {
                         // Create stack only if we find an entry function

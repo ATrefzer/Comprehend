@@ -31,7 +31,7 @@ namespace Launcher
         public SequenceViewModel(BackgroundExecutionService backgroundService)
         {
             _backgroundService = backgroundService;
-            GenerateSequenceDiagramCommand = new DelegateCommand(async () => await ExecuteGenerateSequenceDiagramAsync());
+            GenerateSequenceDiagramCommand = new DelegateCommand(() => ExecuteGenerateSequenceDiagram());
 
             //GenerateSequenceDiagramCommand = new DelegateCommand(ExecuteGenerateFilteredGraph, IsTraceSelected);
             EditFilterCommand = new DelegateCommand(ExecuteEditFilter);
@@ -103,59 +103,24 @@ namespace Launcher
         }
 
 
-        private SequenceModel ProcessProfile(IProgress progress, Profile profile)
-        {
-            //var filter = Filter.Default();
-            var filter = Filter.FromFile(GetFilterFilePath());
 
-            if (filter.GetEntryFunctions().Count != 1)
-            {
-                throw new Exception("To generate a sequence diagram you need one entry function!");
-            }
-
-            var parser = new ProfileParser(progress);
-
-            // Add filter here only for performance.
-            var eventStream = parser.Parse(profile.IndexFile, profile.EventFile, filter);
-
-            var model = SequenceModel.FromEventStream(eventStream);
-
-            return model;
-        }
-
-        private string GetOutputPlantumlFile(Profile profile)
-        {
-            return Path.Combine(WorkingDirectory, SelectedProfile + ".graph.plantuml");
-        }
-
-        private async Task ExecuteGenerateSequenceDiagramAsync()
+        private void ExecuteGenerateSequenceDiagram()
         {
             var profile = SelectedProfile;
             if (profile == null)
             {
                 Debug.Assert(false);
-                return;
             }
 
-            SequenceModel model = null;
-            try
-            {
-                await _backgroundService.RunWithProgress(progress => model = ProcessProfile(progress, profile));
 
-                var exporter = new SequenceModelExporter();
+            var setupWindow = new SequenceDiagramSetup();
+            var viewModel = new SequenceDiagramSetupViewModel(_backgroundService, WorkingDirectory);
+            viewModel.Initialize(profile, Filter.FromFile(GetFilterFilePath()));
+            setupWindow.DataContext = viewModel;
+            setupWindow.Show();
 
-                if (model != null)
-                {
-                    var builder = new PlantUmlBuilder();
-                    builder.AddCategory("indirect", "color", "#0000FF");
-                    exporter.Export(model, builder);
-                    builder.WriteOutput(GetOutputPlantumlFile(profile));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Reading profile file failed!");
-            }
+
+
         }
     }
 }

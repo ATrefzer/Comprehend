@@ -27,14 +27,12 @@ namespace CppEssentials
 		Exception();
 
 		/// Constructor
-		/// @param sourceLocation   Source code location where the exception was thrown
 		/// @param message          Message why the exception was thrown.
 		/// @param lastError        Optional error code, received via ::GetLastError()
 		///
 		Exception(const wstring& message, unsigned long lastError = 0);
 
 		/// Constructor
-		/// @param sourceLocation   Source code location where the exception was thrown
 		/// @param message          Message in which context or why the exception was thrown.
 		/// @param details          More details about the problem. (i.e. the string that couldn't be converted)
 		/// @param lastError        Optional error code, received via ::GetLastError()
@@ -58,10 +56,6 @@ namespace CppEssentials
 
 		unsigned long GetLastError() const;
 
-		/// Returns the stack dump created when the the constructor of the Exception class
-		/// was called.
-		///
-		wstring GetStackDump();
 
 		/// Returns the Windows system error text for the error code set in constructor.
 		/// If the error code was not set an empty string is returned.

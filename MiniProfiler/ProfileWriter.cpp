@@ -46,16 +46,20 @@ ProfileWriter::ProfileWriter(IProfilerApi* api, BinaryWriter* writer)
 
 void ProfileWriter::Release()
 {
+	
 	DeleteCriticalSection(&_cs);
+	
 }
 
 
 void ProfileWriter::OnEnter(FunctionID funcId)
 {
+	
 	if (!_isEnabled)
 	{
 		return;
 	}
+
 	
 	auto tid = _api->GetThreadId();
 
@@ -131,6 +135,7 @@ void ProfileWriter::OnThreadDestroyed(ThreadID tid)
 void ProfileWriter::WriteIndexFile(TextFileWriter& writer)
 {
 	// Independent of enable state!
+
 	for (auto iter = _funcInfos.begin(); iter != _funcInfos.end(); ++iter)
 	{
 		if (iter != _funcInfos.begin())

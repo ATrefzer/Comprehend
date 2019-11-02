@@ -73,10 +73,12 @@ void Profiler::UpdateEnableState()
 	::OutputDebugString(L"\nUpdating tracking state");
 	if (IsSignaled(_recordingState))
 	{
+		OutputDebugString(L"\nEnabled");
 		_callTrace->Enable();
 	}
 	else
 	{
+		OutputDebugString(L"\nDisabled");
 		_callTrace->Disable();
 	}
 }
@@ -95,7 +97,7 @@ void Profiler::ControllingThread()
 			// Shutdown was called
 		
 			::OutputDebugString(L"\nTerminating controlling thread.");
-			break;
+			return;
 		}
 
 		UpdateEnableState();
@@ -223,7 +225,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 	{
 		_controller.join();
 	}
-
+	::OutputDebugString(L"\Controlling thread stopped!");
 	WriteIndexFile();
 
 	if (_callTrace != nullptr)

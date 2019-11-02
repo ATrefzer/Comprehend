@@ -128,7 +128,7 @@
                 <StackPanel Orientation="Vertical"
                             DockPanel.Dock="Right"
                             Width=" 130">
-                    <Button Content="Edit Filter"
+                    <Button Content="Edit Pre-Filter"
                             Command="{Binding EditFilterCommand}"
                             Margin="5 5 5 0"/>
                     <Button Content="Generate"

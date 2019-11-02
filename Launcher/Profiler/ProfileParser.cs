@@ -28,10 +28,9 @@ namespace Launcher.Profiler
 
     public class FunctionInfo
     {
-        public ulong Id;
-        public string Name;
-        public bool IsFiltered;
-        public bool IsEntry { get; set; }
+        public ulong Id{ get; set; }
+        public string Name{ get; set; }
+        public bool IsFiltered{ get; set; }
         public bool IsPublic { get; set; }
     }
 
@@ -71,8 +70,7 @@ namespace Launcher.Profiler
                 var isPublic = parts[2] == "+" ? true : false;
                 ;
                 var filtered = filter.IsFiltered(funcName);
-                var entry = filter.IsEntry(funcName);
-                dictionary.Add(funcId, new FunctionInfo { Id = funcId, Name = funcName, IsFiltered = filtered, IsEntry = entry, IsPublic = isPublic });
+                dictionary.Add(funcId, new FunctionInfo { Id = funcId, Name = funcName, IsFiltered = filtered, IsPublic = isPublic });
 
                 // Note(!)
                 // Same function is recorded multiple times with different ids!
@@ -81,18 +79,7 @@ namespace Launcher.Profiler
             return dictionary;
         }
 
-        internal IEnumerable<ProfilerEvent> Parse(string indexFile, string eventFile, Filter filter)
-        {
-            var funcIdToName = ParseIndex(indexFile, filter);
-
-            // Function Ids may change!
-            //var distinctNames = funcIdToName.Values.Distinct();
-            var stream = ParseEventStream(eventFile, funcIdToName);
-
-            return stream;
-        }
-
-        private IEnumerable<ProfilerEvent> ParseEventStream(string path, Dictionary<ulong, FunctionInfo> dictionary)
+        public IEnumerable<ProfilerEvent> ParseEventStream(string path, Dictionary<ulong, FunctionInfo> idToFuncInfo)
         {
             var lastProgress = 0;
             using (var stream = new FileStream(path, FileMode.Open))
@@ -135,8 +122,8 @@ namespace Launcher.Profiler
                     if (token == Tokens.TokenEnter || token == Tokens.TokenLeave || token == Tokens.TokenTailCall)
                     {
                         var fid = reader.ReadUInt64();
-                        Debug.Assert(dictionary.ContainsKey(fid));
-                        entry.Func = dictionary[fid];
+                        Debug.Assert(idToFuncInfo.ContainsKey(fid));
+                        entry.Func = idToFuncInfo[fid];
                     }
 
                     yield return entry;

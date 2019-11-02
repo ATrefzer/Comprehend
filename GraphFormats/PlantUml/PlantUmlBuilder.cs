@@ -103,13 +103,14 @@ namespace GraphFormats.PlantUml
 
             return null;
         }
-      
+
+        public string Title { get; set; } = "_title";
 
         public void WriteOutput(string file)
         {
             using (var writer = new StreamWriter(file, false))
             {
-                writer.WriteLine("@startuml _title_");
+                writer.WriteLine($"@startuml {Title}");
                 writer.WriteLine("hide footbox");
 
                 //writer.WriteLine("actor client");

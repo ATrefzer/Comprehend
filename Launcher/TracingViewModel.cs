@@ -18,12 +18,11 @@ namespace Launcher
 {
     internal class TracingViewModel : INotifyPropertyChanged, IDisposable
     {
+        private readonly EventWaitHandle _recordingStateChanged;
+        private readonly EventWaitHandle _recordingState;
         private string _target;
 
         private bool _isRunning;
-
-        private readonly EventWaitHandle _recordingStateChanged;
-        private readonly EventWaitHandle _recordingState;
         private string _outputDirectory;
 
         private bool _isProfilingEnabled = true;
@@ -37,6 +36,9 @@ namespace Launcher
             // TODO only one launcher possible ok?
             _recordingStateChanged = new EventWaitHandle(false, EventResetMode.AutoReset, "MiniProfiler_RecordingStateChanged_Event");
             _recordingState = new EventWaitHandle(false, EventResetMode.ManualReset, "MiniProfiler_RecordingState_Event");
+
+            _isProfilingEnabled = true;
+            SetProfilingEnabled(_isProfilingEnabled, false); // Avoid controller thread to wake up initially
         }
 
         public event EventHandler<TracesArg> AvailableTracesChanged;
@@ -88,19 +90,8 @@ namespace Launcher
             get => _isProfilingEnabled;
             set
             {
-                _isProfilingEnabled = value;
-                if (value)
-                {
-                    // Manual
-                    _recordingState.Set();
-                }
-                else
-                {
-                    _recordingState.Reset();
-                }
+                SetProfilingEnabled(value, true);
 
-                // Auto reset
-                _recordingStateChanged.Set();
                 OnPropertyChanged();
             }
         }
@@ -114,6 +105,26 @@ namespace Launcher
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void SetProfilingEnabled(bool value, bool notify)
+        {
+            _isProfilingEnabled = value;
+            if (value)
+            {
+                // Manual
+                _recordingState.Set();
+            }
+            else
+            {
+                _recordingState.Reset();
+            }
+
+            if (notify)
+            {
+                // Auto reset
+                _recordingStateChanged.Set();
+            }
         }
 
 

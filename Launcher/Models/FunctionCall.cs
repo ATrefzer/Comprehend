@@ -24,11 +24,6 @@ namespace Launcher.Models
 
         public bool IsFiltered => _info.IsFiltered;
 
-        /// <summary>
-        /// Returns true if the functions is an entry function for the following analysis.
-        /// </summary>
-        public bool IsEntry => _info.IsEntry;
-
         public ulong Id => _info.Id;
 
         public string Name => _info.Name;

@@ -114,8 +114,10 @@ namespace Launcher
 
             var parser = new ProfileParser(progress);
 
+            var index = parser.ParseIndex(profile.IndexFile, filter);
+
             // Add filter here only for performance.
-            var eventStream = parser.Parse(profile.IndexFile, profile.EventFile, filter);
+            var eventStream = parser.ParseEventStream(profile.EventFile, index);
 
             var model = CallGraphModel.FromEventStream(eventStream);
 

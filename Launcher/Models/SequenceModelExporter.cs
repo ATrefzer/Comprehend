@@ -7,6 +7,10 @@ using GraphLibrary;
 
 namespace Launcher.Models
 {
+    /// <summary>
+    /// Uses the builder to generate a UML sequence diagram.
+    /// Hidden functions calls are excluded and indirect calls marked accordingly.
+    /// </summary>
     internal class SequenceModelExporter
     {
         public void Export(SequenceModel model, ISequenceBuilder builder)
