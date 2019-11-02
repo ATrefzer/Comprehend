@@ -1,3 +1,6 @@
+@include_function_patterns
+
+
 @exclude_function_patterns
 mscorlib\..*
 WindowsBase\..*
@@ -11,12 +14,3 @@ get_
 set_
 
 
-CycleB
-
-.*.ctor.*
-.*>b__2_0
-.*>b__3_0
-Cryptic_.*
-
-@entry_functions
-Main

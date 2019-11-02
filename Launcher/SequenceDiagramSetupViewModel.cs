@@ -66,6 +66,7 @@ namespace Launcher
                 var exporter = new SequenceModelExporter();
 
                 // TODO open new user interface
+                string fullPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 if (_model != null)
                 {
                     var builder = new PlantUmlBuilder();
@@ -74,9 +75,7 @@ namespace Launcher
                     exporter.Export(_model, builder);
                     builder.WriteOutput(GetOutputPlantumlFile(_profile));
 
-                       
-                    string fullPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                    string exeDir = Path.GetDirectoryName( fullPath );
+                    var exeDir = Path.GetDirectoryName( fullPath );
 
                     var psi = new ProcessStartInfo();
                     psi.FileName = "java.exe";
