@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -18,11 +19,11 @@ using Launcher.Profiler;
 
 using Prism.Commands;
 
-using Process = Launcher.Profiler.Process;
+using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
-    class SequenceDiagramSetupViewModel : INotifyPropertyChanged
+    internal class SequenceDiagramSetupViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private readonly BackgroundExecutionService _backgroundService;
         private readonly string _workingDirectory;
@@ -34,80 +35,83 @@ namespace Launcher
         /// </summary>
         private SequenceModel _model;
 
-        public ICommand GenerateCommand { get; }
+
+        private FunctionInfo _startFunction;
 
         public SequenceDiagramSetupViewModel(BackgroundExecutionService backgroundService, string workingDirectory)
         {
             _backgroundService = backgroundService;
             _workingDirectory = workingDirectory;
             GenerateCommand = new DelegateCommand(Generate);
+            SelectStartFunctionCommand = new DelegateCommand<FunctionInfoViewModel>(SelectStartFunction);
+            IncludeCommand = new DelegateCommand<object>(Include);
+            ExcludeCommand = new DelegateCommand<object>(Exclude);
+            StartFunction = null;
         }
 
-        private string GetOutputPlantumlFile(Profile profile)
-        {
-            return Path.Combine(profile.Directory , profile.BaseFile + ".plantuml");
-        }
+        public ICommand ExcludeCommand { get; set; }
 
-        private string GetOutputSvgFile(Profile profile)
-        {
-            return  Path.Combine(profile.Directory , profile.BaseFile + ".svg");
-        }
+        public ICommand IncludeCommand { get; set; }
 
-        private async void Generate()
+        private void Exclude(object param )
         {
-            try
+            var exclude = param as IList;
+            if (exclude == null)
             {
-                // TODO atr
-                _model = null;
-                await _backgroundService.RunWithProgress(progress => ProcessProfile(progress, _profile));
+                return;
+            }
+            foreach (FunctionInfoViewModel func in exclude)
+            {
+                func.Included = false;
+            }
+        }
 
-                // Model is available
+        private void Include(object param)
+        {
+            var include = param as IList;
+            if (include == null)
+            {
+                return;
+            }
 
-                var exporter = new SequenceModelExporter();
+            foreach (FunctionInfoViewModel func in include)
+            {
+                func.Included = true;
+            }
+        }
 
-                // TODO open new user interface
-                string fullPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                if (_model != null)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+        public ICommand GenerateCommand { get; }
+
+
+        public ObservableCollection<FunctionInfoViewModel> AllPreFilteredFunctions { get; set; }
+
+        public FunctionInfo StartFunction
+        {
+            get => _startFunction;
+            set
+            {
+                if (value == _startFunction)
                 {
-                    var builder = new PlantUmlBuilder();
-                    builder.Title = _profile.BaseFile;
-                    builder.AddCategory("indirect", "color", "#0000FF");
-                    exporter.Export(_model, builder);
-                    builder.WriteOutput(GetOutputPlantumlFile(_profile));
-
-                    var exeDir = Path.GetDirectoryName( fullPath );
-
-                    var psi = new ProcessStartInfo();
-                    psi.FileName = "java.exe";
-                    psi.Arguments = "-jar " + Path.Combine(exeDir, "Dependencies", "plantuml.jar ") + GetOutputPlantumlFile(_profile) + " -tsvg";
-                    psi.CreateNoWindow = true;
-                    psi.RedirectStandardError = true;
-                    psi.RedirectStandardOutput = true;
-                    psi.UseShellExecute = false;
-
-                    var process = System.Diagnostics.Process.Start(psi);
-                    process.WaitForExit();
-
-                    if (process.ExitCode == -1)
-                    {
-                        var error = process.StandardError.ReadToEnd();
-                        throw new Exception(error);
-                    }
-
-
-                    var file = GetOutputSvgFile(_profile);
-                    var viewer = new SvgViewer();
-                    viewer.LoadImage(file);
-                    viewer.Show();
-
-
+                    return;
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Reading profile file failed!");
+
+                _model = null;
+                _startFunction = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanRender));
+                OnErrorsChanged(new DataErrorsChangedEventArgs(nameof(StartFunction)));
             }
         }
+
+        public bool CanRender => StartFunction != null;
+
+        public ICommand SelectStartFunctionCommand { get; set; }
+
+        public bool HasErrors => StartFunction == null;
 
         public void Initialize(Profile profile, Filter preFilter)
         {
@@ -117,44 +121,111 @@ namespace Launcher
             var parser = new ProfileParser();
             _idToFunctionInfo = parser.ParseIndex(profile.IndexFile, preFilter);
 
-            AllPreFilteredFunctions = new ObservableCollection<FunctionInfo>(_idToFunctionInfo.Values.Distinct());
-            Debug.Assert(AllPreFilteredFunctions.Count == _idToFunctionInfo.Count);
-
-
+            var preFiltered = _idToFunctionInfo.Values.Where(info => !info.IsFiltered).Select(info => new FunctionInfoViewModel(info));
+            AllPreFilteredFunctions = new ObservableCollection<FunctionInfoViewModel>(preFiltered);
         }
 
-
-        public ObservableCollection<FunctionInfo> AllPreFilteredFunctions { get; set; }
-        
-
-
-        private FunctionInfo _entryFunction;
-
-        public FunctionInfo EntryFunction
+        public IEnumerable GetErrors(string propertyName)
         {
-            get { return _entryFunction; }
-            set
+            if (propertyName == nameof(StartFunction))
             {
-                if (value == _entryFunction)
+                if (StartFunction == null)
                 {
-                    return;
+                    return new List<string> { "You have to select a function to generate a sequence diagram!" };
                 }
+            }
 
-                _model = null;
-                _entryFunction = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(CanRender));
+            return Enumerable.Empty<string>();
+        }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected virtual void OnErrorsChanged(DataErrorsChangedEventArgs e)
+        {
+            ErrorsChanged?.Invoke(this, e);
+        }
+
+        private void SelectStartFunction(object startFunction)
+        {
+            if (startFunction != null)
+            {
+                var vm = startFunction as FunctionInfoViewModel;
+                StartFunction = vm.Model;
             }
         }
 
-        public bool CanRender
+        private string GetOutputPlantumlFile(Profile profile)
         {
-            get { return EntryFunction != null; }
+            return Path.Combine(profile.Directory, profile.BaseFile.Replace(".", "_") + ".plantuml");
+        }
+
+        private string GetPlantUmlTitle(Profile profile)
+        {
+            return profile.BaseFile.Replace(".", "_");
+        }
+
+        private string GetOutputSvgFile(Profile profile)
+        {
+            return Path.Combine(profile.Directory, profile.BaseFile.Replace(".", "_") + ".svg");
+        }
+
+        private async void Generate()
+        {
+            try
+            {
+                await _backgroundService.RunWithProgress(progress => ProcessProfile(progress, _profile));
+
+                // Model is available
+
+                var exporter = new SequenceModelExporter();
+
+                // TODO open new user interface
+                var fullPath = Assembly.GetExecutingAssembly().Location;
+                if (_model != null)
+                {
+                    var builder = new PlantUmlBuilder();
+                    builder.Title = GetPlantUmlTitle(_profile);
+                    builder.AddCategory("indirect", "color", "#0000FF");
+                    exporter.Export(_model, builder);
+                    builder.WriteOutput(GetOutputPlantumlFile(_profile));
+
+                    var exeDir = Path.GetDirectoryName(fullPath);
+
+                    var psi = new ProcessStartInfo();
+                    psi.FileName = "java.exe";
+                    psi.Arguments = "-jar " + Path.Combine(exeDir, "Dependencies", "plantuml.jar ") + GetOutputPlantumlFile(_profile) + " -tsvg";
+                    psi.CreateNoWindow = true;
+                    psi.RedirectStandardError = true;
+                    psi.RedirectStandardOutput = true;
+                    psi.UseShellExecute = false;
+
+                    var process = Process.Start(psi);
+                    process.WaitForExit();
+
+                    if (process.ExitCode == -1)
+                    {
+                        var error = process.StandardError.ReadToEnd();
+                        throw new Exception(error);
+                    }
+
+                    var file = GetOutputSvgFile(_profile);
+                    var viewer = new SvgViewer();
+                    viewer.LoadImage(file);
+                    viewer.Show();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Reading profile file failed!");
+            }
         }
 
         private void ProcessProfile(IProgress progress, Profile profile)
         {
-            if (EntryFunction == null)
+            if (StartFunction == null)
             {
                 return;
             }
@@ -163,21 +234,15 @@ namespace Launcher
             {
                 var parser = new ProfileParser(progress);
 
-                // Add filter here only for performance.
+                // Mark initial set of functions as filtered.
+                // Only functions that are included here can be edited (included / excluded) later.
                 var eventStream = parser.ParseEventStream(profile.EventFile, _idToFunctionInfo);
 
                 // Call graph variations for the given entry function(s)
-                _model = SequenceModel.FromEventStream(eventStream, EntryFunction);
+                _model = SequenceModel.FromEventStream(eventStream, StartFunction);
 
-                // TODO Entry function is no longer changeble.
+                // If we change the start function later we have to rebuild the model. This means reading the large profile file.
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

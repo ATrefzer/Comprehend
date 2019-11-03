@@ -106,6 +106,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Common\InvertBoolConverter.cs" />
+    <Compile Include="FunctionInfoViewModel.cs" />
     <Compile Include="GraphViewerWindow.xaml.cs">
       <DependentUpon>GraphViewerWindow.xaml</DependentUpon>
     </Compile>

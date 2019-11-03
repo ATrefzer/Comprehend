@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -20,63 +21,47 @@ namespace Launcher
             InitializeComponent();
         }
 
-
-        private void ComboBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            //TextBoxBase.TextChanged="ComboBox_TextChanged" 
-
-            // Collection view filters the visible items in the combobox.
-            _cv = CollectionViewSource.GetDefaultView(_comboFunctions.ItemsSource);
-
-            var text = _comboFunctions.Text.ToUpper();
-            if (string.IsNullOrEmpty(text))
-            {
-                // switch off
-                _cv.Filter = null;
-            }
-            else
-            {
-                // switch filter on
-                _cv.Filter = obj => { return (obj as FunctionInfo).Name.ToUpper().Contains(text); };
-            }
-
-            e.Handled = false;
-        }
-
-        private void _comboFunctions_OnTextChanged(object sender, TextChangedEventArgs e)
-        {
-          
-
-            // Pass character to Text
-            e.Handled = false;
-        }
-
         private void FilterAvailableFunctions()
         {
-            // Collection view filters the visible items in the combobox.
-            _cv = CollectionViewSource.GetDefaultView(_comboFunctions.ItemsSource);
+            // Collection view filters the visible items 
+            var cv = CollectionViewSource.GetDefaultView(_dataGrid.ItemsSource);
 
-            var text = _comboFunctions.Text.ToUpper();
+            var text = _filterText.Text.ToUpper();
+            var hideExcluded = _hideExcludedCheck.IsChecked.HasValue? _hideExcludedCheck.IsChecked.Value : false;
+
             if (string.IsNullOrEmpty(text))
             {
                 // switch off
-                _cv.Filter = null;
+                cv.Filter = null;
             }
             else
             {
                 // switch filter on
-                _cv.Filter = obj => { return (obj as FunctionInfo).Name.ToUpper().Contains(text); };
+                cv.Filter = obj =>
+                            {
+                                var vm = (obj as FunctionInfoViewModel);
+                                if (vm == null) return false;
+
+                                return vm.FullName.ToUpper().Contains(text) && (!hideExcluded || vm.Included);
+                            };
+            
             }
         }
 
-        private void _comboFunctions_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Up && e.Key != Key.Down && e.Key!= Key.Left && e.Key!= Key.Right)
-            {
-                FilterAvailableFunctions();
-            }
 
-            e.Handled = false;
+        private void _filterText_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            FilterAvailableFunctions();
+        }
+
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            FilterAvailableFunctions();
+        }
+
+        private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            FilterAvailableFunctions();
         }
     }
 }

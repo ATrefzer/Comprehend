@@ -8,6 +8,17 @@
         mc:Ignorable="d"
         Title="SvgViewer" Height="450" Width="800">
 
-    <svgc:SvgViewbox x:Name="_viewBox" />
+<DockPanel>
+
+<Slider Minimum="0.1" Maximum="10" DockPanel.Dock="Top" Value="{Binding ZoomFactor}"></Slider>
+
+    <ScrollViewer PanningMode="Both" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" DockPanel.Dock="Bottom">
+        <svgc:SvgViewbox x:Name="_viewBox" >
+       
+        </svgc:SvgViewbox>
+    </ScrollViewer>
+</DockPanel>
+
+    
 
 </Window>

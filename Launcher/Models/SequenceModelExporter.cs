@@ -35,7 +35,10 @@ namespace Launcher.Models
             {
                 var first = sequence.FirstOrDefault();
                 builder.AddEdge("Client.dontCare", first.Item1.Name);
-                builder.Activate(first.Item2.Name);
+
+                // 
+                if (first.Item2 != null)
+                    builder.Activate(first.Item2.Name);
             }
 
             foreach (var call in sequence)

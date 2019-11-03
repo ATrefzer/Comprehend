@@ -32,6 +32,11 @@ namespace Launcher.Profiler
         public string Name{ get; set; }
         public bool IsFiltered{ get; set; }
         public bool IsPublic { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
 

@@ -188,7 +188,8 @@ namespace GraphFormats.PlantUml
 
         private string CleanUpInvalidChars(string input)
         {
-            return input.Replace('`', '_').Replace('<', '_').Replace('>', '_');
+            var clean = input.Replace('`', '_').Replace('<', '_').Replace('>', '_').Replace('-', '_');
+            return clean;
         }
 
         public class Parts

@@ -4,40 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Launcher"
+
         mc:Ignorable="d"
         Title="MethodChooser"
         Height="450"
         Width="800">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="20"/> 
+        </Style>
+    </Window.Resources>
     <DockPanel>
         <GroupBox DockPanel.Dock="Top"
                   Header="Select sequence diagram start function"
                   Margin="5"
                   Padding="5">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Label Content="Function"
-                       Grid.Column="0"/>
-                <!-- IsTextSearchEnabled = False => no auto select when typing. We have own filtering -->
-                <ComboBox ItemsSource="{Binding AllPreFilteredFunctions}"
-                          Grid.Column="1"
-                          DisplayMemberPath="Name"
-                          IsEditable="True"
-                          IsTextSearchEnabled="False"
-                          SelectedItem="{Binding EntryFunction}"
-                          TextBoxBase.TextChanged="_comboFunctions_OnTextChanged"
-                          PreviewKeyDown="_comboFunctions_OnPreviewKeyDown"
-                          StaysOpenOnEdit="True"
-                          x:Name="_comboFunctions">
-                    <ComboBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ComboBox.ItemsPanel>
-                </ComboBox>
-            </Grid>
+            <TextBox Text="{Binding StartFunction, Mode=OneWay}" IsReadOnly="True" />
         </GroupBox>
 
         <!-- Buttons -->
@@ -52,8 +34,47 @@
         </GroupBox>
 
         <!-- Center -->
-        <GroupBox>
-            <DataGrid/>
+        <GroupBox Header="Available functions (pre-filtered)">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+
+                </Grid.ColumnDefinitions>
+                <!-- Filter text -->
+                <TextBox Grid.Row="0"
+                         Margin="0 5 0 5"
+                         x:Name="_filterText"
+                         TextChanged="_filterText_OnTextChanged"
+                         AcceptsReturn="True"/>
+
+<CheckBox Grid.Row="1" Content="Hide excluded functions" IsChecked="{Binding HideExcludedFunctions}" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" x:Name="_hideExcludedCheck"/>
+
+                <DataGrid Grid.Row="2"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding AllPreFilteredFunctions}"
+                          x:Name="_dataGrid">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <!-- Binding from context menu is not so easy because it is not in visual tree 
+                            ContextMenu.PlacementTarget, is the DataGrid -->
+                            <MenuItem Header="Select start function" Command="{Binding SelectStartFunctionCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
+                            <MenuItem Header="Include" Command="{Binding IncludeCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
+                            <MenuItem Header="Exclude" Command="{Binding ExcludeCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Included" Binding="{Binding Included}"/> 
+                        <DataGridTextColumn Header="Function"  Binding="{Binding FullName}" IsReadOnly="true" CanUserReorder="False"/>
+                        <DataGridCheckBoxColumn  Header="Public" Binding="{Binding Public}" IsReadOnly="True" CanUserReorder="False"/> 
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+
         </GroupBox>
 
     </DockPanel>

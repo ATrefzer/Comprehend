@@ -23,16 +23,15 @@ namespace GraphFormats.Msagl
 
         public void AddEdge(string sourceNode, string targetNode)
         {
-            // TODO Polymorphism may cause the same edge twice. But actually these are different
-            // functions with the same name.
-            Debug.Assert(_edges.Add((sourceNode, targetNode)));
+            // TODO Polymorphism may cause the same edge twice. But actually these are different functions with the same name.
+           // Debug.Assert(_edges.Add((sourceNode, targetNode)));
 
             _graph.AddEdge(sourceNode, string.Empty, targetNode);
         }
 
         public void AddEdge(string sourceNode, string targetNode, string category)
         {
-            Debug.Assert(_edges.Add((sourceNode, targetNode)));
+            //Debug.Assert(_edges.Add((sourceNode, targetNode)));
             _graph.AddEdge(sourceNode, string.Empty, targetNode);
         }
 
