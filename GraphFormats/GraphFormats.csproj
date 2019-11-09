@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="Dgml\DgmlFileBuilder.cs" />
     <Compile Include="Dgml\Edge.cs" />
-    <Compile Include="IFunction.cs" />
+    <Compile Include="IFunctionPresentation.cs" />
     <Compile Include="Graphwiz\DotFileBuilder.cs" />
     <Compile Include="Graphwiz\Edge.cs" />
     <Compile Include="ISequencehBuilder.cs" />

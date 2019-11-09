@@ -12,7 +12,7 @@ namespace Launcher.Models
     /// Adds further information to FunctionInfo derived from the stack trace like call graph and recursion
     /// </summary>
     [DebuggerDisplay("Func: {FullName} Hidden={IsFiltered}")]
-    public class FunctionCall : IFunction
+    public class FunctionCall
     {
         private readonly FunctionInfo _info;
 

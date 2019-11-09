@@ -55,17 +55,17 @@ extern "C" void TailCallNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR
 #endif
 
 
-   BOOL IsSignaled(HANDLE hEvent)
-    {
-        BOOL bSignaled = FALSE;
-        DWORD dwResult = WaitForSingleObject(hEvent, 0);
-        if (dwResult == WAIT_OBJECT_0)
-        {
-            bSignaled = TRUE;
-        }
+BOOL IsSignaled(HANDLE hEvent)
+{
+	BOOL bSignaled = FALSE;
+	DWORD dwResult = WaitForSingleObject(hEvent, 0);
+	if (dwResult == WAIT_OBJECT_0)
+	{
+		bSignaled = TRUE;
+	}
 
-        return bSignaled;
-    }
+	return bSignaled;
+}
 
 void Profiler::UpdateEnableState()
 {
@@ -90,12 +90,12 @@ void Profiler::ControllingThread()
 		HANDLE events[2];
 		events[0] = _stop;
 		events[1] = _recordingStateChanged;
-		const auto result = ::WaitForMultipleObjects(2, events, FALSE, INFINITE);
+		const auto result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
 
 		if (result == WAIT_OBJECT_0)
 		{
 			// Shutdown was called
-		
+
 			::OutputDebugString(L"\nTerminating controlling thread.");
 			return;
 		}
@@ -108,26 +108,24 @@ Profiler::Profiler() : _referenceCounter(0)
 {
 	_writer = nullptr;
 	_api = nullptr;
-   	_recordingStateChanged = nullptr;
-   	_recordingState = nullptr;
-   	_stop = nullptr;
-   	
-	
+	_recordingStateChanged = nullptr;
+	_recordingState = nullptr;
+	_stop = nullptr;
 }
 
 Profiler::~Profiler()
 {
 	if (_stop != nullptr)
 	{
-		::CloseHandle(_stop);
+		CloseHandle(_stop);
 	}
 	if (_recordingStateChanged != nullptr)
 	{
-		::CloseHandle(_recordingStateChanged);
+		CloseHandle(_recordingStateChanged);
 	}
 	if (_recordingStateChanged != nullptr)
 	{
-		::CloseHandle(_recordingState);
+		CloseHandle(_recordingState);
 	}
 }
 
@@ -135,18 +133,18 @@ wstring g_module;
 
 HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 {
-	// We expect the launching process to provide these events TODO can be optional
-	_recordingStateChanged = ::OpenEvent(SYNCHRONIZE , FALSE, L"MiniProfiler_RecordingStateChanged_Event");
-	_recordingState = ::OpenEvent(SYNCHRONIZE , FALSE, L"MiniProfiler_RecordingState_Event");
+	// We expect the launching process to provide these events.
+	_recordingStateChanged = ::OpenEvent(SYNCHRONIZE, FALSE, L"MiniProfiler_RecordingStateChanged_Event");
+	_recordingState = ::OpenEvent(SYNCHRONIZE, FALSE, L"MiniProfiler_RecordingState_Event");
 
 	_stop = ::CreateEvent(nullptr, TRUE, FALSE, nullptr);
-	
+
 	if (_recordingStateChanged == nullptr || _recordingState == nullptr || _stop == nullptr)
 	{
-		OutputDebugString (L"Event setup failed");
-		return E_FAIL;	
+		OutputDebugString(L"Event setup failed");
+		return E_FAIL;
 	}
-	
+
 	// Disable profiling for sub processes
 	CppEssentials::Environment::SetVariableToEnvironment(L"COR_ENABLE_PROFILING", L"0");
 
@@ -214,7 +212,6 @@ HRESULT STDMETHODCALLTYPE Profiler::Initialize(IUnknown* pICorProfilerInfo)
 }
 
 
-
 HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 {
 	::OutputDebugString(L"\nProfiler::Shutdown");
@@ -248,7 +245,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 	}
 
 	// TODO sometimes the process is terminated too early.
-	::MessageBox(0, L"Shutdown done!", L"", 0);
+	::MessageBox(nullptr, L"Shutdown done!", L"", 0);
 	::OutputDebugString(L"\nShutdown done");
 
 	return S_OK;

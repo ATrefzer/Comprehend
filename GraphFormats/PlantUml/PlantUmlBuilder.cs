@@ -23,7 +23,7 @@ namespace GraphFormats.PlantUml
         public string Title { get; set; } = "_title";
 
 
-        public void AddEdge(IFunction sourceNode, IFunction targetNode)
+        public void AddEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode)
         {
             // A node is a function that calls another function!
             var edge = CreateEdge(sourceNode, targetNode);
@@ -54,28 +54,28 @@ namespace GraphFormats.PlantUml
             }
         }
 
-        public void Activate(IFunction targetNode)
+        public void Activate(IFunctionPresentation targetNode)
         {
             // Activate a target
             var edge = CreateActivation(targetNode);
             _orderedEdge.Add(edge);
         }
 
-        public void NewObject(IFunction targetNode)
+        public void NewObject(IFunctionPresentation targetNode)
         {
             // Activate a target
             var edge = CreateNewObject(targetNode);
             _orderedEdge.Add(edge);
         }
 
-        public void Deactivate(IFunction sourceNode)
+        public void Deactivate(IFunctionPresentation sourceNode)
         {
             // Deactivate the source
             var edge = CreateDeactivation(sourceNode);
             _orderedEdge.Add(edge);
         }
 
-        public void AddEdge(IFunction sourceNode, IFunction targetNode, string category)
+        public void AddEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode, string category)
         {
             // A node is a function that calls another function!
             var edge = CreateEdge(sourceNode, targetNode);
@@ -165,7 +165,7 @@ namespace GraphFormats.PlantUml
         }
 
 
-        private Edge CreateDeactivation(IFunction sourceNode)
+        private Edge CreateDeactivation(IFunctionPresentation sourceNode)
         {
             // After source called the last function we deactivate it.
 
@@ -175,7 +175,7 @@ namespace GraphFormats.PlantUml
             return edge;
         }
 
-        private Edge CreateActivation(IFunction targetNode)
+        private Edge CreateActivation(IFunctionPresentation targetNode)
         {
             var edge = new Edge();
             edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
@@ -183,7 +183,7 @@ namespace GraphFormats.PlantUml
             return edge;
         }
 
-        private Edge CreateNewObject(IFunction targetNode)
+        private Edge CreateNewObject(IFunctionPresentation targetNode)
         {
             var edge = new Edge();
             edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
@@ -191,7 +191,7 @@ namespace GraphFormats.PlantUml
             return edge;
         }
 
-        private Edge CreateEdge(IFunction sourceNode, IFunction targetNode)
+        private Edge CreateEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode)
         {
             
             var edge = new Edge();

@@ -11,7 +11,6 @@ namespace Launcher
         {
             InitializeComponent();
         }
-        // TODO find a wpf graph control!
         private void GraphViewerWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             //GraphViewer graphViewer = new GraphViewer();

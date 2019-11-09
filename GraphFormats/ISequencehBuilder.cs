@@ -4,13 +4,13 @@ namespace GraphLibrary
 {
     public interface ISequenceBuilder
     {
-        void AddEdge(IFunction sourceNode, IFunction targetNode);
-        void AddEdge(IFunction sourceNode, IFunction targetNode, string category);
+        void AddEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode);
+        void AddEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode, string category);
 
         void AddCategory(string category, string property, string value);
 
-        void Activate(IFunction node);
-        void Deactivate(IFunction node);
-        void NewObject(IFunction targetNode);
+        void Activate(IFunctionPresentation node);
+        void Deactivate(IFunctionPresentation node);
+        void NewObject(IFunctionPresentation targetNode);
     }
 }

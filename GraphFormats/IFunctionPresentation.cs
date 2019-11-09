@@ -1,6 +1,6 @@
 ﻿namespace GraphFormats
 {
-    public interface IFunction
+    public interface IFunctionPresentation
     {
         string TypeName { get; }
 

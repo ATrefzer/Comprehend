@@ -47,44 +47,15 @@ namespace Launcher
             IncludeCommand = new DelegateCommand<object>(Include);
             ExcludeCommand = new DelegateCommand<object>(Exclude);
             StartFunction = null;
-
-            
-        }
-
-        public ICommand ExcludeCommand { get; set; }
-
-        public ICommand IncludeCommand { get; set; }
-
-        private void Exclude(object param )
-        {
-            var exclude = param as IList;
-            if (exclude == null)
-            {
-                return;
-            }
-            foreach (FunctionInfoViewModel func in exclude)
-            {
-                func.Included = false;
-            }
-        }
-
-        private void Include(object param)
-        {
-            var include = param as IList;
-            if (include == null)
-            {
-                return;
-            }
-
-            foreach (FunctionInfoViewModel func in include)
-            {
-                func.Included = true;
-            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+        public ICommand ExcludeCommand { get; set; }
+
+        public ICommand IncludeCommand { get; set; }
 
         public ICommand GenerateCommand { get; }
 
@@ -152,6 +123,34 @@ namespace Launcher
             ErrorsChanged?.Invoke(this, e);
         }
 
+        private void Exclude(object param)
+        {
+            var exclude = param as IList;
+            if (exclude == null)
+            {
+                return;
+            }
+
+            foreach (FunctionInfoViewModel func in exclude)
+            {
+                func.Included = false;
+            }
+        }
+
+        private void Include(object param)
+        {
+            var include = param as IList;
+            if (include == null)
+            {
+                return;
+            }
+
+            foreach (FunctionInfoViewModel func in include)
+            {
+                func.Included = true;
+            }
+        }
+
         private void SelectStartFunction(object startFunction)
         {
             if (startFunction != null)
@@ -186,7 +185,6 @@ namespace Launcher
 
                 var exporter = new SequenceModelExporter();
 
-                // TODO open new user interface
                 var fullPath = Assembly.GetExecutingAssembly().Location;
                 if (_model != null)
                 {
