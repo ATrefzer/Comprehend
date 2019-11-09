@@ -5,6 +5,8 @@ using System.Windows.Documents;
 
 using GraphLibrary;
 
+using Launcher.Profiler;
+
 namespace Launcher.Models
 {
     /// <summary>
@@ -15,8 +17,8 @@ namespace Launcher.Models
     {
         public void Export(SequenceModel model, ISequenceBuilder builder)
         {
-            // TODO builder interface is useless here
-            // TODO process all variations
+            // TODO many variations are not evaluated
+            builder.AddCategory("indirect", "color", "#0000FF");
 
             // From last visible parent skipping hidden calls to another visible 
             // call is presented differently.
@@ -31,14 +33,22 @@ namespace Launcher.Models
             var sequence = variations.First();
 
 
+            // TODO  Clone the model(!) and merge async await
+
+
+
             if (sequence.Any())
             {
                 var first = sequence.FirstOrDefault();
-                builder.AddEdge("Client.dontCare", first.Item1.Name);
+
+                // Activation
+                var dummyInfo = new FunctionInfo(0, "!Client.dontCare.dontCare", true, false);
+                var client = new FunctionCall(dummyInfo);
+                builder.AddEdge(client, first.Item1);
 
                 // 
                 if (first.Item2 != null)
-                    builder.Activate(first.Item2.Name);
+                    builder.Activate(first.Item2);
             }
 
             foreach (var call in sequence)
@@ -57,23 +67,23 @@ namespace Launcher.Models
                     // Signals exit of Item1. This helps to track activations.
                     // Deactivate source node when last function was done.
                     if (!call.Item1.IsFiltered)
-                        builder.Deactivate(call.Item1.Name);
+                        builder.Deactivate(call.Item1);
                     continue;
                 }
 
 
                 if (!call.Item1.IsFiltered && !call.Item2.IsFiltered)
                 {
-                    builder.AddEdge(call.Item1.Name, call.Item2.Name);
+                    builder.AddEdge(call.Item1, call.Item2);
                     
                     // Active the target.
-                    builder.Activate(call.Item2.Name);
+                    builder.Activate(call.Item2);
                 }
                 else if (lastVisibleParent != null && !call.Item2.IsFiltered)
                 {
                     // Skip hidden parts
                     
-                    builder.AddEdge(call.Item1.Name, call.Item2.Name, "indirect"); // TODO AddCategory
+                    builder.AddEdge(call.Item1, call.Item2, "indirect"); // TODO AddCategory
                 }
                 else if (call.Item1.IsFiltered && call.Item2.IsFiltered)
                 {

@@ -52,7 +52,7 @@
                          TextChanged="_filterText_OnTextChanged"
                          AcceptsReturn="True"/>
 
-<CheckBox Grid.Row="1" Content="Hide excluded functions" IsChecked="{Binding HideExcludedFunctions}" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" x:Name="_hideExcludedCheck"/>
+<CheckBox Grid.Row="1" Content="Hide excluded functions" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" x:Name="_hideExcludedCheck"/>
 
                 <DataGrid Grid.Row="2"
                           AutoGenerateColumns="False"

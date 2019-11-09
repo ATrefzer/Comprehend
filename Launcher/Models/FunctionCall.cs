@@ -2,12 +2,17 @@
 using System.Diagnostics;
 using System.Linq;
 
+using GraphFormats;
+
 using Launcher.Profiler;
 
 namespace Launcher.Models
 {
+    /// <summary>
+    /// Adds further information to FunctionInfo derived from the stack trace like call graph and recursion
+    /// </summary>
     [DebuggerDisplay("Func: {Name} Hidden={IsFiltered}")]
-    public class FunctionCall
+    public class FunctionCall : IFunction
     {
         private readonly FunctionInfo _info;
 
@@ -26,7 +31,7 @@ namespace Launcher.Models
 
         public ulong Id => _info.Id;
 
-        public string Name => _info.Name;
+        public string Name => _info.FullName;
 
         public bool HasVisibleChildren { get; set; } = false;
         public bool IsPublic => _info.IsPublic;
@@ -65,5 +70,9 @@ namespace Launcher.Models
 
             return allAncestors.ToList();
         }
+
+        public string TypeName => _info.TypeName;
+
+        public string Function => _info.Function;
     }
 }

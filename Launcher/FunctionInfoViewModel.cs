@@ -14,7 +14,7 @@ namespace Launcher
             _info = info;
             Included = true;
             Public = info.IsPublic;
-            FullName = info.Name;
+            FullName = info.FullName;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

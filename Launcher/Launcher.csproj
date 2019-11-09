@@ -110,6 +110,7 @@
     <Compile Include="GraphViewerWindow.xaml.cs">
       <DependentUpon>GraphViewerWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Profiler\FunctionInfo.cs" />
     <Compile Include="SequenceDiagramSetup.xaml.cs">
       <DependentUpon>SequenceDiagramSetup.xaml</DependentUpon>
     </Compile>

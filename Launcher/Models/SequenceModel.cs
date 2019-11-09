@@ -15,16 +15,21 @@ namespace Launcher.Models
     {
         private static Dictionary<ulong, List<(FunctionCall, FunctionCall)>> _threadIdToSequence;
 
-        private static Filter _filter = Filter.Default();
-
-        private SequenceModel(List<List<(FunctionCall, FunctionCall)>> sequence)
+        private SequenceModel()
         {
-            SequenceVariations = sequence;
+            _threadIdToSequence = new Dictionary<ulong, List<(FunctionCall, FunctionCall)>>();
         }
 
-        public List<List<(FunctionCall, FunctionCall)>> SequenceVariations { get; }
+        public List<List<(FunctionCall, FunctionCall)>> SequenceVariations { get; private set; }
 
-        public static SequenceModel FromEventStream(IEnumerable<ProfilerEvent> eventStream, FunctionInfo entryFunction)
+        public static SequenceModel FromEventStream(IEnumerable<ProfilerEvent> stream, FunctionInfo entryFunction)
+        {
+            var model = new SequenceModel();
+            model.FromEventStream_(stream, entryFunction);
+            return model;
+        }
+
+        public void FromEventStream_(IEnumerable<ProfilerEvent> eventStream, FunctionInfo entryFunction)
         {
             var sequenceVariations = new List<List<(FunctionCall, FunctionCall)>>();
             Clear();
@@ -37,7 +42,7 @@ namespace Launcher.Models
 
                     var stack = FindStackByThreadId(entry.ThreadId);
 
-                    var isEntry = enterFunc.Name == entryFunction.Name;
+                    var isEntry = enterFunc.Name == entryFunction.FullName;
                     if (stack == null && isEntry)
                     {
                         // Create stack only if we find an entry function
@@ -71,7 +76,7 @@ namespace Launcher.Models
                         // We are currently tracking a sequence
                         var activeFunc = GetActiveFunction(stack);
 
-                        if (activeFunc != null && activeFunc.Name == entry.Func.Name)
+                        if (activeFunc != null && activeFunc.Name == entry.Func.FullName)
                         {
                             // Deactivate this functions
                             var leaveFunc = stack.Pop();
@@ -88,7 +93,7 @@ namespace Launcher.Models
 
                                 // Stop tracking calls.
                                 _threadIdToSequence.Remove(entry.ThreadId);
-                                _tidToStack.Remove(entry.ThreadId);
+                                TidToStack.Remove(entry.ThreadId);
                             }
                         }
                         else
@@ -99,23 +104,23 @@ namespace Launcher.Models
                 }
                 else if (entry.Token == Tokens.TokenTailCall)
                 {
-                    if (!_functions.TryGetValue(entry.Func.Id, out var newFunc))
+                    if (!Functions.TryGetValue(entry.Func.Id, out var newFunc))
                     {
                         newFunc = CreateFunctionCall(entry);
                         newFunc.TailCall = true;
-                        _functions.Add(newFunc.Id, newFunc);
+                        Functions.Add(newFunc.Id, newFunc);
                     }
 
                     newFunc.TailCall = true;
                 }
                 else if (entry.Token == Tokens.TokenDestroyThread)
                 {
-                    if (_tidToStack.ContainsKey(entry.ThreadId))
+                    if (TidToStack.ContainsKey(entry.ThreadId))
                     {
-                        _tidToStack.Remove(entry.ThreadId);
+                        TidToStack.Remove(entry.ThreadId);
                     }
 
-                    if (_threadIdToSequence != null && _threadIdToSequence.ContainsKey(entry.ThreadId))
+                    if (_threadIdToSequence.ContainsKey(entry.ThreadId))
                     {
                         _threadIdToSequence.Remove(entry.ThreadId);
                     }
@@ -124,18 +129,12 @@ namespace Launcher.Models
                 }
             }
 
-            var model = new SequenceModel(sequenceVariations);
+            SequenceVariations = sequenceVariations;
             Clear();
-            return model;
         }
 
         private static List<(FunctionCall, FunctionCall)> GetOrCreateSequence(ulong threadId)
         {
-            if (_threadIdToSequence == null)
-            {
-                _threadIdToSequence = new Dictionary<ulong, List<(FunctionCall, FunctionCall)>>();
-            }
-
             if (!_threadIdToSequence.TryGetValue(threadId, out var sequence))
             {
                 sequence = new List<(FunctionCall, FunctionCall)>();

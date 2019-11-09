@@ -12,38 +12,26 @@ namespace GraphFormats.PlantUml
     /// </summary>
     public class PlantUmlBuilder : ISequenceBuilder
     {
-
         // SourceType, TargetType, Method
         private readonly List<Edge> _orderedEdge = new List<Edge>();
 
         private readonly Dictionary<string, Dictionary<string, string>> _categories = new Dictionary<string, Dictionary<string, string>>();
 
-        public Parts SplitFullName(string name)
-        {
-            var parts = new Parts();
 
-            var lastDot = name.LastIndexOf('.');
-            parts.Function = name.Substring(lastDot + 1);
+        private readonly Dictionary<string, string> _asyncAwaitGeneratedFunctionMappings = new Dictionary<string, string>();
 
-            var bang = name.IndexOf('!');
-            if (bang >= 0)
-            {
-                parts.Module = name.Substring(0, bang);
-                parts.TypeName = name.Substring(bang + 1, lastDot - bang - 1);
-            }
-            else
-            {
-                parts.Module = "unknown";
-                parts.TypeName = name.Substring(0, lastDot);
-            }
+        public string Title { get; set; } = "_title";
 
-            return parts;
-        }
 
-        public void AddEdge(string sourceNode, string targetNode)
+        public void AddEdge(IFunction sourceNode, IFunction targetNode)
         {
             // A node is a function that calls another function!
             var edge = CreateEdge(sourceNode, targetNode);
+            if (edge == null)
+            {
+                return;
+            }
+
             _orderedEdge.Add(edge);
         }
 
@@ -66,45 +54,32 @@ namespace GraphFormats.PlantUml
             }
         }
 
-        public void Activate(string targetNode)
+        public void Activate(IFunction targetNode)
         {
             // Activate a target
             var edge = CreateActivation(targetNode);
             _orderedEdge.Add(edge);
         }
 
-        public void Deactivate(string sourceNode)
+        public void Deactivate(IFunction sourceNode)
         {
             // Deactivate the source
             var edge = CreateDeactivation(sourceNode);
             _orderedEdge.Add(edge);
         }
 
-        public void AddEdge(string sourceNode, string targetNode, string category)
+        public void AddEdge(IFunction sourceNode, IFunction targetNode, string category)
         {
-
             // A node is a function that calls another function!
             var edge = CreateEdge(sourceNode, targetNode);
+            if (edge == null)
+            {
+                return;
+            }
+
             edge.Color = FindProperty(category, "color");
             _orderedEdge.Add(edge);
         }
-        string FindProperty(string category, string property)
-        {
-            if (_categories == null)
-                return null;
-
-            if (_categories.TryGetValue(category, out var properties))
-            {
-                if (properties.TryGetValue(property, out var value))
-                {
-                    return value;
-                }
-            }
-
-            return null;
-        }
-
-        public string Title { get; set; } = "_title";
 
         public void WriteOutput(string file)
         {
@@ -127,13 +102,25 @@ namespace GraphFormats.PlantUml
                                 {
                                     writer.WriteLine($"activate {CleanUpInvalidChars(edge.TargetType)}");
                                 }
+
+                                continue;
                             }
                             else if (edge.IsDeactivation)
                             {
                                 if (edge.SourceType != null)
-                                writer.WriteLine($"deactivate {CleanUpInvalidChars(edge.SourceType)}");
+                                {
+                                    writer.WriteLine($"deactivate {CleanUpInvalidChars(edge.SourceType)}");
+                                }
+
+                                continue;
                             }
-                            else if (string.IsNullOrEmpty(edge.Color))
+
+                            if (edge.TargetFunction.EndsWith("ctor"))
+                            {
+                                writer.WriteLine("create " + edge.TargetType);
+                            }
+
+                            if (string.IsNullOrEmpty(edge.Color))
                             {
                                 writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
                             }
@@ -151,40 +138,54 @@ namespace GraphFormats.PlantUml
             }
         }
 
+        private string FindProperty(string category, string property)
+        {
+            if (_categories == null)
+            {
+                return null;
+            }
+
+            if (_categories.TryGetValue(category, out var properties))
+            {
+                if (properties.TryGetValue(property, out var value))
+                {
+                    return value;
+                }
+            }
+
+            return null;
+        }
 
 
-        private Edge CreateDeactivation(string sourceNode)
+        private Edge CreateDeactivation(IFunction sourceNode)
         {
             // After source called the last function we deactivate it.
-            var sourceParts = SplitFullName(sourceNode);
 
             var edge = new Edge();
-            edge.SourceType = sourceParts.TypeName;
+            edge.SourceType = sourceNode.TypeName;
             edge.IsDeactivation = true;
             return edge;
         }
 
-        private Edge CreateActivation(string targetNode)
+        private Edge CreateActivation(IFunction targetNode)
         {
-            var targetParts = SplitFullName(targetNode);
-
             var edge = new Edge();
-            edge.TargetType = targetParts.TypeName;
+            edge.TargetType = targetNode.TypeName;
             edge.IsActivation = true;
             return edge;
         }
 
-        private Edge CreateEdge(string sourceNode, string targetNode)
+        private Edge CreateEdge(IFunction sourceNode, IFunction targetNode)
         {
-            var sourceParts = SplitFullName(sourceNode);
-            var targetParts = SplitFullName(targetNode);
-
+            
             var edge = new Edge();
-            edge.SourceType = sourceParts.TypeName;
-            edge.TargetType = targetParts.TypeName;
-            edge.TargetFunction = targetParts.Function;
+            edge.SourceType = sourceNode.TypeName;
+            edge.TargetType = targetNode.TypeName;
+            edge.TargetFunction = targetNode.Function;
             return edge;
         }
+
+       
 
         private string CleanUpInvalidChars(string input)
         {
@@ -192,16 +193,10 @@ namespace GraphFormats.PlantUml
             return clean;
         }
 
-        public class Parts
-        {
-            public string Module;
-            public string TypeName;
-            public string Function;
-        }
+     
 
         private class Edge
         {
-
             public string TargetFunction { get; set; }
             public string TargetType { get; set; }
             public string SourceType { get; set; }

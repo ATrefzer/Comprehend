@@ -26,19 +26,6 @@ namespace Launcher.Profiler
         TokenTailCall
     }
 
-    public class FunctionInfo
-    {
-        public ulong Id{ get; set; }
-        public string Name{ get; set; }
-        public bool IsFiltered{ get; set; }
-        public bool IsPublic { get; set; }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-    }
-
 
     internal class ProfileParser
     {
@@ -75,7 +62,7 @@ namespace Launcher.Profiler
                 var isPublic = parts[2] == "+" ? true : false;
                 ;
                 var filtered = filter.IsFiltered(funcName);
-                dictionary.Add(funcId, new FunctionInfo { Id = funcId, Name = funcName, IsFiltered = filtered, IsPublic = isPublic });
+                dictionary.Add(funcId, new FunctionInfo(funcId, funcName, isPublic, filtered));
 
                 // Note(!)
                 // Same function is recorded multiple times with different ids!

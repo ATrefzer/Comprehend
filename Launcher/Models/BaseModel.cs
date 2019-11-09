@@ -6,31 +6,31 @@ namespace Launcher.Models
 {
     public class BaseModel
     {
-        protected static readonly Dictionary<ulong, Stack<FunctionCall>> _tidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
+        protected readonly Dictionary<ulong, Stack<FunctionCall>> TidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
 
         // All functions resolved
-        protected static readonly Dictionary<ulong, FunctionCall> _functions = new Dictionary<ulong, FunctionCall>();
+        protected readonly Dictionary<ulong, FunctionCall> Functions = new Dictionary<ulong, FunctionCall>();
 
 
-        protected static FunctionCall GetEnteredFunction(ProfilerEvent entry)
+        protected FunctionCall GetEnteredFunction(ProfilerEvent entry)
         {
             FunctionCall enterFunc = null;
-            if (!_functions.TryGetValue(entry.Func.Id, out enterFunc))
+            if (!Functions.TryGetValue(entry.Func.Id, out enterFunc))
             {
                 enterFunc = CreateFunctionCall(entry);
-                _functions.Add(enterFunc.Id, enterFunc);
+                Functions.Add(enterFunc.Id, enterFunc);
             }
 
             return enterFunc;
         }
 
-        protected static void Clear()
+        protected void Clear()
         {
-            _tidToStack.Clear();
-            _functions.Clear();
+            TidToStack.Clear();
+            Functions.Clear();
         }
 
-        protected static FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
+        protected FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
         {
             if (stack == null)
             {
@@ -47,26 +47,26 @@ namespace Launcher.Models
             return activeFunc;
         }
 
-        protected static Stack<FunctionCall> GetOrCreateStackByThreadId(ulong threadId)
+        protected Stack<FunctionCall> GetOrCreateStackByThreadId(ulong threadId)
         {
             // Find the correct thread such that we find the correct parent function.
-            if (!_tidToStack.TryGetValue(threadId, out var stack))
+            if (!TidToStack.TryGetValue(threadId, out var stack))
             {
                 stack = new Stack<FunctionCall>();
-                _tidToStack.Add(threadId, stack);
+                TidToStack.Add(threadId, stack);
             }
 
             return stack;
         }
 
-        protected static Stack<FunctionCall> FindStackByThreadId(ulong threadId)
+        protected Stack<FunctionCall> FindStackByThreadId(ulong threadId)
         {
             // Find the correct thread such that we find the correct parent function.
-            _tidToStack.TryGetValue(threadId, out var stack);
+            TidToStack.TryGetValue(threadId, out var stack);
             return stack;
         }
 
-        protected static FunctionCall CreateFunctionCall(ProfilerEvent entry)
+        protected FunctionCall CreateFunctionCall(ProfilerEvent entry)
         {
             FunctionCall newFunc;
             newFunc = new FunctionCall(entry.Func);

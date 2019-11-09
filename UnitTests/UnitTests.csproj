@@ -60,6 +60,10 @@
       <Project>{906FEA96-7B8F-4D82-8AF3-D79CE1EF22EE}</Project>
       <Name>GraphFormats</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Launcher\Launcher.csproj">
+      <Project>{8086987a-3e05-4aa5-b997-dd4eeef026f2}</Project>
+      <Name>Launcher</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

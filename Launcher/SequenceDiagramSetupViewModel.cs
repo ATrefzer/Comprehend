@@ -188,7 +188,6 @@ namespace Launcher
                 {
                     var builder = new PlantUmlBuilder();
                     builder.Title = GetPlantUmlTitle(_profile);
-                    builder.AddCategory("indirect", "color", "#0000FF");
                     exporter.Export(_model, builder);
                     builder.WriteOutput(GetOutputPlantumlFile(_profile));
 
