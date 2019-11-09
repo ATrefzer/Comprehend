@@ -1,8 +1,6 @@
-﻿using GraphFormats;
-
-namespace Launcher.Profiler
+﻿namespace Launcher.Profiler
 {
-    public class FunctionInfo 
+    public class FunctionInfo
     {
         public FunctionInfo(ulong id, string fullName, bool isPublic, bool isFiltered)
         {
@@ -47,6 +45,8 @@ namespace Launcher.Profiler
         public bool IsFiltered { get; set; }
         public bool IsPublic { get; set; }
 
+        public bool IsCtor => Function == ".ctor" || Function == "ctor";
+
         public override string ToString()
         {
             return FullName;
@@ -58,11 +58,6 @@ namespace Launcher.Profiler
             var parts = new Parts();
 
             return parts;
-        }
-
-        private bool IsCtor()
-        {
-            return Function.EndsWith("ctor");
         }
 
         public class Parts

@@ -47,6 +47,8 @@ namespace Launcher
             IncludeCommand = new DelegateCommand<object>(Include);
             ExcludeCommand = new DelegateCommand<object>(Exclude);
             StartFunction = null;
+
+            
         }
 
         public ICommand ExcludeCommand { get; set; }
@@ -86,7 +88,9 @@ namespace Launcher
 
         public ICommand GenerateCommand { get; }
 
-
+        /// <summary>
+        /// References the FunctionsInfo objects in the model. So we can edit them directly.
+        /// </summary>
         public ObservableCollection<FunctionInfoViewModel> AllPreFilteredFunctions { get; set; }
 
         public FunctionInfo StartFunction

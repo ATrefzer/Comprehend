@@ -13,4 +13,9 @@ Microsoft\..*
 get_
 set_
 
+// Have to hide this due to following ctor call. Otherwise I cannot use create with plantuml as I want to.
+op_Implicit
 
+// Hide async await internas
+.MoveNext
+.SetStateMachine

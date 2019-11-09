@@ -92,12 +92,12 @@ namespace Launcher.Models
                     if (lastVisibleAncestor.Children.Contains(target))
                     {
                         // Direct call
-                        builder.AddEdge(lastVisibleAncestor.Name, target.Name);
+                        builder.AddEdge(lastVisibleAncestor.FullName, target.FullName);
                     }
                     else
                     {
                         // Indirect call (mark as dashed line)
-                        builder.AddEdge(lastVisibleAncestor.Name, target.Name, "indirect");
+                        builder.AddEdge(lastVisibleAncestor.FullName, target.FullName, "indirect");
                     }
                 }
 

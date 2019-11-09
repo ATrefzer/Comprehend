@@ -11,7 +11,7 @@ namespace Launcher.Models
     /// <summary>
     /// Adds further information to FunctionInfo derived from the stack trace like call graph and recursion
     /// </summary>
-    [DebuggerDisplay("Func: {Name} Hidden={IsFiltered}")]
+    [DebuggerDisplay("Func: {FullName} Hidden={IsFiltered}")]
     public class FunctionCall : IFunction
     {
         private readonly FunctionInfo _info;
@@ -24,14 +24,14 @@ namespace Launcher.Models
         public HashSet<FunctionCall> Children { get; } = new HashSet<FunctionCall>();
         public HashSet<FunctionCall> Parents { get; } = new HashSet<FunctionCall>();
 
-        public bool Recursive { get; internal set; }
+        public bool IsRecursive { get; internal set; }
         public bool TailCall { get; internal set; }
 
         public bool IsFiltered => _info.IsFiltered;
 
         public ulong Id => _info.Id;
 
-        public string Name => _info.FullName;
+        public string FullName => _info.FullName;
 
         public bool HasVisibleChildren { get; set; } = false;
         public bool IsPublic => _info.IsPublic;
@@ -74,5 +74,8 @@ namespace Launcher.Models
         public string TypeName => _info.TypeName;
 
         public string Function => _info.Function;
+
+        public bool IsCtor => _info.IsCtor;
     }
+   
 }

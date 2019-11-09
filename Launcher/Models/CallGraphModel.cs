@@ -101,7 +101,7 @@ namespace Launcher.Models
                     {
                         if (ReferenceEquals(activeFunc, enterFunc))
                         {
-                            activeFunc.Recursive = true;
+                            activeFunc.IsRecursive = true;
                         }
 
                         activeFunc.Children.Add(enterFunc);
@@ -124,7 +124,7 @@ namespace Launcher.Models
                     var stack = GetOrCreateStackByThreadId(entry.ThreadId);
                     var activeFunc = GetActiveFunction(stack);
 
-                    if (activeFunc != null && activeFunc.Name == entry.Func.FullName)
+                    if (activeFunc != null && activeFunc.FullName == entry.Func.FullName)
                     {
                         stack.Pop();
 

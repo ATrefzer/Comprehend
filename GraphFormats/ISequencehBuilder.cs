@@ -11,5 +11,6 @@ namespace GraphLibrary
 
         void Activate(IFunction node);
         void Deactivate(IFunction node);
+        void NewObject(IFunction targetNode);
     }
 }

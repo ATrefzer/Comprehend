@@ -42,7 +42,7 @@ namespace Launcher.Models
 
                     var stack = FindStackByThreadId(entry.ThreadId);
 
-                    var isEntry = enterFunc.Name == entryFunction.FullName;
+                    var isEntry = enterFunc.FullName == entryFunction.FullName;
                     if (stack == null && isEntry)
                     {
                         // Create stack only if we find an entry function
@@ -56,7 +56,7 @@ namespace Launcher.Models
 
                         if (ReferenceEquals(activeFunc, enterFunc))
                         {
-                            activeFunc.Recursive = true;
+                            activeFunc.IsRecursive = true;
                         }
                         else
                         {
@@ -76,7 +76,7 @@ namespace Launcher.Models
                         // We are currently tracking a sequence
                         var activeFunc = GetActiveFunction(stack);
 
-                        if (activeFunc != null && activeFunc.Name == entry.Func.FullName)
+                        if (activeFunc != null && activeFunc.FullName == entry.Func.FullName)
                         {
                             // Deactivate this functions
                             var leaveFunc = stack.Pop();

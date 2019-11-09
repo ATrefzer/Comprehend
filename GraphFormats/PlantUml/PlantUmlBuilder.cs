@@ -61,6 +61,13 @@ namespace GraphFormats.PlantUml
             _orderedEdge.Add(edge);
         }
 
+        public void NewObject(IFunction targetNode)
+        {
+            // Activate a target
+            var edge = CreateNewObject(targetNode);
+            _orderedEdge.Add(edge);
+        }
+
         public void Deactivate(IFunction sourceNode)
         {
             // Deactivate the source
@@ -114,19 +121,20 @@ namespace GraphFormats.PlantUml
 
                                 continue;
                             }
-
-                            if (edge.TargetFunction.EndsWith("ctor"))
-                            {
+                            else if (edge.IsCreation)
+                            { 
                                 writer.WriteLine("create " + edge.TargetType);
-                            }
-
-                            if (string.IsNullOrEmpty(edge.Color))
-                            {
-                                writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
                             }
                             else
                             {
-                                writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -[{edge.Color}]-> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
+                                if (string.IsNullOrEmpty(edge.Color))
+                                {
+                                    writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
+                                }
+                                else
+                                {
+                                    writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -[{edge.Color}]-> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
+                                }
                             }
                         }
                     }
@@ -162,7 +170,7 @@ namespace GraphFormats.PlantUml
             // After source called the last function we deactivate it.
 
             var edge = new Edge();
-            edge.SourceType = sourceNode.TypeName;
+            edge.SourceType = CleanUpInvalidChars(sourceNode.TypeName);
             edge.IsDeactivation = true;
             return edge;
         }
@@ -170,8 +178,16 @@ namespace GraphFormats.PlantUml
         private Edge CreateActivation(IFunction targetNode)
         {
             var edge = new Edge();
-            edge.TargetType = targetNode.TypeName;
+            edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
             edge.IsActivation = true;
+            return edge;
+        }
+
+        private Edge CreateNewObject(IFunction targetNode)
+        {
+            var edge = new Edge();
+            edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
+            edge.IsCreation = true;
             return edge;
         }
 
@@ -179,9 +195,9 @@ namespace GraphFormats.PlantUml
         {
             
             var edge = new Edge();
-            edge.SourceType = sourceNode.TypeName;
-            edge.TargetType = targetNode.TypeName;
-            edge.TargetFunction = targetNode.Function;
+            edge.SourceType = CleanUpInvalidChars(sourceNode.TypeName);
+            edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
+            edge.TargetFunction = CleanUpInvalidChars(targetNode.Function);
             return edge;
         }
 
@@ -205,6 +221,7 @@ namespace GraphFormats.PlantUml
             public string Color { get; set; }
             public bool IsActivation { get; set; }
             public bool IsDeactivation { get; set; }
+            public bool IsCreation { get; set; }
         }
     }
 }
