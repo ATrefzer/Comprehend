@@ -15,7 +15,12 @@ set_
 
 // Have to hide this due to following ctor call. Otherwise I cannot use create with plantuml as I want to.
 op_Implicit
+op_Equals
+op_Equality
 
 // Hide async await internas
 .MoveNext
 .SetStateMachine
+
+// Static method calling its own ctor is not working with plantuml "create"
+DelegateCommand.New

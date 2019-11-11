@@ -95,7 +95,7 @@ namespace Launcher.Models
 
         private void InvokeFunction(FunctionPresentation source, FunctionPresentation target, string category = null)
         {
-            if (target.IsCtor)
+            if (target.IsCtor && source.TypeName != target.TypeName) // Static method calling ctor like DelegateCommand.New
             {
                 // New swim lane before the call is done
                 _builder.NewObject(target);
