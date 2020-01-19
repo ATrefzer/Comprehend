@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using Launcher.Profiler;
@@ -36,6 +37,7 @@ namespace Launcher.Models
 
             foreach (var entry in eventStream)
             {
+               
                 if (entry.Token == Tokens.TokenEnter)
                 {
                     var enterFunc = GetEnteredFunction(entry);
@@ -58,10 +60,8 @@ namespace Launcher.Models
                         {
                             activeFunc.IsRecursive = true;
                         }
-                        else
-                        {
-                            sequence.Add((activeFunc, enterFunc));
-                        }
+                        
+                        sequence.Add((activeFunc, enterFunc));
                     }
 
                     // Here the stack may be null if the entry function is not found so var.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 using GraphLibrary;
@@ -42,8 +43,15 @@ namespace Launcher.Models
             MergeAsyncAwaitInternals(presentationSequence);
             InsertDummyCaller(presentationSequence);
 
+            // TODO Debug
+            //var lines = presentationSequence.Select(tuple => $"{tuple.Item1.FullName}->{tuple.Item2?.FullName}");
+            //File.WriteAllLines("d:\\lines.txt", lines);
+
+            int lineNumber = 0;
             foreach (var (source, target) in presentationSequence)
             {
+                lineNumber++;
+
                 if (target == null || target.IsNull)
                 {
                     ExitFunction(source);
