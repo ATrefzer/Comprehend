@@ -1,6 +1,6 @@
 # Comprehend
 
-Proof of concept: Generating call graphs from profiler traces.
+Proof of concept: Generating sequence diagrams from profiler traces.
 
 ## Prerequisites
 This tool uses the 3rd party component Plantuml to generate sequence diagrams.
