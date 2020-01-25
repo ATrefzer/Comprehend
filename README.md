@@ -24,7 +24,7 @@ Start launcher.exe and run the application to be profiled.
 
 Be aware that a large amount of profiling information is written to the hard disk. Starting a larger application can soon result in 5+ GB. Therefore you can decide when to start collecting data with the "Enable Profiling" checkbox. You can only defer profiling to a later time but you cannot disable it after that. And you cannot attach to a running application.
 
-![image-20200125151207753](.\Images\image-20200125151207753.png)
+![image-20200125151207753](Images/image-20200125151207753.png)
 
 
 
