@@ -32,7 +32,7 @@ Be aware that a large amount of profiling information is written to the hard dis
 
 Go to the tab "Create sequence diagram" and select the profile you collected.
 
-![image-20200125151422908](Images\image-20200125151422908.png)
+![image-20200125151422908](Images/image-20200125151422908.png)
 
 "Edit Pre-Filter" opens a text file that filters a lot of the default .NET namespaces you don't want to see in a sequence diagram. You can add further elements here.
 
@@ -40,14 +40,14 @@ Clicking on "Generate" opens a dialog that lets you define your diagram. You hav
 
 
 
-![image-20200125152251307](Images\image-20200125152251307.png)
+![image-20200125152251307](Images/image-20200125152251307.png)
 
 ## Notes and limitations
 
 The result is shown in an svg viewer. The input plantuml file is written to the output directory.
 
-![image-20200125153650798](Images\image-20200125153650798.png)
+![image-20200125153650798](Images/image-20200125153650798.png)
 
 You can hide method calls in the Method Chooser window. If you hide a call that results in a call you want to see the arrow is drawn in blue color. Meaning the method CycleA calls CycleA indirectly and hiding calls in between.
 
-![image-20200125152916959](Images\image-20200125152916959.png)
+![image-20200125152916959](Images/image-20200125152916959.png)
