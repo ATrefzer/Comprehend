@@ -108,7 +108,7 @@
                             Command="{Binding EditFilterCommand}"
                             Margin="5 5 5 0"/>
                     <Button Content="Generate"
-                            Command="{Binding GenerateCallGraphCommand}"
+                            Command="{Binding OpenMethodChooserCommand}"
                             IsEnabled="{Binding IsProfileSelected}"
                             Margin="5 5 5 0"/>
                 </StackPanel>
@@ -132,7 +132,7 @@
                             Command="{Binding EditFilterCommand}"
                             Margin="5 5 5 0"/>
                     <Button Content="Generate"
-                            Command="{Binding GenerateSequenceDiagramCommand}"
+                            Command="{Binding OpenMethodChooserCommand}"
                             IsEnabled="{Binding IsProfileSelected}"
                             Margin="5 5 5 0"/>
                 </StackPanel>

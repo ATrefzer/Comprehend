@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -24,24 +25,24 @@ using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
-    internal class CallGraphViewModel : INotifyPropertyChanged
+    internal class CallGraphViewModel : INotifyPropertyChanged, IGenerator
     {
         private readonly BackgroundExecutionService _backgroundService;
         private Profile _selectedProfile;
+        private Dictionary<ulong, FunctionInfo> _idToFunctionInfo;
 
 
         public CallGraphViewModel(BackgroundExecutionService backgroundService)
         {
             _backgroundService = backgroundService;
-            GenerateCallGraphCommand = new DelegateCommand(async () => await ExecuteGenerateCallGraphAsync());
+            OpenMethodChooserCommand = new DelegateCommand(() => OpenMethodChooserAsync());
 
-            //GenerateFilteredGraphCommand = new DelegateCommand(ExecuteGenerateFilteredGraph, IsTraceSelected);
             EditFilterCommand = new DelegateCommand(ExecuteEditFilter);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public string WorkingDirectory { get; set; }
-        public ICommand GenerateCallGraphCommand { get; }
+        public ICommand OpenMethodChooserCommand { get; }
         public ICommand EditFilterCommand { get; }
 
         public Profile SelectedProfile
@@ -114,10 +115,10 @@ namespace Launcher
 
             var parser = new ProfileParser(progress);
 
-            var index = parser.ParseIndex(profile.IndexFile, filter);
+         
 
             // Add filter here only for performance.
-            var eventStream = parser.ParseEventStream(profile.EventFile, index);
+            var eventStream = parser.ParseEventStream(profile.EventFile, _idToFunctionInfo);
 
             var model = CallGraphModel.FromEventStream(eventStream);
 
@@ -129,8 +130,38 @@ namespace Launcher
             return Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
         }
 
-        private async Task ExecuteGenerateCallGraphAsync()
+        private void OpenMethodChooserAsync()
         {
+
+            var profile = SelectedProfile;
+            if (profile == null)
+            {
+                Debug.Assert(false);
+            }
+
+            
+            var preFilter = Filter.FromFile(GetFilterFilePath());
+            var parser = new ProfileParser();
+            _idToFunctionInfo = parser.ParseIndex(profile.IndexFile, preFilter);
+            
+            
+            // All functions that are included according to the pre filter file
+            // These functions can be hidden or made visible
+            var preSelection = _idToFunctionInfo.Values.Where(info => !info.IsFiltered).Select(info => new FunctionInfoViewModel(info));
+
+
+            var setupWindow = new MethodChooserView();
+            var viewModel = new MethodChooserViewModel(_backgroundService, WorkingDirectory, this);
+            viewModel.Initialize(preSelection);
+            setupWindow.DataContext = viewModel;
+            setupWindow.Show();
+
+        }
+
+     
+        public async Task ExecuteGenerate(FunctionInfo startFunction)
+        {
+    
             var profile = SelectedProfile;
             if (profile == null)
             {
@@ -163,5 +194,6 @@ namespace Launcher
                 MessageBox.Show(ex.Message, "Reading profile file failed!");
             }
         }
+
     }
 }

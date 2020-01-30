@@ -112,8 +112,8 @@
     </Compile>
     <Compile Include="Models\FunctionPresentation.cs" />
     <Compile Include="Profiler\FunctionInfo.cs" />
-    <Compile Include="SequenceDiagramSetup.xaml.cs">
-      <DependentUpon>SequenceDiagramSetup.xaml</DependentUpon>
+    <Compile Include="MethodChooserView.xaml.cs">
+      <DependentUpon>MethodChooserView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Profiler\Filter.cs" />
@@ -126,7 +126,7 @@
     </Compile>
     <Compile Include="Models\SequenceModel.cs" />
     <Compile Include="Models\SequenceModelExporter.cs" />
-    <Compile Include="SequenceDiagramSetupViewModel.cs" />
+    <Compile Include="MethodChooserViewModel.cs" />
     <Compile Include="SequenceViewModel.cs" />
     <Compile Include="SvgViewer.xaml.cs">
       <DependentUpon>SvgViewer.xaml</DependentUpon>
@@ -142,7 +142,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SequenceDiagramSetup.xaml">
+    <Page Include="MethodChooserView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

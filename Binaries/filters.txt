@@ -24,3 +24,7 @@ op_Equality
 
 // Static method calling its own ctor is not working with plantuml "create"
 DelegateCommand.New
+
+
+Fdt\..*
+lib.Utils\..*

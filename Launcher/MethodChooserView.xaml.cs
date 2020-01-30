@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -7,16 +6,17 @@ using System.Windows.Input;
 
 using Launcher.Profiler;
 
+
 namespace Launcher
 {
     /// <summary>
     /// Interaction logic for MethodChooser.xaml
     /// </summary>
-    public partial class SequenceDiagramSetup : Window
+    public partial class MethodChooserView : Window
     {
         private ICollectionView _cv;
 
-        public SequenceDiagramSetup()
+        public MethodChooserView()
         {
             InitializeComponent();
         }
@@ -62,6 +62,14 @@ namespace Launcher
         private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
             FilterAvailableFunctions();
+        }
+
+        private void _dataGrid_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var row = (DataGridRow)sender;
+            var vm = DataContext as MethodChooserViewModel;
+            var rowVm = (FunctionInfoViewModel) row.DataContext;
+            vm.StartFunction = rowVm.Model;
         }
     }
 }

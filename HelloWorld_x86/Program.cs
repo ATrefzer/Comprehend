@@ -1,7 +1,15 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace HelloWorld_x86
 {
+    class AsyncObj
+    {
+        public async Task CallAsync()
+        {
+            await Task.Delay(1);
+        }
+    }
     internal class App
     {
         public event EventHandler Initialized;
@@ -58,8 +66,11 @@ namespace HelloWorld_x86
 
     internal class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
+            //var obj = new AsyncObj();
+            //await obj.CallAsync().ConfigureAwait(true);
+
             Mult(2, 3);
             Mult(2, 3);
             Add(1, 2);

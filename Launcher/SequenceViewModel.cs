@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
-    internal class SequenceViewModel : INotifyPropertyChanged
+    internal class SequenceViewModel : INotifyPropertyChanged, IGenerator
     {
         private readonly BackgroundExecutionService _backgroundService;
         private Profile _selectedProfile;
@@ -31,15 +32,16 @@ namespace Launcher
         public SequenceViewModel(BackgroundExecutionService backgroundService)
         {
             _backgroundService = backgroundService;
-            GenerateSequenceDiagramCommand = new DelegateCommand(() => ExecuteGenerateSequenceDiagram());
+            OpenMethodChooserCommand = new DelegateCommand(() => OpenMethodChooserAsync());
 
-            //GenerateSequenceDiagramCommand = new DelegateCommand(ExecuteGenerateFilteredGraph, IsTraceSelected);
             EditFilterCommand = new DelegateCommand(ExecuteEditFilter);
         }
 
+
         public event PropertyChangedEventHandler PropertyChanged;
         public string WorkingDirectory { get; set; }
-        public ICommand GenerateSequenceDiagramCommand { get; }
+
+        public ICommand OpenMethodChooserCommand { get; }
         public ICommand EditFilterCommand { get; }
 
         public Profile SelectedProfile
@@ -102,25 +104,147 @@ namespace Launcher
             Process.Start(filterDef);
         }
 
-
-
-        private void ExecuteGenerateSequenceDiagram()
+        private void OpenMethodChooserAsync()
         {
+
             var profile = SelectedProfile;
             if (profile == null)
             {
                 Debug.Assert(false);
             }
 
+            var preFilter = Filter.FromFile(GetFilterFilePath());
+            var parser = new ProfileParser();
+            _idToFunctionInfo = parser.ParseIndex(profile.IndexFile, preFilter);
 
-            var setupWindow = new SequenceDiagramSetup();
-            var viewModel = new SequenceDiagramSetupViewModel(_backgroundService, WorkingDirectory);
-            viewModel.Initialize(profile, Filter.FromFile(GetFilterFilePath()));
+            // All functions that are included according to the pre filter file
+            // These functions can be hidden or made visible
+            var preSelection = _idToFunctionInfo.Values.Where(info => !info.IsFiltered).Select(info => new FunctionInfoViewModel(info));
+
+
+            var setupWindow = new MethodChooserView();
+            var viewModel = new MethodChooserViewModel(_backgroundService, WorkingDirectory, this);
+            viewModel.Initialize(preSelection);
             setupWindow.DataContext = viewModel;
             setupWindow.Show();
 
-
-
         }
+
+        /// <summary>
+        ///  Entry function(s) with all pre-filtered methods including those hidden functions necessary for indirect calls
+        /// </summary>
+        private SequenceModel _fullModel;
+     
+        
+        private string GetPlantUmlTitle(Profile profile)
+        {
+            return profile.BaseFile.Replace(".", "_");
+        }
+
+        
+        private string GetOutputPlantumlFile(Profile profile)
+        {
+            return Path.Combine(profile.Directory, profile.BaseFile.Replace(".", "_") + ".plantuml");
+        }
+
+
+        private string GetOutputSvgFile(Profile profile)
+        {
+            return Path.Combine(profile.Directory, profile.BaseFile.Replace(".", "_") + ".svg");
+        }
+
+
+        private FunctionInfo _startFunction;
+        private Dictionary<ulong, FunctionInfo> _idToFunctionInfo;
+
+        public async Task ExecuteGenerate(FunctionInfo startFunction)
+        {
+            if (_selectedProfile == null)
+                return;
+
+            if (_startFunction != startFunction)
+            {
+                _startFunction = startFunction;
+
+                // Need to process the profile again
+                _fullModel = null;
+            }
+    
+            try
+            {
+               
+
+                await _backgroundService.RunWithProgress(progress => ProcessProfile(progress, _selectedProfile));
+
+                // Model is available with all called functions. No filter applied yet.
+
+                var exporter = new SequenceModelExporter();
+
+                var fullPath = Assembly.GetExecutingAssembly().Location;
+                if (_fullModel != null)
+                {
+                    var builder = new PlantUmlBuilder();
+                    builder.Title = GetPlantUmlTitle(_selectedProfile);
+                    exporter.Export(_fullModel, builder);
+                    builder.WriteOutput(GetOutputPlantumlFile(_selectedProfile));
+
+                    var exeDir = Path.GetDirectoryName(fullPath);
+
+                    var psi = new ProcessStartInfo();
+                    psi.FileName = "java.exe";
+                    psi.Arguments = "-jar " + Path.Combine(exeDir, "Dependencies", "plantuml.jar ") + GetOutputPlantumlFile(_selectedProfile) + " -tsvg";
+                    psi.CreateNoWindow = true;
+                    psi.RedirectStandardError = true;
+                    psi.RedirectStandardOutput = true;
+                    psi.UseShellExecute = false;
+
+                    var process = Process.Start(psi);
+                    process.WaitForExit();
+
+                    if (process.ExitCode == -1)
+                    {
+                        var error = process.StandardError.ReadToEnd();
+                        throw new Exception(error);
+                    }
+
+                    var file = GetOutputSvgFile(_selectedProfile);
+                    var viewer = new SvgViewer();
+                    viewer.LoadImage(file);
+                    viewer.Show();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Reading profile file failed!");
+            }
+        }
+
+
+
+        private void ProcessProfile(IProgress progress, Profile profile)
+        {
+
+            if (_startFunction == null)
+            {
+                return;
+            }
+
+
+            if (_fullModel == null)
+            {
+                var parser = new ProfileParser(progress);
+
+                // Mark initial set of functions as filtered.
+                // Only functions that are included here can be edited (included / excluded) later.
+                var eventStream = parser.ParseEventStream(profile.EventFile, _idToFunctionInfo);
+
+                // Call graph variations for the given entry function(s)
+                _fullModel = SequenceModel.FromEventStream(eventStream, _startFunction);
+
+                // If we change the start function later we have to rebuild the model. This means reading the large profile file.
+            }
+        }
+
+       
     }
 }

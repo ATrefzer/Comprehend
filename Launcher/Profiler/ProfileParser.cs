@@ -36,6 +36,9 @@ namespace Launcher.Profiler
             _progress = progress;
         }
 
+        /// <summary>
+        /// Returns the dictionary with all functions. The functions are marked as "included" according to the filter.
+        /// </summary>
         public Dictionary<ulong, FunctionInfo> ParseIndex(string path, Filter filter)
         {
             // Does a function name appear under different ids?
@@ -50,8 +53,7 @@ namespace Launcher.Profiler
                     continue;
                 }
 
-                // Some method names contain spaces. We string.split does not work reliably.
-                // Fixed spaces in profiler dll.
+                // Some method names contain spaces. Fixed spaces in profiler dll.
 
                 line = line.Trim();
                 var parts = line.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
@@ -60,7 +62,7 @@ namespace Launcher.Profiler
                 var funcId = ulong.Parse(parts[0].Trim());
                 var funcName = parts[1].Trim();
                 var isPublic = parts[2] == "+" ? true : false;
-                ;
+                
                 var filtered = filter.IsFiltered(funcName);
                 dictionary.Add(funcId, new FunctionInfo(funcId, funcName, isPublic, filtered));
 

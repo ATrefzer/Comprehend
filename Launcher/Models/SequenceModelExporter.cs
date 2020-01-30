@@ -6,6 +6,8 @@ using System.Linq;
 
 using GraphLibrary;
 
+using SharpVectors.Dom.Svg;
+
 namespace Launcher.Models
 {
     /// <summary>
@@ -36,7 +38,7 @@ namespace Launcher.Models
                 throw new Exception("No Sequence to generate!");
             }
 
-            var sequence = variations.First();
+            var sequence = variations.Last();
             var presentationSequence = sequence.Select(tuple => (new FunctionPresentation(tuple.Item1), new FunctionPresentation(tuple.Item2))).ToList();
 
             // Optional to get rid of the async await state machine objects
@@ -44,8 +46,8 @@ namespace Launcher.Models
             InsertDummyCaller(presentationSequence);
 
             // TODO Debug
-            //var lines = presentationSequence.Select(tuple => $"{tuple.Item1.FullName}->{tuple.Item2?.FullName}");
-            //File.WriteAllLines("d:\\lines.txt", lines);
+            var lines = presentationSequence.Select(tuple => $"{tuple.Item1.FullName}->{tuple.Item2?.FullName}");
+            File.WriteAllLines("d:\\lines.txt", lines);
 
             int lineNumber = 0;
             foreach (var (source, target) in presentationSequence)

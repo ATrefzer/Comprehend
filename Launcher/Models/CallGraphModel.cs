@@ -130,7 +130,8 @@ namespace Launcher.Models
 
                         // Reduce memory by cleaning up while we process the event stream.
                         // We remove all functions that are hidden and only call hidden functions!
-                        CleanupHiddenCalls(Functions, activeFunc);
+          // TODO atr Does not work properly+
+          CleanupHiddenCalls(Functions, activeFunc);
                     }
                     else
                     {
