@@ -59,16 +59,17 @@
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding AllPreFilteredFunctions}"
                           x:Name="_dataGrid" >
-                    <DataGrid.RowStyle>
+                    <!--<DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <EventSetter Event="MouseDoubleClick" Handler="_dataGrid_OnMouseDoubleClick" />
                         </Style>
-                        </DataGrid.RowStyle>
+                        </DataGrid.RowStyle>-->
                     <DataGrid.ContextMenu>
                         <ContextMenu>
                             <!-- Binding from context menu is not so easy because it is not in visual tree 
                             ContextMenu.PlacementTarget, is the DataGrid -->
                             <MenuItem Header="Select start function" Command="{Binding SelectStartFunctionCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
+                            <MenuItem Header="Select only start function" Command="{Binding SelectOnlyStartFunctionCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
                             <MenuItem Header="Include" Command="{Binding IncludeCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
                             <MenuItem Header="Exclude" Command="{Binding ExcludeCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
                         </ContextMenu>

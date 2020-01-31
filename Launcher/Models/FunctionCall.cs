@@ -48,7 +48,8 @@ namespace Launcher.Models
 
         public List<FunctionCall> GetAncestorChain()
         {
-            var allAncestors = new HashSet<FunctionCall>(Parents);
+            // Has to be empty by default otherwise it stops on first parent!
+            var allAncestors = new HashSet<FunctionCall>();
 
             // Start with direct parents
             var toProcess = new Queue<FunctionCall>(Parents);
@@ -70,6 +71,7 @@ namespace Launcher.Models
 
             return allAncestors.ToList();
         }
+
 
         public string TypeName => _info.TypeName;
 

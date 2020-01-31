@@ -41,10 +41,13 @@ namespace Launcher
             _workingDirectory = workingDirectory;
             GenerateCommand = new DelegateCommand(async () => await generator.ExecuteGenerate(StartFunction));
             SelectStartFunctionCommand = new DelegateCommand<FunctionInfoViewModel>(SelectStartFunction);
+            SelectOnlyStartFunctionCommand = new DelegateCommand<FunctionInfoViewModel>(SelectOnlyStartFunction);
             IncludeCommand = new DelegateCommand<object>(Include);
             ExcludeCommand = new DelegateCommand<object>(Exclude);
             StartFunction = null;
         }
+
+      
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -83,6 +86,7 @@ namespace Launcher
         public bool CanRender => StartFunction != null;
 
         public ICommand SelectStartFunctionCommand { get; set; }
+        public ICommand SelectOnlyStartFunctionCommand { get; set; }
 
         public bool HasErrors => StartFunction == null;
 
@@ -143,12 +147,26 @@ namespace Launcher
             }
         }
 
-        private void SelectStartFunction(object startFunction)
+        private void SelectStartFunction(FunctionInfoViewModel startFunction)
         {
             if (startFunction != null)
             {
                 var vm = startFunction as FunctionInfoViewModel;
                 StartFunction = vm.Model;
+            }
+        }
+        private void SelectOnlyStartFunction(object startFunction)
+        {
+            if (startFunction != null)
+            {
+                var vm = startFunction as FunctionInfoViewModel;
+                StartFunction = vm.Model;
+
+                foreach (var func in AllPreFilteredFunctions)
+                {
+                    var included = func == startFunction;
+                   func.Included = included;
+                }
             }
         }
 

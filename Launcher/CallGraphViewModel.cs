@@ -110,18 +110,12 @@ namespace Launcher
 
         private CallGraphModel ProcessProfile(IProgress progress, Profile profile)
         {
-            //var filter = Filter.Default();
-            var filter = Filter.FromFile(GetFilterFilePath());
-
             var parser = new ProfileParser(progress);
-
-         
 
             // Add filter here only for performance.
             var eventStream = parser.ParseEventStream(profile.EventFile, _idToFunctionInfo);
 
             var model = CallGraphModel.FromEventStream(eventStream);
-
             return model;
         }
 
@@ -155,7 +149,6 @@ namespace Launcher
             viewModel.Initialize(preSelection);
             setupWindow.DataContext = viewModel;
             setupWindow.Show();
-
         }
 
      

@@ -28,44 +28,33 @@ namespace Launcher.Models
             return model;
         }
 
-
-        private static void MarkAllAncestorOfVisibleChild(FunctionCall activeFunc)
+        /// <summary>
+        /// We need to mark (keep) all ancestors as soon as we have any visible child in the graph.
+        /// parent -> hidden -> visible shall be shown in the graph. We just skip the hidden stuff.
+        /// </summary>
+        private static void MarkAncestorsIfVisible(FunctionCall enteredFunc)
         {
-            var ancestors = activeFunc.GetAncestorChain();
-            foreach (var ancestor in ancestors)
+            if (!enteredFunc.IsFiltered)
             {
-                ancestor.HasVisibleChildren = true;
+                var ancestors = enteredFunc.GetAncestorChain();
+                foreach (var ancestor in ancestors)
+                {
+                    ancestor.HasVisibleChildren = true;
+                }
             }
+        }
 
-            //var processedParent = new HashSet<ulong>();
-
-            //// Mark all parents that the have at least one visible child
-            //var parents = new Queue<FunctionCall>();
-            //parents.Enqueue(activeFunc);
-            //while (parents.Any())
-            //{
-            //    var parent = parents.Dequeue();
-            //    processedParent.Add(parent.Id);
-            //    if (parent.HasVisibleChildren == false)
-            //    {
-            //        parent.HasVisibleChildren = true;
-
-            //        foreach (var ancestor in parent.Parents)
-            //        {
-            //            if (!processedParent.Contains(ancestor.Id))
-            //            {
-            //                parents.Enqueue(ancestor);
-            //            }
-            //        }
-            //    }
-            //}
+        private static void RemoveFrom(Dictionary<ulong, FunctionCall> allFunctions, ulong id)
+        {
+            allFunctions.Remove(id);
         }
 
         private static void CleanupHiddenCalls(Dictionary<ulong, FunctionCall> allFunctions, FunctionCall exitFunc)
         {
             if (CanRemove(exitFunc))
             {
-                allFunctions.Remove(exitFunc.Id);
+                //Debug.WriteLine("Removing " + exitFunc.FullName);
+                RemoveFrom(allFunctions, exitFunc.Id);
 
                 // Cleanup all calls to this function. There is nothing worth down there.
                 foreach (var parent in exitFunc.Parents)
@@ -107,12 +96,9 @@ namespace Launcher.Models
                         activeFunc.Children.Add(enterFunc);
                         enterFunc.Parents.Add(activeFunc);
 
-                        if (!enterFunc.IsFiltered)
-                        {
-                            // We cant remove the ancestors of enterFunc because they contain at least
-                            // one visible child.
-                            MarkAllAncestorOfVisibleChild(activeFunc);
-                        }
+                        // We cant remove the ancestors of enterFunc because they contain at least
+                        // one visible child.
+                        MarkAncestorsIfVisible(enterFunc);
                     }
 
                     // This is the new active function 
@@ -130,8 +116,8 @@ namespace Launcher.Models
 
                         // Reduce memory by cleaning up while we process the event stream.
                         // We remove all functions that are hidden and only call hidden functions!
-          // TODO atr Does not work properly+
-          CleanupHiddenCalls(Functions, activeFunc);
+                        // TODO atr Does not work properly+
+                        CleanupHiddenCalls(Functions, activeFunc);
                     }
                     else
                     {

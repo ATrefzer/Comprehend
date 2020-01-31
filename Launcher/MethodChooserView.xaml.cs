@@ -64,12 +64,17 @@ namespace Launcher
             FilterAvailableFunctions();
         }
 
-        private void _dataGrid_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var row = (DataGridRow)sender;
-            var vm = DataContext as MethodChooserViewModel;
-            var rowVm = (FunctionInfoViewModel) row.DataContext;
-            vm.StartFunction = rowVm.Model;
-        }
+        //private void _dataGrid_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        //{
+        //    var row = (DataGridRow)sender;
+        //    var vm = DataContext as MethodChooserViewModel;
+        //    var rowVm = (FunctionInfoViewModel) row.DataContext;
+
+        //    // Clicking the check box for including a row would be recognized as double click.
+        //    if (vm.StartFunction == null)
+        //    {
+        //        vm.StartFunction = rowVm.Model;
+        //    }
+        //}
     }
 }
