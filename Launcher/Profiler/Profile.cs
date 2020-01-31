@@ -11,7 +11,7 @@ namespace Launcher.Profiler
             BaseFile = baseFile;
         }
 
-        public string Directory { get; set; }
+        public string Directory { get; }
 
         public string BaseFile { get; }
 

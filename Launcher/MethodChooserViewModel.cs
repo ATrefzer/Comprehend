@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -14,8 +13,6 @@ using Launcher.Profiler;
 
 
 using Prism.Commands;
-
-using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
@@ -47,7 +44,6 @@ namespace Launcher
             StartFunction = null;
         }
 
-      
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -57,14 +53,17 @@ namespace Launcher
 
         public ICommand IncludeCommand { get; set; }
 
-        public ICommand GenerateCommand { get; }
+        public ICommand GenerateCommand { get; set; }
+
+        public ICommand SelectStartFunctionCommand { get; set; }
+        public ICommand SelectOnlyStartFunctionCommand { get; set; }
 
         /// <summary>
         /// References the FunctionsInfo objects in the model. So we can edit them directly.
         /// </summary>
         public ObservableCollection<FunctionInfoViewModel> AllPreFilteredFunctions { get; set; }
 
-        public bool HasStartFunction { get; } = true;
+        public bool HasStartFunction { get; set; } = true;
 
         public FunctionInfo StartFunction
         {
@@ -83,10 +82,9 @@ namespace Launcher
             }
         }
 
-        public bool CanRender => StartFunction != null;
+        public bool CanRender => !HasStartFunction || StartFunction != null;
 
-        public ICommand SelectStartFunctionCommand { get; set; }
-        public ICommand SelectOnlyStartFunctionCommand { get; set; }
+      
 
         public bool HasErrors => StartFunction == null;
 
@@ -100,7 +98,7 @@ namespace Launcher
         {
             if (propertyName == nameof(StartFunction))
             {
-                if (StartFunction == null)
+                if (StartFunction == null && HasStartFunction)
                 {
                     return new List<string> { "You have to select a function to generate a sequence diagram!" };
                 }
@@ -151,15 +149,15 @@ namespace Launcher
         {
             if (startFunction != null)
             {
-                var vm = startFunction as FunctionInfoViewModel;
+                var vm = startFunction;
                 StartFunction = vm.Model;
             }
         }
-        private void SelectOnlyStartFunction(object startFunction)
+        private void SelectOnlyStartFunction(FunctionInfoViewModel startFunction)
         {
             if (startFunction != null)
             {
-                var vm = startFunction as FunctionInfoViewModel;
+                var vm = startFunction;
                 StartFunction = vm.Model;
 
                 foreach (var func in AllPreFilteredFunctions)

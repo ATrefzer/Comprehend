@@ -25,7 +25,7 @@ namespace Launcher
         private bool _isRunning;
         private string _outputDirectory;
 
-        private bool _isProfilingEnabled = true;
+        private bool _isProfilingEnabled;
 
         public TracingViewModel()
         {

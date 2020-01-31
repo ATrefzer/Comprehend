@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
-namespace GraphLibrary.Dgml
+namespace GraphFormats.Dgml
 {
     /// <summary>
     /// Builder class to create a directed graph file to be processed with Visual Studio.
@@ -175,7 +175,7 @@ namespace GraphLibrary.Dgml
         /// </summary>
         private string GetOrCreateNodeId(string nodeName)
         {
-            string id = null;
+            string id;
 
             _nodeNamesToId.TryGetValue(nodeName, out id);
 

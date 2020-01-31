@@ -1,6 +1,4 @@
-﻿using GraphFormats;
-
-namespace GraphLibrary
+﻿namespace GraphFormats
 {
     public interface ISequenceBuilder
     {

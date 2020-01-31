@@ -2,8 +2,6 @@
 using System.IO;
 using System.Linq;
 
-using GraphLibrary;
-
 namespace GraphFormats.PlantUml
 {
     /// <summary>
@@ -17,8 +15,6 @@ namespace GraphFormats.PlantUml
 
         private readonly Dictionary<string, Dictionary<string, string>> _categories = new Dictionary<string, Dictionary<string, string>>();
 
-
-        private readonly Dictionary<string, string> _asyncAwaitGeneratedFunctionMappings = new Dictionary<string, string>();
 
         public string Title { get; set; } = "_title";
 

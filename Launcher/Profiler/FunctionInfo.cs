@@ -40,10 +40,10 @@
         /// </summary>
         public string TypeName { get; }
 
-        public ulong Id { get; set; }
-        public string FullName { get; set; }
+        public ulong Id { get; }
+        public string FullName { get; }
         public bool IsFiltered { get; set; }
-        public bool IsPublic { get; set; }
+        public bool IsPublic { get; }
 
         public bool IsCtor => Function == ".ctor" || Function == "ctor";
 

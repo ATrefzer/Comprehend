@@ -1,4 +1,4 @@
-﻿namespace GraphLibrary.Dgml
+﻿namespace GraphFormats.Dgml
 {
     /// <summary>
     /// Represents an edge to be rendered.
@@ -18,9 +18,9 @@
             Category = category;
         }
 
-        public string Source { get; set; }
-        public string Target { get; set; }
+        public string Source { get; }
+        public string Target { get; }
 
-        public string Category { get; set; }
+        public string Category { get; }
     }
 }

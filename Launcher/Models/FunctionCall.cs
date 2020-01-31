@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 
-using GraphFormats;
-
 using Launcher.Profiler;
 
 namespace Launcher.Models

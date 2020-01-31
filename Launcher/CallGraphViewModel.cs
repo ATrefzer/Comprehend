@@ -11,9 +11,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
+using GraphFormats.Dgml;
 using GraphFormats.Msagl;
-
-using GraphLibrary.Dgml;
 
 using Launcher.Execution;
 using Launcher.Models;
@@ -121,7 +120,7 @@ namespace Launcher
 
         private string GetOutputDgmlFile(Profile profile)
         {
-            return Path.Combine(WorkingDirectory, SelectedProfile + ".graph.dgml");
+            return Path.Combine(WorkingDirectory, profile + ".graph.dgml");
         }
 
         private void OpenMethodChooserAsync()
@@ -146,6 +145,7 @@ namespace Launcher
 
             var setupWindow = new MethodChooserView();
             var viewModel = new MethodChooserViewModel(_backgroundService, WorkingDirectory, this);
+            viewModel.HasStartFunction = false;
             viewModel.Initialize(preSelection);
             setupWindow.DataContext = viewModel;
             setupWindow.Show();

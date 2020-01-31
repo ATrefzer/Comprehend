@@ -13,13 +13,14 @@
         <Style TargetType="TextBox">
             <Setter Property="Height" Value="20"/> 
         </Style>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
     <DockPanel>
         <GroupBox DockPanel.Dock="Top"
                   Header="Select start function"
                   Margin="5"
                   Padding="5"
-                  Visibility ="{Binding HasEntryFunction}">
+                  Visibility ="{Binding HasStartFunction, Converter={StaticResource BooleanToVisibilityConverter}}">
             <TextBox Text="{Binding StartFunction, Mode=OneWay}" IsReadOnly="True" />
         </GroupBox>
 

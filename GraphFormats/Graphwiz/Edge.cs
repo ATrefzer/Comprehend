@@ -1,4 +1,4 @@
-﻿namespace GraphLibrary.Graphwiz
+﻿namespace GraphFormats.Graphwiz
 {
     /// <summary>
     /// Represents an edge to be rendered by Graphwiz.

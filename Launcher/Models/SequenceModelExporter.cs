@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
-using GraphLibrary;
-
-using SharpVectors.Dom.Svg;
+using GraphFormats;
 
 namespace Launcher.Models
 {
@@ -45,9 +42,9 @@ namespace Launcher.Models
             MergeAsyncAwaitInternals(presentationSequence);
             InsertDummyCaller(presentationSequence);
 
-            // TODO Debug
-            var lines = presentationSequence.Select(tuple => $"{tuple.Item1.FullName}->{tuple.Item2?.FullName}");
-            File.WriteAllLines("d:\\lines.txt", lines);
+            // Debug
+            //var lines = presentationSequence.Select(tuple => $"{tuple.Item1.FullName}->{tuple.Item2?.FullName}");
+            //File.WriteAllLines("d:\\lines.txt", lines);
 
             int lineNumber = 0;
             foreach (var (source, target) in presentationSequence)

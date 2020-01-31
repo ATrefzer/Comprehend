@@ -2,9 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Input;
-
-using Launcher.Profiler;
 
 
 namespace Launcher
@@ -12,7 +9,7 @@ namespace Launcher
     /// <summary>
     /// Interaction logic for MethodChooser.xaml
     /// </summary>
-    public partial class MethodChooserView : Window
+    public sealed partial class MethodChooserView : Window
     {
         private ICollectionView _cv;
 

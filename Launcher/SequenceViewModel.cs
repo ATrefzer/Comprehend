@@ -199,6 +199,11 @@ namespace Launcher
                     psi.UseShellExecute = false;
 
                     var process = Process.Start(psi);
+                    if (process == null)
+                    {
+                        return;
+                    }
+
                     process.WaitForExit();
 
                     if (process.ExitCode == -1)

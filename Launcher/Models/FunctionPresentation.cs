@@ -7,12 +7,8 @@ namespace Launcher.Models
     [DebuggerDisplay("Type: {TypeName} Func={Function} Ctor={IsCtor}")]
     internal class FunctionPresentation : IFunctionPresentation
     {
-        private readonly FunctionCall _call;
-
         public FunctionPresentation(FunctionCall call)
         {
-            _call = call;
-
             if (call == null)
             {
                 IsNull = true;

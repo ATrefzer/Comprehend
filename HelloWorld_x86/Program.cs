@@ -70,6 +70,7 @@ namespace HelloWorld_x86
         {
             //var obj = new AsyncObj();
             //await obj.CallAsync().ConfigureAwait(true);
+            //Following code runs in different thread and is no longer in sequence diagram
 
             Mult(2, 3);
             Mult(2, 3);

@@ -6,25 +6,9 @@
 #include <cassert>
 #include "Stack.h"
 
-// TODO
-// 1. How fast ist it?
-// 2. Trigger function
-// 3. launcher => Select executable, enter trigger function, specify output file.
-
 FunctionInfo* CallGraphExporter::AddFunctionInfo(FunctionID funcId)
 {
-
-    // TODO If this is the trigger function: Mark it!
-    // Enter trigger function starts monitoring. Leave exists it.
-    // No second run. After it is done it is done.
 	auto info = _api->CreateFunctionInfo(funcId);
-
-
-	/*bool isHidden = info->_moduleName.find(L"mscorlib.dll") != std::wstring::npos;
-	if (isHidden)
-	{
-		info->SetHidden();
-	}*/
 
 	_funcInfos.emplace(info->_id, info);
     return info;

@@ -1,4 +1,4 @@
-﻿namespace GraphLibrary
+﻿namespace GraphFormats
 {
     public interface IGraphBuilder
     {

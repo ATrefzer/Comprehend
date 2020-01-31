@@ -14,7 +14,7 @@ namespace Launcher.Models
 
         protected FunctionCall GetEnteredFunction(ProfilerEvent entry)
         {
-            FunctionCall enterFunc = null;
+            FunctionCall enterFunc;
             if (!Functions.TryGetValue(entry.Func.Id, out enterFunc))
             {
                 enterFunc = CreateFunctionCall(entry);
@@ -71,12 +71,6 @@ namespace Launcher.Models
             FunctionCall newFunc;
             newFunc = new FunctionCall(entry.Func);
             return newFunc;
-        }
-
-
-        private BaseModel CreateFromEventStream()
-        {
-            return null;
         }
     }
 }

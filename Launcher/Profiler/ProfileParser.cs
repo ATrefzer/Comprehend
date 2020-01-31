@@ -61,7 +61,7 @@ namespace Launcher.Profiler
 
                 var funcId = ulong.Parse(parts[0].Trim());
                 var funcName = parts[1].Trim();
-                var isPublic = parts[2] == "+" ? true : false;
+                var isPublic = parts[2] == "+";
                 
                 var filtered = filter.IsFiltered(funcName);
                 dictionary.Add(funcId, new FunctionInfo(funcId, funcName, isPublic, filtered));

@@ -1,8 +1,4 @@
-﻿using System.IO;
-
-using GraphFormats.PlantUml;
-
-using Launcher.Profiler;
+﻿using Launcher.Profiler;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
