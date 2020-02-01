@@ -102,7 +102,7 @@ namespace Launcher
                     }
 
 
-                    var tmp = _fullModel.AllFunctions.Where(f => f.FullName.Contains("BeforeChecksumsUpdated"));
+                    //var tmp = _fullModel.AllFunctions.Where(f => f.FullName.Contains("CallAsync"));
 
                     // Export to dgml
                     var dgml = new DgmlFileBuilder();

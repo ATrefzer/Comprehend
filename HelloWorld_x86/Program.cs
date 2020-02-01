@@ -7,7 +7,20 @@ namespace HelloWorld_x86
     {
         public async Task CallAsync()
         {
+            Foo();
+            await CallAsync2();
             await Task.Delay(1);
+        }
+
+        public async Task CallAsync2()
+        {
+            await Task.Delay(1);
+            Foo();
+        }
+
+        private void Foo()
+        {
+
         }
     }
     internal class App
@@ -68,10 +81,11 @@ namespace HelloWorld_x86
     {
         public static async Task Main(string[] args)
         {
-            //var obj = new AsyncObj();
-            //await obj.CallAsync().ConfigureAwait(true);
+            var obj = new AsyncObj();
+            await obj.CallAsync().ConfigureAwait(true);
             //Following code runs in different thread and is no longer in sequence diagram
 
+/*
             Mult(2, 3);
             Mult(2, 3);
             Add(1, 2);
@@ -90,6 +104,7 @@ namespace HelloWorld_x86
             Poly();
 
             Console.ReadKey();
+            */
         }
 
         private static int Add(int a, int b)

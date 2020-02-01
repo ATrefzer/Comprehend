@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 using GraphFormats;
@@ -39,7 +40,9 @@ namespace Launcher.Models
             var presentationSequence = sequence.Select(tuple => (new FunctionPresentation(tuple.Item1), new FunctionPresentation(tuple.Item2))).ToList();
 
             // Optional to get rid of the async await state machine objects
-            MergeAsyncAwaitInternals(presentationSequence);
+
+            // When I wrote this code it seemed to make sense. What changed?
+            // MergeAsyncAwaitInternals(presentationSequence);
             InsertDummyCaller(presentationSequence);
 
             // Debug
@@ -143,6 +146,8 @@ namespace Launcher.Models
             }
         }
 
+      
+/*
         private void MergeAsyncAwaitInternals(List<(FunctionPresentation, FunctionPresentation)> presentationSequence)
         {
             // An async await call is detected when a method creates an state machine object (ctor)
@@ -201,5 +206,6 @@ namespace Launcher.Models
                 }
             }
         }
+        */
     }
 }
