@@ -106,13 +106,10 @@ namespace Launcher
 
         private void OpenMethodChooserAsync()
         {
-
             var profile = SelectedProfile;
-            if (profile == null)
-            {
-                Debug.Assert(false);
-            }
+            Debug.Assert(profile != null);
 
+            _fullModel = null;
             var preFilter = Filter.FromFile(GetFilterFilePath());
             var parser = new ProfileParser();
             _idToFunctionInfo = parser.ParseIndex(profile.IndexFile, preFilter);
@@ -126,7 +123,7 @@ namespace Launcher
             var viewModel = new MethodChooserViewModel(_backgroundService, WorkingDirectory, this);
             viewModel.Initialize(preSelection);
             setupWindow.DataContext = viewModel;
-            setupWindow.Show();
+            setupWindow.ShowDialog();
 
         }
 

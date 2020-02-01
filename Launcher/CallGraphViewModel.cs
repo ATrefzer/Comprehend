@@ -30,6 +30,8 @@ namespace Launcher
         private Profile _selectedProfile;
         private Dictionary<ulong, FunctionInfo> _idToFunctionInfo;
 
+        private CallGraphModel _fullModel;
+
 
         public CallGraphViewModel(BackgroundExecutionService backgroundService)
         {
@@ -76,6 +78,49 @@ namespace Launcher
             SelectedProfile = null;
         }
 
+        public async Task ExecuteGenerate(FunctionInfo startFunction)
+        {
+            var profile = SelectedProfile;
+            if (profile == null)
+            {
+                Debug.Assert(false);
+                return;
+            }
+
+            try
+            {
+                await _backgroundService.RunWithProgress(progress => ProcessProfile(progress, profile));
+
+                var exporter = new CallGraphExporter();
+
+                if (_fullModel != null)
+                {
+                    if (_fullModel.AllFunctions.Count(func => func.IsFiltered == false) > 100)
+                    {
+                        MessageBox.Show("There are more than 100 functions in your call graph. I'm not drawing it.");
+                        return;
+                    }
+
+
+                    var tmp = _fullModel.AllFunctions.Where(f => f.FullName.Contains("BeforeChecksumsUpdated"));
+
+                    // Export to dgml
+                    var dgml = new DgmlFileBuilder();
+                    exporter.Export(_fullModel, dgml);
+                    dgml.WriteOutput(GetOutputDgmlFile(profile));
+
+                    // Show graph in window
+                    var msagl = new MsaglGrapBuilder();
+                    exporter.Export(_fullModel, msagl);
+                    msagl.ShowResult();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Reading profile file failed!");
+            }
+        }
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -107,15 +152,19 @@ namespace Launcher
         }
 
 
-        private CallGraphModel ProcessProfile(IProgress progress, Profile profile)
+        private void ProcessProfile(IProgress progress, Profile profile)
         {
+            if (_fullModel != null)
+            {
+                return;
+            }
+
             var parser = new ProfileParser(progress);
 
             // Add filter here only for performance.
             var eventStream = parser.ParseEventStream(profile.EventFile, _idToFunctionInfo);
 
-            var model = CallGraphModel.FromEventStream(eventStream);
-            return model;
+            _fullModel = CallGraphModel.FromEventStream(eventStream);
         }
 
         private string GetOutputDgmlFile(Profile profile)
@@ -125,68 +174,24 @@ namespace Launcher
 
         private void OpenMethodChooserAsync()
         {
-
             var profile = SelectedProfile;
-            if (profile == null)
-            {
-                Debug.Assert(false);
-            }
+            Debug.Assert(profile != null);
 
-            
+            _fullModel = null;
             var preFilter = Filter.FromFile(GetFilterFilePath());
             var parser = new ProfileParser();
             _idToFunctionInfo = parser.ParseIndex(profile.IndexFile, preFilter);
-            
-            
+
             // All functions that are included according to the pre filter file
             // These functions can be hidden or made visible
             var preSelection = _idToFunctionInfo.Values.Where(info => !info.IsFiltered).Select(info => new FunctionInfoViewModel(info));
-
 
             var setupWindow = new MethodChooserView();
             var viewModel = new MethodChooserViewModel(_backgroundService, WorkingDirectory, this);
             viewModel.HasStartFunction = false;
             viewModel.Initialize(preSelection);
             setupWindow.DataContext = viewModel;
-            setupWindow.Show();
+            setupWindow.ShowDialog();
         }
-
-     
-        public async Task ExecuteGenerate(FunctionInfo startFunction)
-        {
-    
-            var profile = SelectedProfile;
-            if (profile == null)
-            {
-                Debug.Assert(false);
-                return;
-            }
-
-            CallGraphModel model = null;
-            try
-            {
-                await _backgroundService.RunWithProgress(progress => model = ProcessProfile(progress, profile));
-
-                var exporter = new CallGraphExporter();
-
-                if (model != null)
-                {
-                    // Export to dgml
-                    var dgml = new DgmlFileBuilder();
-                    exporter.Export(model, dgml);
-                    dgml.WriteOutput(GetOutputDgmlFile(profile));
-
-                    // Show graph in window
-                    var msagl = new MsaglGrapBuilder();
-                    exporter.Export(model, msagl);
-                    msagl.ShowResult();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Reading profile file failed!");
-            }
-        }
-
     }
 }

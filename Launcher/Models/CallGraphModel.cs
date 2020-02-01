@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms.VisualStyles;
 
 using Launcher.Profiler;
 
@@ -36,7 +37,7 @@ namespace Launcher.Models
         {
             if (!enteredFunc.IsFiltered)
             {
-                var ancestors = enteredFunc.GetAncestorChain();
+                var ancestors = enteredFunc.GetAncestorChain(true);
                 foreach (var ancestor in ancestors)
                 {
                     ancestor.HasVisibleChildren = true;

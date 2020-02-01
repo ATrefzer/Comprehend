@@ -26,7 +26,7 @@ namespace Launcher.Models
             _visibleParents = new Stack<FunctionPresentation>();
             _builder = builder;
 
-            // TODO many variations are not evaluated
+            // TODO many variations are not evaluated. Input arg should be a single sequence!
             builder.AddCategory("indirect", "color", "#0000FF");
 
             var variations = model.SequenceVariations;

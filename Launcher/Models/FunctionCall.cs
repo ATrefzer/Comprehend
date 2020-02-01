@@ -44,7 +44,12 @@ namespace Launcher.Models
             return _info.Id.GetHashCode();
         }
 
-        public List<FunctionCall> GetAncestorChain()
+        /// <summary>
+        /// excludeAncestorsWithVisibleChildren is an performance optimization. Parents that are already marked as parents
+        /// of visible children don't need to be processed any further.
+        /// </summary>
+        /// <returns></returns>
+        public List<FunctionCall> GetAncestorChain(bool excludeAncestorsWithVisibleChildren = false)
         {
             // Has to be empty by default otherwise it stops on first parent!
             var allAncestors = new HashSet<FunctionCall>();
@@ -55,7 +60,10 @@ namespace Launcher.Models
             while (toProcess.Any())
             {
                 var parent = toProcess.Dequeue();
-                if (allAncestors.Add(parent))
+
+                bool addParent = !excludeAncestorsWithVisibleChildren || !parent.HasVisibleChildren;
+
+                if (addParent && allAncestors.Add(parent))
                 {
                     foreach (var ancestor in parent.Parents)
                     {

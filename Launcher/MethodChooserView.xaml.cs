@@ -26,7 +26,7 @@ namespace Launcher
             var text = _filterText.Text.ToUpper();
             var hideExcluded = _hideExcludedCheck.IsChecked.HasValue? _hideExcludedCheck.IsChecked.Value : false;
 
-            if (string.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text) && !hideExcluded)
             {
                 // switch off
                 cv.Filter = null;
