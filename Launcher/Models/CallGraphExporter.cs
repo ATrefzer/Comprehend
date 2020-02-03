@@ -34,18 +34,18 @@ namespace Launcher.Models
         {
             _processed.Clear();
 
-            // Starting point: User entry functions
+            // User visible functions
             var selection = new HashSet<FunctionCall>();
             var starting = model.AllFunctions.Where(f => IsIncluded(f)).ToList();
             selection.UnionWith(starting);
 
             // Include (visible) parents
-            foreach (var func in starting)
-            {
-                selection.UnionWith(func.GetAncestorChain().Where(f => IsIncluded(f)));
-            }
+            //foreach (var func in starting)
+            //{
+            //    selection.UnionWith(func.GetAncestorChain().Where(f => IsIncluded(f)));
+            //}
 
-            // Include children
+            //Include children
             foreach (var func in selection)
             {
                 Build(builder, null, func);

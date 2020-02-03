@@ -5,17 +5,19 @@ using System.Text.RegularExpressions;
 
 namespace Launcher.Profiler
 {
+    ///<summary>
+    /// 1. No filters at all, default is everything is visible
+    /// 2. Only include filters, default is everything is hidden
+    /// 3. Only exclude filters, default in everything is visible
+    /// 4. Both filters, default is everything is hidden, then include is applied,
+    ///    the exclude to exclude again.
+    ///</summary>
     public class Filter
     {
         private readonly List<Regex> _excludeRules = new List<Regex>();
         private readonly List<Regex> _includeRules = new List<Regex>();
         private readonly List<Regex> _entryRules = new List<Regex>();
 
-
-        public List<Regex> GetEntryFunctions()
-        {
-            return _entryRules.ToList();
-        }
         private Filter()
         {
         }
@@ -78,14 +80,14 @@ namespace Launcher.Profiler
             return filter;
         }
 
+
+        public List<Regex> GetEntryFunctions()
+        {
+            return _entryRules.ToList();
+        }
+
         public bool IsFiltered(string function)
         {
-            // 1. No filters at all, default is everything is visible
-            // 2. Only include filters, default is everything is hidden
-            // 3. Only exclude filters, default in everything is visible
-            // 4. Both filters, default is everything is hidden, then include is applied, 
-            //    the exclude to exclude again.
-
             if (!_includeRules.Any() && !_excludeRules.Any())
             {
                 // No filtes at all, default is everything is visible

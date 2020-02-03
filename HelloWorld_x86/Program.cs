@@ -5,17 +5,28 @@ namespace HelloWorld_x86
 {
     class AsyncObj
     {
+        public bool IsBusy
+        {
+            set => CallAsync3().Wait();
+        }
+
         public async Task CallAsync()
         {
-            Foo();
+            IsBusy = true;
             await CallAsync2();
-            await Task.Delay(1);
+            IsBusy = false;
         }
 
         public async Task CallAsync2()
         {
             await Task.Delay(1);
             Foo();
+        }
+
+        public async Task CallAsync3()
+        {
+            await Task.Delay(1);
+         
         }
 
         private void Foo()
@@ -81,11 +92,12 @@ namespace HelloWorld_x86
     {
         public static async Task Main(string[] args)
         {
-            var obj = new AsyncObj();
-            await obj.CallAsync().ConfigureAwait(true);
+            //var obj = new AsyncObj();
+            //await obj.CallAsync().ConfigureAwait(true);
+
             //Following code runs in different thread and is no longer in sequence diagram
 
-/*
+
             Mult(2, 3);
             Mult(2, 3);
             Add(1, 2);
@@ -97,14 +109,11 @@ namespace HelloWorld_x86
             app.Initialize();
             app.RunCycle();
             app.RunRecursion();
-
-          
-
             Poly(2);
             Poly();
 
-            Console.ReadKey();
-            */
+            //Console.ReadKey();
+
         }
 
         private static int Add(int a, int b)

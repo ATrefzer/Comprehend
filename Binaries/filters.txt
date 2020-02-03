@@ -19,8 +19,8 @@ op_Equals
 op_Equality
 
 // Hide async await internas
-.MoveNext
-.SetStateMachine
+//.MoveNext
+//.SetStateMachine
 
 // Static method calling its own ctor is not working with plantuml "create"
 DelegateCommand.New
