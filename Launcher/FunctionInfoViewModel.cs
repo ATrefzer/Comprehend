@@ -7,11 +7,12 @@ namespace Launcher
 {
     internal class FunctionInfoViewModel : INotifyPropertyChanged
     {
-        private readonly FunctionInfo _info;
+        public readonly FunctionInfo Info;
+        private bool _hidden = false;
 
         public FunctionInfoViewModel(FunctionInfo info)
         {
-            _info = info;
+            Info = info;
             Included = true;
             Public = info.IsPublic;
             FullName = info.FullName;
@@ -21,10 +22,23 @@ namespace Launcher
 
         public bool Included
         {
-            get => !_info.IsFiltered;
+            get => !Info.IsFiltered;
             set
             {
-                _info.IsFiltered = !value;
+                Info.IsFiltered = !value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Function is not reachable or contained in the model.
+        /// </summary>
+        public bool Hidden
+        {
+            get => _hidden;
+            set
+            {
+                _hidden = value;
                 OnPropertyChanged();
             }
         }
@@ -33,7 +47,7 @@ namespace Launcher
 
         public bool Public { get; set; }
 
-        public FunctionInfo Model => _info;
+        public FunctionInfo Model => Info;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

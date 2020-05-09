@@ -39,6 +39,7 @@ namespace Launcher.Models
             var starting = model.AllFunctions.Where(f => IsIncluded(f)).ToList();
             selection.UnionWith(starting);
 
+            // Visible parents are already in the list of included functions
             // Include (visible) parents
             //foreach (var func in starting)
             //{

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Launcher"
-
+        xmlns:Res="clr-namespace:Launcher.Resources"
         mc:Ignorable="d"
         Title="MethodChooser"
         Height="450"
@@ -16,6 +16,17 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
     <DockPanel>
+
+        <Border BorderBrush="Black" DockPanel.Dock="Top" BorderThickness="1"
+                
+                Visibility="{Binding ShowInstructions, Converter={StaticResource BooleanToVisibilityConverter}}"
+                >
+            <TextBlock  Padding="10" 
+                        Background="LightYellow" 
+                        Text="{Binding Instructions}" TextWrapping="Wrap" />
+</Border>
+
+
         <GroupBox DockPanel.Dock="Top"
                   Header="Select start function"
                   Margin="5"
@@ -41,6 +52,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -55,8 +67,9 @@
                          AcceptsReturn="True"/>
 
 <CheckBox Grid.Row="1" Content="Hide excluded functions" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" x:Name="_hideExcludedCheck"/>
+                <CheckBox Grid.Row="2" Content="Hide functions not in model" Checked="HideNotInModel_OnChecked" Unchecked="HideNotInModel_OnUnchecked" x:Name="_hideFunctionsNotInModelCheck"/>
 
-                <DataGrid Grid.Row="2"
+                <DataGrid Grid.Row="3"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding AllPreFilteredFunctions}"
                           x:Name="_dataGrid" >

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 using Launcher.Execution;
@@ -19,6 +20,8 @@ namespace Launcher
     interface IGenerator
     {
         Task ExecuteGenerate(FunctionInfo startFunction);
+
+        HashSet<FunctionInfo> GetModelFunctions();
     }
 
     internal class MethodChooserViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
@@ -36,7 +39,27 @@ namespace Launcher
         {
             _backgroundService = backgroundService;
             _workingDirectory = workingDirectory;
-            GenerateCommand = new DelegateCommand(async () => await generator.ExecuteGenerate(StartFunction));
+            GenerateCommand = new DelegateCommand(async () =>
+                                                  {
+                                                      await generator.ExecuteGenerate(StartFunction);
+                                                      var functionsInModel = generator.GetModelFunctions();
+
+                                                      if (!functionsInModel.Any())
+                                                      {
+                                                          foreach (var preFiltered in AllPreFilteredFunctions)
+                                                              preFiltered.Hidden = false;
+                                                          return;
+                                                      }
+
+
+                                                      foreach (var preFiltered in AllPreFilteredFunctions)
+                                                      {
+                                                          preFiltered.Hidden = !functionsInModel.Contains(preFiltered.Info);
+                                                      }
+
+
+
+                                                  });
             SelectStartFunctionCommand = new DelegateCommand<FunctionInfoViewModel>(SelectStartFunction);
             SelectOnlyStartFunctionCommand = new DelegateCommand<FunctionInfoViewModel>(SelectOnlyStartFunction);
             IncludeCommand = new DelegateCommand<object>(Include);
@@ -93,6 +116,8 @@ namespace Launcher
         {
             AllPreFilteredFunctions = new ObservableCollection<FunctionInfoViewModel>(preFiltered);
         }
+
+      
 
         public IEnumerable GetErrors(string propertyName)
         {
@@ -167,8 +192,16 @@ namespace Launcher
                 }
             }
         }
+        public bool ShowInstructions => _instructions != null;
+        public string Instructions => _instructions;
+
+     
+        private string _instructions;
 
 
-       
+        public void SetInstructions(string instructions)
+        {
+            _instructions = instructions;
+        }
     }
 }

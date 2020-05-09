@@ -23,13 +23,13 @@ using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
-    internal class SequenceViewModel : INotifyPropertyChanged, IGenerator
+    internal class SequenceTabViewModel : INotifyPropertyChanged, IGenerator
     {
         private readonly BackgroundExecutionService _backgroundService;
         private Profile _selectedProfile;
 
 
-        public SequenceViewModel(BackgroundExecutionService backgroundService)
+        public SequenceTabViewModel(BackgroundExecutionService backgroundService)
         {
             _backgroundService = backgroundService;
             OpenMethodChooserCommand = new DelegateCommand(() => OpenMethodChooserAsync());
@@ -121,6 +121,7 @@ namespace Launcher
 
             var setupWindow = new MethodChooserView();
             var viewModel = new MethodChooserViewModel(_backgroundService, WorkingDirectory, this);
+            viewModel.SetInstructions(Launcher.Resources.Resources.InstructionSequence);
             viewModel.Initialize(preSelection);
             setupWindow.DataContext = viewModel;
             setupWindow.ShowDialog();
@@ -153,6 +154,9 @@ namespace Launcher
 
         private FunctionInfo _startFunction;
         private Dictionary<ulong, FunctionInfo> _idToFunctionInfo;
+
+
+
 
         public async Task ExecuteGenerate(FunctionInfo startFunction)
         {
@@ -221,6 +225,21 @@ namespace Launcher
             }
         }
 
+        public HashSet<FunctionInfo> GetModelFunctions()
+        {
+            if (_fullModel == null)
+                return new HashSet<FunctionInfo>();
+
+            var allFunctionsInModel = new HashSet<FunctionInfo>();
+            var allCalls = _fullModel.SequenceVariations.SelectMany(variation => variation);
+            foreach (var tpl in allCalls)
+            {
+                if (tpl.Item1 != null) allFunctionsInModel.Add(tpl.Item1.Info);
+                if (tpl.Item2 != null) allFunctionsInModel.Add(tpl.Item2.Info);
+            }
+
+            return allFunctionsInModel ;
+        }
 
 
         private void ProcessProfile(IProgress progress, Profile profile)

@@ -25,8 +25,9 @@ namespace Launcher
 
             var text = _filterText.Text.ToUpper();
             var hideExcluded = _hideExcludedCheck.IsChecked.HasValue? _hideExcludedCheck.IsChecked.Value : false;
+            var hideFunctionsNotIncluded = _hideFunctionsNotInModelCheck.IsChecked.HasValue? _hideFunctionsNotInModelCheck.IsChecked.Value : false;
 
-            if (string.IsNullOrEmpty(text) && !hideExcluded)
+            if (string.IsNullOrEmpty(text) && !hideExcluded && !hideFunctionsNotIncluded)
             {
                 // switch off
                 cv.Filter = null;
@@ -37,7 +38,8 @@ namespace Launcher
                 cv.Filter = obj =>
                             {
                                 var vm = (obj as FunctionInfoViewModel);
-                                if (vm == null) return false;
+                                if (vm == null || vm.Hidden) return false;
+
 
                                 return vm.FullName.ToUpper().Contains(text) && (!hideExcluded || vm.Included);
                             };
@@ -73,5 +75,14 @@ namespace Launcher
         //        vm.StartFunction = rowVm.Model;
         //    }
         //}
+        private void HideNotInModel_OnChecked(object sender, RoutedEventArgs e)
+        {
+            FilterAvailableFunctions();
+        }
+
+        private void HideNotInModel_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            FilterAvailableFunctions();
+        }
     }
 }

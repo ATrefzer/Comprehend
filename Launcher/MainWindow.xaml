@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Launcher"
         xmlns:Common="clr-namespace:Launcher.Common"
+        xmlns:Res="clr-namespace:Launcher.Resources"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:TracingViewModel, IsDesignTimeCreatable=True}"
         Title="Launcher"
@@ -125,6 +126,7 @@
                  x:Name="_sequenceTab">
 
             <DockPanel>
+                
                 <StackPanel Orientation="Vertical"
                             DockPanel.Dock="Right"
                             Width=" 130">

@@ -24,7 +24,7 @@ using Process = System.Diagnostics.Process;
 
 namespace Launcher
 {
-    internal class CallGraphViewModel : INotifyPropertyChanged, IGenerator
+    internal class CallGraphTabViewModel : INotifyPropertyChanged, IGenerator
     {
         private readonly BackgroundExecutionService _backgroundService;
         private Profile _selectedProfile;
@@ -33,7 +33,7 @@ namespace Launcher
         private CallGraphModel _fullModel;
 
 
-        public CallGraphViewModel(BackgroundExecutionService backgroundService)
+        public CallGraphTabViewModel(BackgroundExecutionService backgroundService)
         {
             _backgroundService = backgroundService;
             OpenMethodChooserCommand = new DelegateCommand(() => OpenMethodChooserAsync());
@@ -121,6 +121,11 @@ namespace Launcher
             }
         }
 
+        public HashSet<FunctionInfo> GetModelFunctions()
+        {
+            return new HashSet<FunctionInfo>();
+        }
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -189,6 +194,7 @@ namespace Launcher
             var setupWindow = new MethodChooserView();
             var viewModel = new MethodChooserViewModel(_backgroundService, WorkingDirectory, this);
             viewModel.HasStartFunction = false;
+            viewModel.SetInstructions(Launcher.Resources.Resources.InstructionCallGraph);
             viewModel.Initialize(preSelection);
             setupWindow.DataContext = viewModel;
             setupWindow.ShowDialog();

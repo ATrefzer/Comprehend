@@ -15,8 +15,8 @@ namespace Launcher
     public partial class App : Application
     {
         private TracingViewModel _traceViewModel;
-        private CallGraphViewModel _callGraphViewModel;
-        private SequenceViewModel _sequenceViewModel;
+        private CallGraphTabViewModel _callGraphTabViewModel;
+        private SequenceTabViewModel _sequenceTabViewModel;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -29,16 +29,16 @@ namespace Launcher
             var service = new BackgroundExecutionService(wnd);
 
             _traceViewModel = new TracingViewModel();
-            _sequenceViewModel = new SequenceViewModel(service);
-            _callGraphViewModel = new CallGraphViewModel(service);
+            _sequenceTabViewModel = new SequenceTabViewModel(service);
+            _callGraphTabViewModel = new CallGraphTabViewModel(service);
             _traceViewModel.Target = Settings.Default.LastTarget;
             _traceViewModel.OutputDirectory = outputDirectory;
-            _callGraphViewModel.WorkingDirectory = outputDirectory;
+            _callGraphTabViewModel.WorkingDirectory = outputDirectory;
             _traceViewModel.AvailableTracesChanged += TraceViewModelOnAvailableTracesChanged;
 
             wnd._trace.DataContext = _traceViewModel;
-            wnd._callgraphTab.DataContext = _callGraphViewModel;
-            wnd._sequenceTab.DataContext = _sequenceViewModel;
+            wnd._callgraphTab.DataContext = _callGraphTabViewModel;
+            wnd._sequenceTab.DataContext = _sequenceTabViewModel;
 
             // Load initially available traces from the output directory
             UpdateAvailableTraces();
@@ -70,8 +70,8 @@ namespace Launcher
             }
 
             // Update all view models
-            _callGraphViewModel.RefreshAvailableProfiles(workingDirectory, availableProfiles);
-            _sequenceViewModel.RefreshAvailableProfiles(workingDirectory, availableProfiles);
+            _callGraphTabViewModel.RefreshAvailableProfiles(workingDirectory, availableProfiles);
+            _sequenceTabViewModel.RefreshAvailableProfiles(workingDirectory, availableProfiles);
         }
 
         protected override void OnExit(ExitEventArgs e)

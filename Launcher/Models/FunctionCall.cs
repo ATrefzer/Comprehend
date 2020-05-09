@@ -12,11 +12,11 @@ namespace Launcher.Models
     [DebuggerDisplay("Func: {FullName} Hidden={IsFiltered}")]
     public class FunctionCall
     {
-        private readonly FunctionInfo _info;
+        public readonly FunctionInfo Info;
 
         public FunctionCall(FunctionInfo info)
         {
-            _info = info;
+            Info = info;
         }
 
         public HashSet<FunctionCall> Children { get; } = new HashSet<FunctionCall>();
@@ -25,23 +25,23 @@ namespace Launcher.Models
         public bool IsRecursive { get; internal set; }
         public bool TailCall { get; internal set; }
 
-        public bool IsFiltered => _info.IsFiltered;
+        public bool IsFiltered => Info.IsFiltered;
 
-        public ulong Id => _info.Id;
+        public ulong Id => Info.Id;
 
-        public string FullName => _info.FullName;
+        public string FullName => Info.FullName;
 
         public bool HasVisibleChildren { get; set; } = false;
-        public bool IsPublic => _info.IsPublic;
+        public bool IsPublic => Info.IsPublic;
 
         public override bool Equals(object obj)
         {
-            return _info.Id == ((FunctionCall) obj)._info.Id;
+            return Info.Id == ((FunctionCall) obj).Info.Id;
         }
 
         public override int GetHashCode()
         {
-            return _info.Id.GetHashCode();
+            return Info.Id.GetHashCode();
         }
 
         /// <summary>
@@ -79,11 +79,11 @@ namespace Launcher.Models
         }
 
 
-        public string TypeName => _info.TypeName;
+        public string TypeName => Info.TypeName;
 
-        public string Function => _info.Function;
+        public string Function => Info.Function;
 
-        public bool IsCtor => _info.IsCtor;
+        public bool IsCtor => Info.IsCtor;
     }
    
 }

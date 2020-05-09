@@ -100,7 +100,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Execution\BackgroundExecutionService.cs" />
-    <Compile Include="CallGraphViewModel.cs" />
+    <Compile Include="CallGraphTabViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -127,7 +127,12 @@
     <Compile Include="Models\SequenceModel.cs" />
     <Compile Include="Models\SequenceModelExporter.cs" />
     <Compile Include="MethodChooserViewModel.cs" />
-    <Compile Include="SequenceViewModel.cs" />
+    <Compile Include="Resources\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SequenceTabViewModel.cs" />
     <Compile Include="SvgViewer.xaml.cs">
       <DependentUpon>SvgViewer.xaml</DependentUpon>
     </Compile>
@@ -158,19 +163,15 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+    <EmbeddedResource Include="Resources\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -187,5 +188,6 @@
       <Name>GraphFormats</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
