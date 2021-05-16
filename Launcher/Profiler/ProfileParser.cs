@@ -107,11 +107,6 @@ namespace Launcher.Profiler
                     entry.Token = token;
                     entry.ThreadId = tid;
 
-                    // Debug
-                    //if (numEvent == 164062777-1)
-                    //{
-                    //    Debugger.Break();
-                    //}
 
                     if (token == Tokens.TokenEnter || token == Tokens.TokenLeave || token == Tokens.TokenTailCall)
                     {

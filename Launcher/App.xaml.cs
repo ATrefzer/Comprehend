@@ -12,11 +12,11 @@ namespace Launcher
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
-        private TracingViewModel _traceViewModel;
+        private ProfilerViewModel _profilerViewModel;
         private CallGraphTabViewModel _callGraphTabViewModel;
-        private SequenceTabViewModel _sequenceTabViewModel;
+        private CallTreeTabViewModel _callTreeTabViewModel;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -28,17 +28,18 @@ namespace Launcher
 
             var service = new BackgroundExecutionService(wnd);
 
-            _traceViewModel = new TracingViewModel();
-            _sequenceTabViewModel = new SequenceTabViewModel(service);
+            _profilerViewModel = new ProfilerViewModel();
             _callGraphTabViewModel = new CallGraphTabViewModel(service);
-            _traceViewModel.Target = Settings.Default.LastTarget;
-            _traceViewModel.OutputDirectory = outputDirectory;
-            _callGraphTabViewModel.WorkingDirectory = outputDirectory;
-            _traceViewModel.AvailableTracesChanged += TraceViewModelOnAvailableTracesChanged;
+            _callTreeTabViewModel = new CallTreeTabViewModel(service);
 
-            wnd._trace.DataContext = _traceViewModel;
-            wnd._callgraphTab.DataContext = _callGraphTabViewModel;
-            wnd._sequenceTab.DataContext = _sequenceTabViewModel;
+            _profilerViewModel.Target = Settings.Default.LastTarget;
+            _profilerViewModel.OutputDirectory = outputDirectory;
+            _callGraphTabViewModel.WorkingDirectory = outputDirectory;
+            _profilerViewModel.AvailableTracesChanged += ProfilerViewModelOnAvailableProfilersChanged;
+
+            wnd._trace.DataContext = _profilerViewModel;
+            wnd._callGraphTab.DataContext = _callGraphTabViewModel;
+            wnd._callTreeTab.DataContext = _callTreeTabViewModel;
 
             // Load initially available traces from the output directory
             UpdateAvailableTraces();
@@ -47,9 +48,9 @@ namespace Launcher
             wnd.Show();
         }
 
-        protected void UpdateAvailableTraces()
+        private void UpdateAvailableTraces()
         {
-            var workingDirectory = _traceViewModel.OutputDirectory;
+            var workingDirectory = _profilerViewModel.OutputDirectory;
 
             var availableProfiles = new List<Profile>();
 
@@ -71,20 +72,20 @@ namespace Launcher
 
             // Update all view models
             _callGraphTabViewModel.RefreshAvailableProfiles(workingDirectory, availableProfiles);
-            _sequenceTabViewModel.RefreshAvailableProfiles(workingDirectory, availableProfiles);
+            _callTreeTabViewModel.RefreshAvailableProfiles(workingDirectory, availableProfiles);
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            _traceViewModel.AvailableTracesChanged -= TraceViewModelOnAvailableTracesChanged;
+            _profilerViewModel.AvailableTracesChanged -= ProfilerViewModelOnAvailableProfilersChanged;
 
-            Settings.Default.LastTarget = _traceViewModel.Target;
+            Settings.Default.LastTarget = _profilerViewModel.Target;
             Settings.Default.Save();
 
             base.OnExit(e);
         }
 
-        private void TraceViewModelOnAvailableTracesChanged(object sender, TracesArg e)
+        private void ProfilerViewModelOnAvailableProfilersChanged(object sender, TracesArg e)
         {
             // Propagate to all other view models. Read files only once
             UpdateAvailableTraces();

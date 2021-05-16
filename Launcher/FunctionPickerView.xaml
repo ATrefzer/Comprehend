@@ -1,13 +1,14 @@
-﻿<Window x:Class="Launcher.MethodChooserView"
+﻿<Window x:Class="Launcher.FunctionPickerView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Launcher"
-        xmlns:Res="clr-namespace:Launcher.Resources"
+        xmlns:common="clr-namespace:Launcher.Common"
         mc:Ignorable="d"
         Title="MethodChooser"
         Height="450"
+        d:DataContext ="{d:DesignInstance {x:Type local:FunctionPickerViewModel}, IsDesignTimeCreatable=False}"
         Width="800">
     <Window.Resources>
         <Style TargetType="TextBox">
@@ -40,9 +41,9 @@
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right">
                 <Button Command="{Binding GenerateCommand}"
-                        IsEnabled="{Binding CanRender}">
-                    Generate Image
-                </Button>
+                        IsEnabled="{Binding CanRender}"
+                        Content="{Binding ExecuteButtonText}" />
+                
             </StackPanel>
         </GroupBox>
 
@@ -66,13 +67,22 @@
                          TextChanged="_filterText_OnTextChanged"
                          AcceptsReturn="True"/>
 
-<CheckBox Grid.Row="1" Content="Hide excluded functions" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" x:Name="_hideExcludedCheck"/>
-                <CheckBox Grid.Row="2" Content="Hide functions not in model" Checked="HideNotInModel_OnChecked" Unchecked="HideNotInModel_OnUnchecked" x:Name="_hideFunctionsNotInModelCheck"/>
+<CheckBox Grid.Row="1" Content="Hide excluded functions" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" x:Name="_hideExcludedCheck"
+          Visibility="{Binding ShowIncludeColumn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                
+                <!-- Here a row is skipped -->
 
                 <DataGrid Grid.Row="3"
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding AllPreFilteredFunctions}"
                           x:Name="_dataGrid" >
+
+                    <DataGrid.Resources>
+                        <ResourceDictionary>
+                            <common:BindingProxy x:Key="Proxy" Data="{Binding}"/>
+                        </ResourceDictionary>
+                    </DataGrid.Resources>
+
                     <!--<DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <EventSetter Event="MouseDoubleClick" Handler="_dataGrid_OnMouseDoubleClick" />
@@ -83,13 +93,19 @@
                             <!-- Binding from context menu is not so easy because it is not in visual tree 
                             ContextMenu.PlacementTarget, is the DataGrid -->
                             <MenuItem Header="Select start function" Command="{Binding SelectStartFunctionCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
-                            <MenuItem Header="Select only start function" Command="{Binding SelectOnlyStartFunctionCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
-                            <MenuItem Header="Include" Command="{Binding IncludeCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
-                            <MenuItem Header="Exclude" Command="{Binding ExcludeCommand}" CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"/>
+                            <MenuItem Header="Include" 
+                                      Command="{Binding IncludeCommand}" 
+                                      CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"
+                                      Visibility="{Binding Data.ShowIncludeColumn, Converter={StaticResource BooleanToVisibilityConverter}, Source={StaticResource Proxy}}"/>
+                            <MenuItem Header="Exclude" 
+                                      Command="{Binding ExcludeCommand}" 
+                                      CommandParameter="{Binding Path=PlacementTarget.SelectedItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType={x:Type ContextMenu}}}"
+                                      Visibility="{Binding Data.ShowIncludeColumn, Converter={StaticResource BooleanToVisibilityConverter}, Source={StaticResource Proxy}}"
+                                      />
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="Included" Binding="{Binding Included}"/> 
+                        <DataGridCheckBoxColumn Header="Included" Binding="{Binding Included}" Visibility="{Binding Data.ShowIncludeColumn, Converter={StaticResource BooleanToVisibilityConverter}, Source={StaticResource Proxy}}"/> 
                         <DataGridTextColumn Header="Function"  Binding="{Binding FullName}" IsReadOnly="true" CanUserReorder="False"/>
                         <DataGridCheckBoxColumn  Header="Public" Binding="{Binding Public}" IsReadOnly="True" CanUserReorder="False"/> 
                     </DataGrid.Columns>

@@ -16,7 +16,7 @@ using Prism.Commands;
 
 namespace Launcher
 {
-    internal class TracingViewModel : INotifyPropertyChanged, IDisposable
+    internal class ProfilerViewModel : INotifyPropertyChanged, IDisposable
     {
         private readonly EventWaitHandle _recordingStateChanged;
         private readonly EventWaitHandle _recordingState;
@@ -27,13 +27,12 @@ namespace Launcher
 
         private bool _isProfilingEnabled;
 
-        public TracingViewModel()
+        public ProfilerViewModel()
         {
             SelectOutputDirectoryCommand = new DelegateCommand(ExecuteSelectOutputDirectory);
             SelectTargetCommand = new DelegateCommand(ExecuteSelectTarget);
             RunTargetCommand = new DelegateCommand(ExecuteRunTarget);
 
-            // TODO only one launcher possible ok?
             _recordingStateChanged = new EventWaitHandle(false, EventResetMode.AutoReset, "MiniProfiler_RecordingStateChanged_Event");
             _recordingState = new EventWaitHandle(false, EventResetMode.ManualReset, "MiniProfiler_RecordingState_Event");
 

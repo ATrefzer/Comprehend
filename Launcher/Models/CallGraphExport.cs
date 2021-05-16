@@ -13,12 +13,14 @@ namespace Launcher.Models
     /// The filter was applied already when processing the profiler events.
     /// When a hidden function has only hidden children it was removed immediately.
     /// </summary>
-    internal class CallGraphExporter
+    internal class CallGraphExport
     {
         private readonly HashSet<(ulong, ulong)> _processed = new HashSet<(ulong, ulong)>();
+        private HashSet<ulong> _included;
 
-        internal void Export(CallGraphModel model, IGraphBuilder builder)
+        internal void Export(CallGraph model, HashSet<ulong> included, IGraphBuilder builder)
         {
+            _included = included;
             _processed.Clear();
             builder.AddCategory("indirect", "StrokeDashArray", "1 1");
             Build(builder, model);
@@ -27,16 +29,16 @@ namespace Launcher.Models
 
         private bool IsIncluded(FunctionCall call)
         {
-            return !call.IsFiltered /*&& call.IsPublic*/;
+            return _included.Contains(call.Id);
         }
 
-        private void Build(IGraphBuilder builder, CallGraphModel model)
+        private void Build(IGraphBuilder builder, CallGraph model)
         {
             _processed.Clear();
 
             // User visible functions
             var selection = new HashSet<FunctionCall>();
-            var starting = model.AllFunctions.Where(f => IsIncluded(f)).ToList();
+            var starting = model.AllFunctions.Where(IsIncluded).ToList();
             selection.UnionWith(starting);
 
             // Visible parents are already in the list of included functions

@@ -4,43 +4,39 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Launcher"
-        xmlns:Common="clr-namespace:Launcher.Common"
-        xmlns:Res="clr-namespace:Launcher.Resources"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=local:TracingViewModel, IsDesignTimeCreatable=True}"
+        d:DataContext="{d:DesignInstance Type=local:ProfilerViewModel, IsDesignTimeCreatable=True}"
         Title="Launcher"
         Height="250"
         Width="450">
 
     <Window.Resources>
 
-        <Common:InvertBoolConverter x:Key="InvertBool"/>
-
         <Style TargetType="TextBox">
             <Setter Property="VerticalContentAlignment"
-                    Value="Center"/>
+                    Value="Center" />
             <Setter Property="Margin"
-                    Value="0 2.5 0 2.5"/>
+                    Value="0 2.5 0 2.5" />
             <Setter Property="Height"
-                    Value="27"/>
+                    Value="27" />
         </Style>
         <Style TargetType="Label">
             <Setter Property="VerticalContentAlignment"
-                    Value="Center"/>
+                    Value="Center" />
         </Style>
 
         <Style x:Key="DotButton"
                TargetType="Button">
             <Setter Property="Height"
-                    Value="27"/>
+                    Value="27" />
             <Setter Property="Width"
-                    Value="27"/>
+                    Value="27" />
         </Style>
 
     </Window.Resources>
 
-    <TabControl 
-                x:Name="_trace">
+    <TabControl
+        x:Name="_trace">
         <TabItem Header="Capture Profile">
             <DockPanel>
 
@@ -48,50 +44,51 @@
                             HorizontalAlignment="Right"
                             Margin="5">
                     <Button Content="Launch"
-                            Command="{Binding RunTargetCommand}"/>
+                            Command="{Binding RunTargetCommand}" />
                 </StackPanel>
 
                 <StackPanel Margin="5">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Label Grid.Row="0"
                                Grid.Column="0"
-                               Content="Target"/>
+                               Content="Target" />
                         <TextBox Grid.Row="0"
                                  Grid.Column="1"
                                  IsReadOnly="true"
-                                 Text="{Binding Target}"/>
+                                 Text="{Binding Target}" />
                         <Button Grid.Row="0"
                                 Grid.Column="2"
                                 Content="..."
                                 Command="{Binding SelectTargetCommand}"
-                                Style="{StaticResource DotButton}"/>
+                                Style="{StaticResource DotButton}" />
 
                         <Label Grid.Row="1"
                                Grid.Column="0"
-                               Content="Output directory"/>
+                               Content="Output directory" />
                         <TextBox Grid.Row="1"
                                  Grid.Column="1"
                                  IsReadOnly="true"
-                                 Text="{Binding OutputDirectory}"/>
+                                 Text="{Binding OutputDirectory}" />
                         <Button Grid.Row="1"
                                 Grid.Column="2"
                                 Content="..."
                                 Command="{Binding SelectOutputDirectoryCommand}"
-                                Style="{StaticResource DotButton}"/>
+                                Style="{StaticResource DotButton}" />
 
                         <Label Grid.Row="2" Grid.Column="0" Content="Enable Profiling" />
-                        <CheckBox  Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding IsProfilingEnabled}"/>
+                        <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"
+                                  IsChecked="{Binding IsProfilingEnabled}" />
                     </Grid>
                 </StackPanel>
 
@@ -99,7 +96,7 @@
         </TabItem>
 
         <TabItem Header="Create call graph"
-                 x:Name="_callgraphTab">
+                 x:Name="_callGraphTab">
 
             <DockPanel>
                 <StackPanel Orientation="Vertical"
@@ -107,45 +104,45 @@
                             Width=" 130">
                     <Button Content="Edit Filter"
                             Command="{Binding EditFilterCommand}"
-                            Margin="5 5 5 0"/>
+                            Margin="5 5 5 0" />
                     <Button Content="Generate"
                             Command="{Binding OpenMethodChooserCommand}"
                             IsEnabled="{Binding IsProfileSelected}"
-                            Margin="5 5 5 0"/>
+                            Margin="5 5 5 0" />
                 </StackPanel>
 
                 <ListView DockPanel.Dock="Left"
                           ItemsSource="{Binding AvailableProfiles}"
-                          SelectedItem="{Binding SelectedProfile}"/>
+                          SelectedItem="{Binding SelectedProfile}" />
 
             </DockPanel>
 
         </TabItem>
 
-        <TabItem Header="Create sequence diagram"
-                 x:Name="_sequenceTab">
+        <TabItem Header="Create Call Tree"
+                 x:Name="_callTreeTab">
 
             <DockPanel>
-                
                 <StackPanel Orientation="Vertical"
                             DockPanel.Dock="Right"
                             Width=" 130">
-                    <Button Content="Edit Pre-Filter"
+                    <Button Content="Edit Filter"
                             Command="{Binding EditFilterCommand}"
-                            Margin="5 5 5 0"/>
-                    <Button Content="Generate"
-                            Command="{Binding OpenMethodChooserCommand}"
+                            Margin="5 5 5 0" />
+                    <Button Content="Load"
+                            Command="{Binding LoadCommand}"
                             IsEnabled="{Binding IsProfileSelected}"
-                            Margin="5 5 5 0"/>
+                            Margin="5 5 5 0" />
                 </StackPanel>
 
                 <ListView DockPanel.Dock="Left"
                           ItemsSource="{Binding AvailableProfiles}"
-                          SelectedItem="{Binding SelectedProfile}"/>
+                          SelectedItem="{Binding SelectedProfile}" />
 
             </DockPanel>
 
         </TabItem>
+
     </TabControl>
 
 </Window>

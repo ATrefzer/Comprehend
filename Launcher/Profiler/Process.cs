@@ -7,7 +7,7 @@ namespace Launcher.Profiler
 {
     internal class Process
     {
-        public static async Task StartAsync(string target, string profilerDirectory, string outputDirectory)
+        public static Task StartAsync(string target, string profilerDirectory, string outputDirectory)
         {
             // Setup environment variables passed to the profiled process
             Environment.SetEnvironmentVariable("MINI_PROFILER_OUT_DIR", outputDirectory);
@@ -30,11 +30,11 @@ namespace Launcher.Profiler
 
             // Start child process and inherit environment variables
 
-            await Task.Run(() =>
-                           {
-                               var process = System.Diagnostics.Process.Start(target);
-                               process?.WaitForExit();
-                           });
+            return Task.Run(() =>
+                            {
+                                var process = System.Diagnostics.Process.Start(target);
+                                process?.WaitForExit();
+                            });
         }
 
 
@@ -45,8 +45,7 @@ namespace Launcher.Profiler
             var assembly = Assembly.LoadFile(Path.GetFullPath(path));
             var manifestModule = assembly.ManifestModule;
             PortableExecutableKinds peKind;
-            ImageFileMachine machine;
-            manifestModule.GetPEKind(out peKind, out machine);
+            manifestModule.GetPEKind(out peKind, out var machine);
 
             return machine == ImageFileMachine.AMD64;
         }

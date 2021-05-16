@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace HelloWorld_x86
 {
-    class AsyncObj
+    internal class AsyncObj
     {
         public bool IsBusy
         {
@@ -26,14 +26,13 @@ namespace HelloWorld_x86
         public async Task CallAsync3()
         {
             await Task.Delay(1);
-         
         }
 
         private void Foo()
         {
-
         }
     }
+
     internal class App
     {
         public event EventHandler Initialized;
@@ -113,7 +112,6 @@ namespace HelloWorld_x86
             Poly();
 
             //Console.ReadKey();
-
         }
 
         private static int Add(int a, int b)

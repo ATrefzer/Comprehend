@@ -4,7 +4,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests
 {
-    // TODO
     [TestClass]
     public class PlantUmlBuilderTests
     {

@@ -1,0 +1,61 @@
+﻿<Window x:Class="Launcher.CallTreeExplorerView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Launcher"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:CallTreeExplorerViewModel, IsDesignTimeCreatable=True}"
+        Title="CallTreeExplorerView" Height="450" Width="800">
+    <Grid>
+        <TreeView ItemsSource="{Binding Roots}">
+
+            <TreeView.ItemContainerStyle>
+                <!-- 
+    This Style binds a TreeViewItem to a FunctionCallViewModel. 
+    -->
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <Setter Property="FontWeight" Value="Normal" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="FontWeight" Value="Bold" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TreeView.ItemContainerStyle>
+
+       
+
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type local:FunctionCallViewModel}" ItemsSource="{Binding Children}">
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <StackPanel.ContextMenu>
+                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="Export"  Click="MenuItem_OnExport"/>
+                                <MenuItem Header="Deselect branch"  Click="MenuItem_OnClick"/>
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>
+
+                        <CheckBox IsChecked="{Binding IsIncluded}" Margin="0 0 2 0"/>
+                        <TextBlock Text="{Binding Name}" >
+
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRecursion}" Value="true" >
+                                            <Setter Property="Foreground" Value="DarkRed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+    </Grid>
+</Window>

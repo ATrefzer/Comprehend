@@ -9,11 +9,9 @@ namespace Launcher
     /// <summary>
     /// Interaction logic for MethodChooser.xaml
     /// </summary>
-    public sealed partial class MethodChooserView : Window
+    public sealed partial class FunctionPickerView : Window
     {
-        private ICollectionView _cv;
-
-        public MethodChooserView()
+        public FunctionPickerView()
         {
             InitializeComponent();
         }
@@ -24,10 +22,9 @@ namespace Launcher
             var cv = CollectionViewSource.GetDefaultView(_dataGrid.ItemsSource);
 
             var text = _filterText.Text.ToUpper();
-            var hideExcluded = _hideExcludedCheck.IsChecked.HasValue? _hideExcludedCheck.IsChecked.Value : false;
-            var hideFunctionsNotIncluded = _hideFunctionsNotInModelCheck.IsChecked.HasValue? _hideFunctionsNotInModelCheck.IsChecked.Value : false;
+            var hideExcluded = _hideExcludedCheck.IsChecked ?? false;
 
-            if (string.IsNullOrEmpty(text) && !hideExcluded && !hideFunctionsNotIncluded)
+            if (string.IsNullOrEmpty(text) && !hideExcluded)
             {
                 // switch off
                 cv.Filter = null;
@@ -59,28 +56,6 @@ namespace Launcher
         }
 
         private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
-        {
-            FilterAvailableFunctions();
-        }
-
-        //private void _dataGrid_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        //{
-        //    var row = (DataGridRow)sender;
-        //    var vm = DataContext as MethodChooserViewModel;
-        //    var rowVm = (FunctionInfoViewModel) row.DataContext;
-
-        //    // Clicking the check box for including a row would be recognized as double click.
-        //    if (vm.StartFunction == null)
-        //    {
-        //        vm.StartFunction = rowVm.Model;
-        //    }
-        //}
-        private void HideNotInModel_OnChecked(object sender, RoutedEventArgs e)
-        {
-            FilterAvailableFunctions();
-        }
-
-        private void HideNotInModel_OnUnchecked(object sender, RoutedEventArgs e)
         {
             FilterAvailableFunctions();
         }

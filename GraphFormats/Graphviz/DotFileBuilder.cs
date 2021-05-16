@@ -2,10 +2,10 @@
 using System.IO;
 using System.Text;
 
-namespace GraphFormats.Graphwiz
+namespace GraphFormats.Graphviz
 {
     /// <summary>
-    /// Builder class to create a directed graph file to be processed with Graphwiz.
+    /// Builder class to create a directed graph file to be processed with Graphviz.
     /// </summary>
     internal class DotFileBuilder
     {
@@ -33,7 +33,7 @@ namespace GraphFormats.Graphwiz
 
                 foreach (var edge in _edges)
                 {
-                    var output = string.Format("{0} -> {1}", edge.Source, edge.Target);
+                    var output = $"{edge.Source} -> {edge.Target}";
                     writer.WriteLine(output);
                 }
 

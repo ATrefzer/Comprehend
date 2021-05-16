@@ -22,5 +22,10 @@ namespace Launcher.Profiler
         {
             return BaseFile;
         }
+
+        public string GetName()
+        {
+            return BaseFile.Replace(".", "_");
+        }
     }
 }

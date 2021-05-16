@@ -1,7 +1,7 @@
-﻿namespace GraphFormats.Graphwiz
+﻿namespace GraphFormats.Graphviz
 {
     /// <summary>
-    /// Represents an edge to be rendered by Graphwiz.
+    /// Represents an edge to be rendered by Graphviz.
     /// It corresponds to an input instruction of the form: "node1" -> "node2"
     /// </summary>
     internal class Edge

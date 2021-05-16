@@ -91,6 +91,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="CallTreeExplorerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GraphViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -99,6 +103,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Common\BindingProxy.cs" />
     <Compile Include="Execution\BackgroundExecutionService.cs" />
     <Compile Include="CallGraphTabViewModel.cs" />
     <Compile Include="App.xaml.cs">
@@ -106,38 +111,41 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Common\InvertBoolConverter.cs" />
+    <Compile Include="CallTreeTabViewModel.cs" />
+    <Compile Include="CallTreeExplorerView.xaml.cs">
+      <DependentUpon>CallTreeExplorerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FunctionCallViewModel.cs" />
     <Compile Include="FunctionInfoViewModel.cs" />
     <Compile Include="GraphViewerWindow.xaml.cs">
       <DependentUpon>GraphViewerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\FunctionPresentation.cs" />
+    <Compile Include="Models\CallTree.cs" />
     <Compile Include="Profiler\FunctionInfo.cs" />
-    <Compile Include="MethodChooserView.xaml.cs">
-      <DependentUpon>MethodChooserView.xaml</DependentUpon>
+    <Compile Include="FunctionPickerView.xaml.cs">
+      <DependentUpon>FunctionPickerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Profiler\Filter.cs" />
-    <Compile Include="Models\CallGraphExporter.cs" />
+    <Compile Include="Models\CallGraphExport.cs" />
     <Compile Include="Profiler\Profile.cs" />
     <Compile Include="Profiler\Process.cs" />
     <Compile Include="Execution\IProgress.cs" />
     <Compile Include="Execution\ProgressWindow.xaml.cs">
       <DependentUpon>ProgressWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\SequenceModel.cs" />
-    <Compile Include="Models\SequenceModelExporter.cs" />
-    <Compile Include="MethodChooserViewModel.cs" />
+    <Compile Include="Models\SequenceDiagramExport.cs" />
+    <Compile Include="FunctionPickerViewModel.cs" />
     <Compile Include="Resources\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SequenceTabViewModel.cs" />
     <Compile Include="SvgViewer.xaml.cs">
       <DependentUpon>SvgViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="TracesArg.cs" />
-    <Compile Include="TracingViewModel.cs" />
+    <Compile Include="ProfilerViewModel.cs" />
     <Compile Include="Models\FunctionCall.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -147,7 +155,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MethodChooserView.xaml">
+    <Page Include="FunctionPickerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -157,7 +165,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\CallGraphModel.cs" />
+    <Compile Include="Models\CallGraph.cs" />
     <Compile Include="Profiler\ProfileParser.cs" />
     <Compile Include="Profiler\ProfilerExports.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

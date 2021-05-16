@@ -1,30 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms.VisualStyles;
 
 using Launcher.Profiler;
 
 namespace Launcher.Models
 {
     /// <summary>
-    /// Pre-filtered, but contains all hidden calls that contain visible targets.
+    /// Pre-filtered, but contains some banned functions calls that later call visible functions.
     /// </summary>
-    internal class CallGraphModel : BaseModel
+    internal class CallGraph : BaseModel
     {
-        public CallGraphModel(List<FunctionCall> model)
+        public CallGraph(List<FunctionCall> model)
         {
             AllFunctions = model;
         }
 
-        private CallGraphModel()
+        private CallGraph()
         {
         }
 
         public List<FunctionCall> AllFunctions { get; private set; }
 
-        public static CallGraphModel FromEventStream(IEnumerable<ProfilerEvent> stream)
+        public static CallGraph FromEventStream(IEnumerable<ProfilerEvent> stream)
         {
-            var model = new CallGraphModel();
+            var model = new CallGraph();
             model.FromEventStream_(stream);
             return model;
         }
@@ -35,7 +34,7 @@ namespace Launcher.Models
         /// </summary>
         private static void MarkAncestorsIfVisible(FunctionCall enteredFunc)
         {
-            if (!enteredFunc.IsFiltered)
+            if (!enteredFunc.IsBanned)
             {
                 var ancestors = enteredFunc.GetAncestorChain(true);
                 foreach (var ancestor in ancestors)
@@ -69,7 +68,7 @@ namespace Launcher.Models
 
         private static bool CanRemove(FunctionCall exitFunc)
         {
-            return exitFunc.IsFiltered && exitFunc.HasVisibleChildren == false;
+            return exitFunc.IsBanned && exitFunc.HasVisibleChildren == false;
         }
 
         private void FromEventStream_(IEnumerable<ProfilerEvent> stream)
@@ -117,7 +116,6 @@ namespace Launcher.Models
 
                         // Reduce memory by cleaning up while we process the event stream.
                         // We remove all functions that are hidden and only call hidden functions!
-                        // TODO atr Does not work properly+
                         CleanupHiddenCalls(Functions, activeFunc);
                     }
                     else

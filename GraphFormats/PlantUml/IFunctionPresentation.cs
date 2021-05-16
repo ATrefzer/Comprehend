@@ -1,4 +1,4 @@
-﻿namespace GraphFormats
+﻿namespace GraphFormats.PlantUml
 {
     public interface IFunctionPresentation
     {

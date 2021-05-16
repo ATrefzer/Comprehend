@@ -1,28 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Windows.Forms;
-
+﻿using System.Windows.Forms;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.GraphViewerGdi;
 using Microsoft.Msagl.Layout.Layered;
 
 namespace GraphFormats.Msagl
 {
-    public class MsaglGrapBuilder : IGraphBuilder
+    public class MsaglGraphBuilder : IGraphBuilder
     {
         private readonly Graph _graph;
 
-        private readonly HashSet<(string, string)> _edges = new HashSet<(string, string)>();
-
-        public MsaglGrapBuilder()
+        public MsaglGraphBuilder()
         {
             _graph = new Graph();
         }
 
         public void AddEdge(string sourceNode, string targetNode)
         {
-            // TODO Polymorphism may cause the same edge twice. But actually these are different functions with the same name.
-            // Debug.Assert(_edges.Add((sourceNode, targetNode)));
-
+            // Polymorphism may cause the same edge shown twice. But actually these are different functions with the same name.
             _graph.AddEdge(sourceNode, string.Empty, targetNode);
         }
 

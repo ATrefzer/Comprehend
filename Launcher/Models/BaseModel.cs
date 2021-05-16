@@ -4,11 +4,16 @@ using Launcher.Profiler;
 
 namespace Launcher.Models
 {
+    /// <summary>
+    /// Base class for CallTree, SequenceModel and CallGraph
+    /// </summary>
     public class BaseModel
     {
         protected readonly Dictionary<ulong, Stack<FunctionCall>> TidToStack = new Dictionary<ulong, Stack<FunctionCall>>();
 
-        // All functions resolved
+        /// <summary>
+        /// All functions collected during processing of the profile.
+        /// </summary>
         protected readonly Dictionary<ulong, FunctionCall> Functions = new Dictionary<ulong, FunctionCall>();
 
 

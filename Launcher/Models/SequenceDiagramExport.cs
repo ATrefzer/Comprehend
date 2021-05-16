@@ -2,108 +2,92 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-
-using GraphFormats;
+using GraphFormats.PlantUml;
 
 namespace Launcher.Models
 {
     /// <summary>
-    /// Uses the builder to generate a UML sequence diagram.
-    /// Hidden functions calls are excluded and indirect calls marked accordingly.
-    /// Note: op_Implicit calls the ctor. So ctor may not be the first method called on an object.
-    /// If this op_Implicit is present I cannot use "create" with plantuml.
-    /// It requires the following call after "create" to be the first one (ctor, new)
-    /// Therefore I filter op_Implicit in the filter file to get rid of it immediately.
+    ///     Uses the builder to generate a UML sequence diagram.
+    ///     Hidden functions calls are excluded and indirect calls marked accordingly.
+    ///     Note: op_Implicit calls the ctor. So ctor may not be the first method called on an object.
+    ///     If this op_Implicit is present I cannot use "create" with plantuml.
+    ///     It requires the following call after "create" to be the first one (ctor, new)
+    ///     Therefore I filter op_Implicit in the filter file to get rid of it immediately.
     /// </summary>
-    internal class SequenceModelExporter
+    internal class SequenceDiagramExport
     {
-        private Stack<FunctionPresentation> _visibleParents;
-        private ISequenceBuilder _builder;
+        private readonly ISequenceDiagramBuilder _builder;
+        private Stack<FunctionCall> _visibleParents;
 
-        public void Export(SequenceModel model, ISequenceBuilder builder)
+        public SequenceDiagramExport(string title)
+        {
+            _builder = new PlantUmlBuilder(title);
+        }
+
+        public void Export(string outputPath, FunctionCall funcCall)
+        {
+            Export(funcCall);
+            var text = _builder.Build();
+            File.WriteAllText(outputPath, text);
+        }
+
+        private void Export(FunctionCall funcCall)
         {
             // From last visible parent skipping hidden calls to another visible call.
-            _visibleParents = new Stack<FunctionPresentation>();
-            _builder = builder;
+            _visibleParents = new Stack<FunctionCall>();
 
-            // TODO many variations are not evaluated. Input arg should be a single sequence!
-            builder.AddCategory("indirect", "color", "#0000FF");
+            _builder.AddCategory("indirect", "color", "#0000FF");
 
-            var variations = model.SequenceVariations;
-            if (variations.Count == 0)
+
+            if (funcCall == null)
             {
                 throw new Exception("No Sequence to generate!");
             }
 
-            var sequence = variations.Last();
-            var presentationSequence = sequence.Select(tuple => (new FunctionPresentation(tuple.Item1), new FunctionPresentation(tuple.Item2))).ToList();
 
+            // TODO
             // Optional to get rid of the async await state machine objects
-
-            // When I wrote this code it seemed to make sense. What changed?
             // MergeAsyncAwaitInternals(presentationSequence);
-            InsertDummyCaller(presentationSequence);
 
-            // Debug
-            //var lines = presentationSequence.Select(tuple => $"{tuple.Item1.FullName}->{tuple.Item2?.FullName}");
-            //File.WriteAllLines("d:\\lines.txt", lines);
 
-            int lineNumber = 0;
-            foreach (var (source, target) in presentationSequence)
-            {
-                lineNumber++;
-
-                if (target == null || target.IsNull)
-                {
-                    ExitFunction(source);
-                    continue;
-                }
-
-                var lastVisibleParent = _visibleParents.Any() ? _visibleParents.Peek() : null;
-
-                if (!source.IsFiltered && !target.IsFiltered)
-                {
-                    InvokeFunctionDirectly(source, target);
-                }
-                else if (lastVisibleParent != null && !target.IsFiltered)
-                {
-                    Debug.Assert(source.IsFiltered);
-                    InvokeFunctionIndirectly(lastVisibleParent, target);
-                }
-                else if (source.IsFiltered && target.IsFiltered)
-                {
-                    // Ignore hidden calls
-                }
-                else
-                {
-                    // Visible -> Hidden
-                }
-            }
+            // Dummy Actor calling the traced function. Included for sure!
+            var actor = FunctionCall.GetActor();
+            Call(actor, funcCall);
         }
 
 
-        private static void InsertDummyCaller(List<(FunctionPresentation, FunctionPresentation)> presentationSequence)
+        private void Call(FunctionCall source, FunctionCall target)
         {
-            if (presentationSequence.Any())
+            if (source.IsIncluded && target.IsIncluded)
             {
-                // Insert dummy call to entry function to activate the entry function
-                var client = new FunctionPresentation { TypeName = "Client", IsFiltered = false, IsCtor = false };
-                presentationSequence.Insert(0, (client, presentationSequence.First().Item1));
+                InvokeTargetDirectly(source, target);
             }
+            else if (!source.IsIncluded && target.IsIncluded)
+            {
+                InvokeTargetIndirectly(_visibleParents.Peek(), target);
+            }
+
+
+            foreach (var child in target.Children)
+            {
+                Call(target, child);
+            }
+
+
+            EndFunction(target);
         }
 
-        private void InvokeFunctionIndirectly(FunctionPresentation lastVisibleParent, FunctionPresentation target)
+        private void InvokeTargetIndirectly(FunctionCall lastVisibleParent, FunctionCall target)
         {
             InvokeFunction(lastVisibleParent, target, "indirect");
         }
 
-        private void InvokeFunctionDirectly(FunctionPresentation source, FunctionPresentation target)
+        private void InvokeTargetDirectly(FunctionCall source, FunctionCall target)
         {
             InvokeFunction(source, target);
         }
 
-        private void InvokeFunction(FunctionPresentation source, FunctionPresentation target, string category = null)
+        private void InvokeFunction(FunctionCall source, FunctionCall target, string category = null)
         {
             if (target.IsCtor && source.TypeName != target.TypeName) // Static method calling ctor like DelegateCommand.New
             {
@@ -129,24 +113,19 @@ namespace Launcher.Models
             }
         }
 
-        private void ExitFunction(FunctionPresentation source)
+        private void EndFunction(FunctionCall target)
         {
-            // Input stream notification that a function ended.
-            // Signals exit of Item1. This helps to track activations.
-            // Deactivate source node when last function was done.
-
-            if (!source.IsFiltered)
+            if (target.IsIncluded)
             {
                 // We only activate visible functions 
-                _builder.Deactivate(source);
+                _builder.Deactivate(target);
 
                 // Exiting a visible parent function
                 var exited = _visibleParents.Pop();
-                Debug.Assert(exited.FullName == source.FullName);
+                Debug.Assert(exited.Function == target.Function);
             }
         }
 
-      
 /*
         private void MergeAsyncAwaitInternals(List<(FunctionPresentation, FunctionPresentation)> presentationSequence)
         {
@@ -198,7 +177,7 @@ namespace Launcher.Models
 
                 if (stateMachineFunc.IsCtor)
                 {
-                    stateMachineFunc.IsFiltered = true;
+                    stateMachineFunc.IsBanned = true;
 
                     // Can no longer be a ctor.
                     // We construct the async state machine but we merge this class into the existing caller.

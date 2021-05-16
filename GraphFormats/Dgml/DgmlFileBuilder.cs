@@ -175,9 +175,7 @@ namespace GraphFormats.Dgml
         /// </summary>
         private string GetOrCreateNodeId(string nodeName)
         {
-            string id;
-
-            _nodeNamesToId.TryGetValue(nodeName, out id);
+            _nodeNamesToId.TryGetValue(nodeName, out var id);
 
             if (id == null)
             {

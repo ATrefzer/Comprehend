@@ -5,7 +5,7 @@ using Launcher.Profiler;
 
 namespace Launcher
 {
-    internal class FunctionInfoViewModel : INotifyPropertyChanged
+    internal sealed class FunctionInfoViewModel : INotifyPropertyChanged
     {
         public readonly FunctionInfo Info;
         private bool _hidden = false;
@@ -20,13 +20,17 @@ namespace Launcher
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private bool _isIncluded = true;
         public bool Included
         {
-            get => !Info.IsFiltered;
+            get => _isIncluded;
             set
             {
-                Info.IsFiltered = !value;
-                OnPropertyChanged();
+                if ( value != _isIncluded)
+                {
+                    _isIncluded = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -49,7 +53,7 @@ namespace Launcher
 
         public FunctionInfo Model => Info;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

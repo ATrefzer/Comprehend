@@ -6,7 +6,7 @@ namespace Launcher.Execution
     /// <summary>
     /// Interaction logic for ProgressWindow.xaml
     /// </summary>
-    public partial class ProgressWindow : Window, IProgress
+    public partial class ProgressWindow : IProgress
     {
         public ProgressWindow()
         {
@@ -17,7 +17,6 @@ namespace Launcher.Execution
         {
             Dispatcher?.BeginInvoke(new Action(() =>
                                                {
-                                                   // TODO write text
                                                    _progressBar.Value = percent;
                                                }));
         }

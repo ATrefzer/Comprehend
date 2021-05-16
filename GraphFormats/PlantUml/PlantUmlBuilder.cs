@@ -1,20 +1,23 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace GraphFormats.PlantUml
 {
     /// <summary>
-    /// Dumps profiler info to plantuml format.
-    /// We receive graph node information as a function in the form module!namespace_and_type.function.
+    ///     Api to build a plantuml text..
     /// </summary>
-    public class PlantUmlBuilder : ISequenceBuilder
+    public class PlantUmlBuilder : ISequenceDiagramBuilder
     {
+        private readonly Dictionary<string, Dictionary<string, string>> _categories = new Dictionary<string, Dictionary<string, string>>();
+
         // SourceType, TargetType, Method
         private readonly List<Edge> _orderedEdge = new List<Edge>();
 
-        private readonly Dictionary<string, Dictionary<string, string>> _categories = new Dictionary<string, Dictionary<string, string>>();
-
+        public PlantUmlBuilder(string title)
+        {
+            Title = title;
+        }
 
         public string Title { get; set; } = "_title";
 
@@ -84,12 +87,12 @@ namespace GraphFormats.PlantUml
             _orderedEdge.Add(edge);
         }
 
-        public void WriteOutput(string file)
+        public string Build()
         {
-            using (var writer = new StreamWriter(file, false))
+            var writer = new StringBuilder();
             {
-                writer.WriteLine($"@startuml {Title}");
-                writer.WriteLine("hide footbox");
+                writer.AppendLine($"@startuml {Title}");
+                writer.AppendLine("hide footbox");
 
                 //writer.WriteLine("actor client");
 
@@ -103,33 +106,37 @@ namespace GraphFormats.PlantUml
                             {
                                 if (edge.TargetType != null)
                                 {
-                                    writer.WriteLine($"activate {CleanUpInvalidChars(edge.TargetType)}");
+                                    writer.AppendLine($"activate {CleanUpInvalidChars(edge.TargetType)}");
                                 }
 
                                 continue;
                             }
-                            else if (edge.IsDeactivation)
+
+                            if (edge.IsDeactivation)
                             {
                                 if (edge.SourceType != null)
                                 {
-                                    writer.WriteLine($"deactivate {CleanUpInvalidChars(edge.SourceType)}");
+                                    writer.AppendLine($"deactivate {CleanUpInvalidChars(edge.SourceType)}");
                                 }
 
                                 continue;
                             }
-                            else if (edge.IsCreation)
-                            { 
-                                writer.WriteLine("create " + edge.TargetType);
+
+                            if (edge.IsCreation)
+                            {
+                                writer.AppendLine("create " + edge.TargetType);
                             }
                             else
                             {
                                 if (string.IsNullOrEmpty(edge.Color))
                                 {
-                                    writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
+                                    writer.AppendLine(
+                                        $"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
                                 }
                                 else
                                 {
-                                    writer.WriteLine($"{CleanUpInvalidChars(edge.SourceType)} -[{edge.Color}]-> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
+                                    writer.AppendLine(
+                                        $"{CleanUpInvalidChars(edge.SourceType)} -[{edge.Color}]-> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
                                 }
                             }
                         }
@@ -137,8 +144,10 @@ namespace GraphFormats.PlantUml
 
                     //participant p #lightblue
 
-                    writer.WriteLine("@enduml");
+                    writer.AppendLine("@enduml");
                 }
+
+                return writer.ToString();
             }
         }
 
@@ -189,7 +198,6 @@ namespace GraphFormats.PlantUml
 
         private Edge CreateEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode)
         {
-            
             var edge = new Edge();
             edge.SourceType = CleanUpInvalidChars(sourceNode.TypeName);
             edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
@@ -197,7 +205,6 @@ namespace GraphFormats.PlantUml
             return edge;
         }
 
-       
 
         private string CleanUpInvalidChars(string input)
         {
@@ -205,7 +212,6 @@ namespace GraphFormats.PlantUml
             return clean;
         }
 
-     
 
         private class Edge
         {

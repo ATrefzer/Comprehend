@@ -49,12 +49,12 @@
   <ItemGroup>
     <Compile Include="Dgml\DgmlFileBuilder.cs" />
     <Compile Include="Dgml\Edge.cs" />
-    <Compile Include="IFunctionPresentation.cs" />
-    <Compile Include="Graphwiz\DotFileBuilder.cs" />
-    <Compile Include="Graphwiz\Edge.cs" />
-    <Compile Include="ISequencehBuilder.cs" />
+    <Compile Include="PlantUml\IFunctionPresentation.cs" />
+    <Compile Include="Graphviz\DotFileBuilder.cs" />
+    <Compile Include="Graphviz\Edge.cs" />
+    <Compile Include="PlantUml\ISequenceDiagramBuilder.cs" />
     <Compile Include="IGraphBuilder.cs" />
-    <Compile Include="Msagl\MsaglGrapBuilder.cs" />
+    <Compile Include="Msagl\MsaglGraphBuilder.cs" />
     <Compile Include="PlantUml\PlantUmlBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

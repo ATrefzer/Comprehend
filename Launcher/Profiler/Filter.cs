@@ -90,17 +90,12 @@ namespace Launcher.Profiler
         {
             if (!_includeRules.Any() && !_excludeRules.Any())
             {
-                // No filtes at all, default is everything is visible
+                // No filters at all, default is everything is visible
                 return false;
             }
 
             // Only include filters or include and exclude filters: Default is hidden.
-            var hidden = true;
-            if (!_includeRules.Any() && _excludeRules.Any())
-            {
-                // Only exclude filters: default is visible
-                hidden = false;
-            }
+            var hidden = (_includeRules.Any() || !_excludeRules.Any());
 
             foreach (var rule in _includeRules)
             {

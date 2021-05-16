@@ -1,13 +1,18 @@
 ﻿namespace Launcher.Profiler
 {
+    /// <summary>
+    /// Function info from the index file. This info was collected during the trace.
+    /// Additionally we can pass if the function shall be filtered.
+    /// This means not relevant at all and therefore not considered in some models later)
+    /// </summary>
     public class FunctionInfo
     {
-        public FunctionInfo(ulong id, string fullName, bool isPublic, bool isFiltered)
+        public FunctionInfo(ulong id, string fullName, bool isPublic, bool isBanned)
         {
             Id = id;
             FullName = fullName;
             IsPublic = isPublic;
-            IsFiltered = isFiltered;
+            IsBanned = isBanned;
 
             var lastDot = fullName.LastIndexOf('.');
             Function = fullName.Substring(lastDot + 1).Trim('.');
@@ -42,22 +47,19 @@
 
         public ulong Id { get; }
         public string FullName { get; }
-        public bool IsFiltered { get; set; }
+
+        /// <summary>
+        /// Cannot be changed afterwards. Reduce data.
+        /// </summary>
+        public bool IsBanned { get; }
         public bool IsPublic { get; }
+
 
         public bool IsCtor => Function == ".ctor" || Function == "ctor";
 
         public override string ToString()
         {
             return FullName;
-        }
-
-
-        public Parts SplitFullName(string name)
-        {
-            var parts = new Parts();
-
-            return parts;
         }
 
         public class Parts
