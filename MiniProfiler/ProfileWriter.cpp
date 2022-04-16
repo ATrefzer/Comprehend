@@ -17,7 +17,6 @@ FunctionInfo* ProfileWriter::AddFunctionInfo(FunctionID funcId)
 {
 	auto info = _api->CreateFunctionInfo(funcId);
 
-	// TOD
 	// No duplicates found.
 
 	EnterCriticalSection(&_cs);

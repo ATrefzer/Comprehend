@@ -91,10 +91,12 @@ namespace HelloWorld_x86
     {
         public static async Task Main(string[] args)
         {
-            //var obj = new AsyncObj();
-            //await obj.CallAsync().ConfigureAwait(true);
+            var obj = new AsyncObj();
+            await obj.CallAsync().ConfigureAwait(true);
 
             //Following code runs in different thread and is no longer in sequence diagram
+
+            CallEx1();
 
 
             Mult(2, 3);
@@ -112,6 +114,23 @@ namespace HelloWorld_x86
             Poly();
 
             //Console.ReadKey();
+        }
+
+        private static void CallEx1()
+        {
+            try
+            {
+                CallEx2();
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        private static void CallEx2()
+        {
+            throw new Exception();
         }
 
         private static int Add(int a, int b)

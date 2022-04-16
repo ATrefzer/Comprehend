@@ -90,6 +90,7 @@ namespace Launcher
                 var startFunction = GetStartFunction(profile);
                 if (startFunction == null)
                 {
+                    MessageBox.Show("No start function selected!");
                     return;
                 }
 
@@ -98,6 +99,7 @@ namespace Launcher
                 await _backgroundService.RunWithProgress(progress => _callTrace = LoadFromProfile(progress, profile, startFunction));
                 if (!_callTrace.SequenceVariations.Any())
                 {
+                    MessageBox.Show("No sequences found for the start function!");
                     return;
                 }
 

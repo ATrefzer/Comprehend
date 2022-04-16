@@ -27,7 +27,9 @@ namespace Launcher.Models
         public FunctionCall(FunctionInfo info)
         {
             Info = info;
-            IsIncluded = true;
+
+            // By default the pre-filtered functions are not included.
+            IsIncluded = !info.IsBanned;
         }
 
         public HashSet<FunctionCall> Children { get; } = new HashSet<FunctionCall>();
@@ -48,11 +50,12 @@ namespace Launcher.Models
         public bool IsCtor => Info.IsCtor;
 
         /// <summary>
-        ///     Custom filtering. Note that it is not possible to include a banned function.
+        ///     Custom filtering.
+        ///     For sequence diagrams. Allow including banned functions!
         /// </summary>
         public bool IsIncluded
         {
-            get => _isIncluded && !IsBanned;
+            get => _isIncluded;
             set => _isIncluded = value;
         }
 

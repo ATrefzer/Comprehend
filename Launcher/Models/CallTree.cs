@@ -7,13 +7,19 @@ namespace Launcher.Models
     /// <summary>
     ///     Given a start function find all traces where this start function is called.
     ///     <see cref="SequenceVariations" />
-    ///     The traces contain all(!) invocations.
+    ///     The traces contain all(!) invocations from the starting point..
     ///     This model requires new FunctionCall instances whenever a function is called. This is different
     ///     in the call graph model.
+    ///
+    ///     Noteworthy things:
+    ///     - A tail call has no associated leave token.
+    ///     - You cannot compare function names due to method overloading. Always use the Ids
+    ///     - If a method is closed that is not the active function on the stack an exception or jump happened.
+    /// 
     /// </summary>
     internal class CallTree
     {
-        protected readonly Dictionary<ulong, Stack<FunctionCall>> TidToStack =
+        private readonly Dictionary<ulong, Stack<FunctionCall>> _tidToStack =
             new Dictionary<ulong, Stack<FunctionCall>>();
 
         private CallTree()
@@ -35,7 +41,7 @@ namespace Launcher.Models
         }
 
 
-        public void FromEventStream_(IEnumerable<ProfilerEvent> eventStream, FunctionInfo entryFunction)
+        private void FromEventStream_(IEnumerable<ProfilerEvent> eventStream, FunctionInfo entryFunction)
         {
             var sequenceVariations = new List<FunctionCall>();
             Clear();
@@ -61,7 +67,6 @@ namespace Launcher.Models
                         continue;
                     }
 
-
                     var activeFunc = GetActiveFunction(stack);
                     activeFunc?.Children.Add(enterFunc);
 
@@ -77,48 +82,50 @@ namespace Launcher.Models
                     var stack = FindStackByThreadId(entry.ThreadId);
                     if (stack != null)
                     {
-                        // We are currently tracking a sequence
-                        var activeFunc = GetActiveFunction(stack);
-
-                        if (activeFunc != null && activeFunc.FullName == entry.Func.FullName)
+                        while (stack.Count > 0 && stack.Peek().Id != entry.Func.Id)
                         {
-                            // Deactivate this functions
+                            // Exception handling!
+                            stack.Pop();
+                        }
+                        
+                        var activeFunc = GetActiveFunction(stack);
+                        if (activeFunc != null)
+                        {
+                            // We are currently tracking a sequence.
                             var leaveFunc = stack.Pop();
-
-                            // Sequence complete
                             if (!stack.Any())
                             {
+                                // Sequence complete
                                 sequenceVariations.Add(leaveFunc);
 
                                 // Stop tracking calls.
-                                TidToStack.Remove(entry.ThreadId);
+                                _tidToStack.Remove(entry.ThreadId);
                             }
                         }
                     }
                 }
                 else if (entry.Token == Tokens.TokenDestroyThread)
                 {
-                    if (TidToStack.ContainsKey(entry.ThreadId))
+                    if (_tidToStack.ContainsKey(entry.ThreadId))
                     {
-                        TidToStack.Remove(entry.ThreadId);
+                        _tidToStack.Remove(entry.ThreadId);
 
-                        // TODO close all open methods(!)
+                        // Open calls are closed inherently.
                     }
                 }
             }
 
             SequenceVariations = sequenceVariations;
             Clear();
-            
         }
 
 
-        protected void Clear()
+        private void Clear()
         {
-            TidToStack.Clear();
+            _tidToStack.Clear();
         }
 
-        protected FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
+        private FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
         {
             if (stack == null)
             {
@@ -138,10 +145,10 @@ namespace Launcher.Models
         private Stack<FunctionCall> GetOrCreateStackByThreadId(ulong threadId)
         {
             // Find the correct thread such that we find the correct parent function.
-            if (!TidToStack.TryGetValue(threadId, out var stack))
+            if (!_tidToStack.TryGetValue(threadId, out var stack))
             {
                 stack = new Stack<FunctionCall>();
-                TidToStack.Add(threadId, stack);
+                _tidToStack.Add(threadId, stack);
             }
 
             return stack;
@@ -150,7 +157,7 @@ namespace Launcher.Models
         private Stack<FunctionCall> FindStackByThreadId(ulong threadId)
         {
             // Find the correct thread such that we find the correct parent function.
-            TidToStack.TryGetValue(threadId, out var stack);
+            _tidToStack.TryGetValue(threadId, out var stack);
             return stack;
         }
 
