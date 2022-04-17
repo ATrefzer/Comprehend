@@ -7,6 +7,9 @@
 // Idea of saving the FP related parts are from here.
 // http://read.pudn.com/downloads64/sourcecode/windows/system/228104/leave_x86.cpp__.htm
 
+// Note: When profiling CefSharp.BrowserSubProcess.exe crashes without saving the FPU register, too.
+// However, it seems pretty rare that this problem occurs.
+
 //#define USE_LOCAL_VARS
 
 void __declspec(naked) __stdcall EnterNakedFunc(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)

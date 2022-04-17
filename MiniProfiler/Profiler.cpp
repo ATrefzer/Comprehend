@@ -222,7 +222,7 @@ HRESULT STDMETHODCALLTYPE Profiler::Shutdown()
 	{
 		_controller.join();
 	}
-	::OutputDebugString(L"\Controlling thread stopped!");
+	::OutputDebugString(L"\nControlling thread stopped!");
 	WriteIndexFile();
 
 	if (_callTrace != nullptr)
