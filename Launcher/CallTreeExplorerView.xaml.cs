@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Launcher.Models;
 
 namespace Launcher
@@ -57,6 +58,14 @@ namespace Launcher
                 {
                     ExportAction?.Invoke(dc.Call);
                 }
+            }
+        }
+
+        private void Search_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DataContext is CallTreeExplorerViewModel vm && e.Key == Key.Enter)
+            {
+                vm.SearchCommand.Execute(Search.Text);
             }
         }
     }

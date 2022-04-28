@@ -7,21 +7,40 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:CallTreeExplorerViewModel, IsDesignTimeCreatable=True}"
         Title="CallTreeExplorerView" Height="450" Width="800">
+
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        </ResourceDictionary>
+        
+    </Window.Resources>
     <Grid>
-        <TreeView ItemsSource="{Binding Roots}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" ToolTip="Empty string = make all visible and clear highlighting. '!' = make all visible but keep highlighting">
+            <Button Margin="2" Height="22" Width="50" DockPanel.Dock="Right" Command="{Binding SearchCommand}" CommandParameter="{Binding ElementName=Search, Path=Text}">Search</Button>
+            <TextBox Margin="2" DockPanel.Dock="Left" x:Name="Search" Background="LightYellow" KeyDown="Search_OnKeyDown"/>
+        </DockPanel>
+
+        <TreeView ItemsSource="{Binding Roots}" Grid.Row="1">
 
             <TreeView.ItemContainerStyle>
                 <!-- 
     This Style binds a TreeViewItem to a FunctionCallViewModel. 
     -->
                 <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="Visibility" Value="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                     <Setter Property="FontWeight" Value="Normal" />
                     <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
+                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
                             <Setter Property="FontWeight" Value="Bold" />
-                        </Trigger>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </TreeView.ItemContainerStyle>

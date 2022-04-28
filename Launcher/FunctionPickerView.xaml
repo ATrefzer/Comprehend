@@ -42,7 +42,9 @@
                         HorizontalAlignment="Right">
                 <Button Command="{Binding GenerateCommand}"
                         IsEnabled="{Binding CanRender}"
-                        Content="{Binding ExecuteButtonText}" />
+                        Content="{Binding ExecuteButtonText}"
+                        Height="22"
+                        Width="100"/>
                 
             </StackPanel>
         </GroupBox>

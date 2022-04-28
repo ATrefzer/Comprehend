@@ -91,6 +91,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CallTreeExplorerViewModel.cs" />
+    <Compile Include="PlaceHolderTreeViewItem.cs" />
+    <Compile Include="TreeItemViewModel.cs" />
     <Page Include="CallTreeExplorerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
