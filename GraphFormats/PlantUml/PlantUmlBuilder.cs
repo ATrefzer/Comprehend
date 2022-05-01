@@ -5,21 +5,26 @@ using System.Text;
 namespace GraphFormats.PlantUml
 {
     /// <summary>
-    ///     Api to build a plantuml text..
+    ///     Api to build a plantuml text.
     /// </summary>
     public class PlantUmlBuilder : ISequenceDiagramBuilder
     {
+        private readonly HashSet<string> _aliases = new HashSet<string>();
         private readonly Dictionary<string, Dictionary<string, string>> _categories = new Dictionary<string, Dictionary<string, string>>();
 
         // SourceType, TargetType, Method
         private readonly List<Edge> _orderedEdge = new List<Edge>();
+        private readonly bool _simplify;
 
-        public PlantUmlBuilder(string title)
+        private readonly string _title;
+
+        private readonly Dictionary<string, string> _typeToAlias = new Dictionary<string, string>();
+
+        public PlantUmlBuilder(string title, bool simplify)
         {
-            Title = title;
+            _simplify = simplify;
+            _title = title ?? "_title";
         }
-
-        public string Title { get; set; } = "_title";
 
 
         public void AddEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode)
@@ -91,53 +96,49 @@ namespace GraphFormats.PlantUml
         {
             var writer = new StringBuilder();
             {
-                writer.AppendLine($"@startuml {Title}");
+                writer.AppendLine($"@startuml {_title}");
+                writer.AppendLine("!theme plain");
                 writer.AppendLine("hide footbox");
-
-                //writer.WriteLine("actor client");
 
                 if (_orderedEdge.Any())
                 {
                     foreach (var edge in _orderedEdge)
                     {
-                        //if (edge.SourceType != null)
+                        if (edge.IsActivation)
                         {
-                            if (edge.IsActivation)
+                            if (edge.TargetType != null)
                             {
-                                if (edge.TargetType != null)
-                                {
-                                    writer.AppendLine($"activate {CleanUpInvalidChars(edge.TargetType)}");
-                                }
-
-                                continue;
+                                writer.AppendLine($"activate {MapTypeToAlias(edge.TargetType)}");
                             }
 
-                            if (edge.IsDeactivation)
-                            {
-                                if (edge.SourceType != null)
-                                {
-                                    writer.AppendLine($"deactivate {CleanUpInvalidChars(edge.SourceType)}");
-                                }
+                            continue;
+                        }
 
-                                continue;
+                        if (edge.IsDeactivation)
+                        {
+                            if (edge.SourceType != null)
+                            {
+                                writer.AppendLine($"deactivate {MapTypeToAlias(edge.SourceType)}");
                             }
 
-                            if (edge.IsCreation)
+                            continue;
+                        }
+
+                        if (edge.IsCreation)
+                        {
+                            writer.AppendLine("create " + MapTypeToAlias(edge.TargetType));
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(edge.Color))
                             {
-                                writer.AppendLine("create " + edge.TargetType);
+                                writer.AppendLine(
+                                    $"{MapTypeToAlias(edge.SourceType)} -> {MapTypeToAlias(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
                             }
                             else
                             {
-                                if (string.IsNullOrEmpty(edge.Color))
-                                {
-                                    writer.AppendLine(
-                                        $"{CleanUpInvalidChars(edge.SourceType)} -> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
-                                }
-                                else
-                                {
-                                    writer.AppendLine(
-                                        $"{CleanUpInvalidChars(edge.SourceType)} -[{edge.Color}]-> {CleanUpInvalidChars(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
-                                }
+                                writer.AppendLine(
+                                    $"{MapTypeToAlias(edge.SourceType)} -[{edge.Color}]-> {MapTypeToAlias(edge.TargetType)} : {CleanUpInvalidChars(edge.TargetFunction)}");
                             }
                         }
                     }
@@ -175,7 +176,7 @@ namespace GraphFormats.PlantUml
             // After source called the last function we deactivate it.
 
             var edge = new Edge();
-            edge.SourceType = CleanUpInvalidChars(sourceNode.TypeName);
+            edge.SourceType = MapTypeToAlias(sourceNode.TypeName);
             edge.IsDeactivation = true;
             return edge;
         }
@@ -183,7 +184,7 @@ namespace GraphFormats.PlantUml
         private Edge CreateActivation(IFunctionPresentation targetNode)
         {
             var edge = new Edge();
-            edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
+            edge.TargetType = MapTypeToAlias(targetNode.TypeName);
             edge.IsActivation = true;
             return edge;
         }
@@ -191,7 +192,7 @@ namespace GraphFormats.PlantUml
         private Edge CreateNewObject(IFunctionPresentation targetNode)
         {
             var edge = new Edge();
-            edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
+            edge.TargetType = MapTypeToAlias(targetNode.TypeName);
             edge.IsCreation = true;
             return edge;
         }
@@ -199,13 +200,55 @@ namespace GraphFormats.PlantUml
         private Edge CreateEdge(IFunctionPresentation sourceNode, IFunctionPresentation targetNode)
         {
             var edge = new Edge();
-            edge.SourceType = CleanUpInvalidChars(sourceNode.TypeName);
-            edge.TargetType = CleanUpInvalidChars(targetNode.TypeName);
+            edge.SourceType = MapTypeToAlias(sourceNode.TypeName);
+            edge.TargetType = MapTypeToAlias(targetNode.TypeName);
             edge.TargetFunction = CleanUpInvalidChars(targetNode.Function);
             return edge;
         }
 
+        /// <summary>
+        ///     Get rid of namespaces to draw a more compact diagram.
+        ///     If a this causes a conflict with another alias the original
+        ///     type name is returned (cleaned)
+        /// </summary>
+        private string TryStripNamespace(string typeName)
+        {
+            var alias = typeName;
 
+            var lastDot = typeName.LastIndexOf('.');
+            if (lastDot >= 0)
+            {
+                alias = typeName.Substring(lastDot + 1);
+                if (!_aliases.Add(alias))
+                {
+                    // Someone already uses this alias, cant simplify
+                    alias = typeName;
+                }
+            }
+
+            return alias;
+        }
+
+        private string MapTypeToAlias(string type)
+        {
+            if (!_typeToAlias.ContainsKey(type))
+            {
+                if (_simplify)
+                {
+                    _typeToAlias[type] = TryStripNamespace(CleanUpInvalidChars(type));
+                }
+                else
+                {
+                    _typeToAlias[type] = CleanUpInvalidChars(type);
+                }
+            }
+
+            return _typeToAlias[type];
+        }
+
+        /// <summary>
+        ///     Plantuml does not accept all characters in type or function names
+        /// </summary>
         private string CleanUpInvalidChars(string input)
         {
             var clean = input.Replace('`', '_').Replace('<', '_').Replace('>', '_').Replace('-', '_');

@@ -19,9 +19,9 @@ namespace Launcher.Models
         private readonly ISequenceDiagramBuilder _builder;
         private Stack<FunctionCall> _visibleParents;
 
-        public SequenceDiagramExport(string title)
+        public SequenceDiagramExport(string title, bool simplify)
         {
-            _builder = new PlantUmlBuilder(title);
+            _builder = new PlantUmlBuilder(title, simplify);
         }
 
         public void Export(string outputPath, FunctionCall funcCall)
@@ -82,12 +82,12 @@ namespace Launcher.Models
             InvokeFunction(lastVisibleParent, target, "indirect");
         }
 
-        private void InvokeTargetDirectly(FunctionCall source, FunctionCall target)
+        private void InvokeTargetDirectly(IFunctionPresentation source, FunctionCall target)
         {
             InvokeFunction(source, target);
         }
 
-        private void InvokeFunction(FunctionCall source, FunctionCall target, string category = null)
+        private void InvokeFunction(IFunctionPresentation source, FunctionCall target, string category = null)
         {
             if (target.IsCtor && source.TypeName != target.TypeName) // Static method calling ctor like DelegateCommand.New
             {

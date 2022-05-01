@@ -225,12 +225,12 @@ namespace Launcher
         }
 
 
-        private void Export(FunctionCall root)
+        private void Export(FunctionCall root, bool simplify)
         {
             var fullPath = Assembly.GetExecutingAssembly().Location;
             if (_callTrace != null)
             {
-                var exporter = new SequenceDiagramExport(_selectedProfile.GetName());
+                var exporter = new SequenceDiagramExport(_selectedProfile.GetName(), simplify);
                 exporter.Export(GetOutputPlantumlFile(_selectedProfile), root);
 
 

@@ -44,7 +44,6 @@
 /GraphLibrary/bin/Release
 /GraphLibrary/obj/Release
 /packages
-/Binaries
 /UnitTests/bin/Debug
 /UnitTests/obj/Debug
 /GraphFormats/bin
@@ -52,3 +51,7 @@
 /UnitTests/bin/Release
 /UnitTests/obj/Release
 /Comprehend.sln.DotSettings.user
+
+Binaries/*
+!Binaries/Dependencies/
+!Binaries/Dependencies/

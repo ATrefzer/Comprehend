@@ -16,7 +16,7 @@ namespace Launcher
             InitializeComponent();
         }
 
-        public Action<FunctionCall> ExportAction { get; set; }
+        public Action<FunctionCall, bool> ExportAction { get; set; }
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
         {
@@ -56,7 +56,7 @@ namespace Launcher
             {
                 if (menuItem.DataContext is FunctionCallViewModel dc)
                 {
-                    ExportAction?.Invoke(dc.Call);
+                    ExportAction?.Invoke(dc.Call, false);
                 }
             }
         }
@@ -66,6 +66,17 @@ namespace Launcher
             if (DataContext is CallTreeExplorerViewModel vm && e.Key == Key.Enter)
             {
                 vm.SearchCommand.Execute(Search.Text);
+            }
+        }
+
+        private void MenuItem_OnExportSimplified(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem)
+            {
+                if (menuItem.DataContext is FunctionCallViewModel dc)
+                {
+                    ExportAction?.Invoke(dc.Call, true);
+                }
             }
         }
     }

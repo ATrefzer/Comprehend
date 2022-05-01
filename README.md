@@ -3,8 +3,7 @@
 Proof of concept: Generating sequence diagrams from profiler traces.
 
 ## Prerequisites
-This tool uses the 3rd party component Plantuml to generate sequence diagrams.
-Download plantuml.jar from https://plantuml.com/de/download and copy it to Binaries\Dependencies
+This tool uses the 3rd party component Plantuml to generate sequence diagrams. This is a java application. Threfore you need a Java Runtime installed and in your search path.
 
 ## Description
 
