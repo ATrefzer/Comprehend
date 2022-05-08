@@ -18,7 +18,7 @@ namespace Launcher
 
         public Action<FunctionCall, bool> ExportAction { get; set; }
 
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        private void MenuItem_OnClickDeselectBranch(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem menuItem)
             {
@@ -76,6 +76,28 @@ namespace Launcher
                 if (menuItem.DataContext is FunctionCallViewModel dc)
                 {
                     ExportAction?.Invoke(dc.Call, true);
+                }
+            }
+        }
+
+        private void MenuItem_OnClickRemoveAllBannedBranches(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is CallTreeExplorerViewModel vm)
+            {
+                vm.RemoveBannedBranches();
+            }
+        }
+
+        private void MenuItem_OnClickUnfold(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem)
+            {
+                if (menuItem.DataContext is FunctionCallViewModel dc)
+                {
+                    if (DataContext is CallTreeExplorerViewModel vm)
+                    {
+                        vm.Unfold(dc);
+                    }
                 }
             }
         }

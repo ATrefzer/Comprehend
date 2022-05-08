@@ -17,7 +17,6 @@ namespace Launcher.Models
     {
         private static readonly Actor _actor;
         public readonly FunctionInfo Info;
-        private bool _isIncluded;
 
         static FunctionCall()
         {
@@ -53,11 +52,7 @@ namespace Launcher.Models
         ///     Custom filtering.
         ///     For sequence diagrams. Allow including banned functions!
         /// </summary>
-        public bool IsIncluded
-        {
-            get => _isIncluded;
-            set => _isIncluded = value;
-        }
+        public bool IsIncluded { get; set; }
 
         public string TypeName => Info.TypeName;
 
@@ -68,11 +63,46 @@ namespace Launcher.Models
             return Info.Id == ((FunctionCall)obj).Info.Id;
         }
 
+        public FunctionCall Clone(bool removeBannedBranches)
+        {
+            var clone = new FunctionCall(Info);
+            Clone(this, clone);
+            if (removeBannedBranches)
+            {
+                RemoveBannedBranches(clone);
+            }
+
+            return clone;
+        }
+
+        private void Clone(FunctionCall original, FunctionCall clone)
+        {
+            foreach (var child in original.Children)
+            {
+                var newChild = new FunctionCall(child.Info);
+                clone.Children.Add(newChild);
+                Clone(child, newChild);
+            }
+        }
+
+        private void RemoveBannedBranches(FunctionCall root)
+        {
+            foreach (var child in root.Children)
+            {
+                RemoveBannedBranches(child);
+            }
+
+            // Remove all banned children without further children
+            // If root is banned itself and all children are removed we get rid of it in the next level.
+            root.Children.RemoveWhere(call => call.IsBanned && call.Children.Any() is false);
+        }
+
         public override int GetHashCode()
         {
             return Info.Id.GetHashCode();
         }
 
+        // TODO move to graph algo
         /// <summary>
         ///     excludeAncestorsWithVisibleChildren is an performance optimization. Parents that are already marked as parents
         ///     of visible children don't need to be processed any further.

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Launcher.Models;
 using Prism.Commands;
 
 namespace Launcher
@@ -80,7 +81,7 @@ namespace Launcher
             }
 
 
-            for (var index =0; index < _all.Count; index++)
+            for (var index = 0; index < _all.Count; index++)
             {
                 if (!_all[index].Name.ToUpperInvariant().Contains(searchFor))
                 {
@@ -96,6 +97,35 @@ namespace Launcher
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void RemoveBannedBranches()
+        {
+            // Rebuild the tree
+            var tmp = new List<FunctionCall>();
+            foreach (var root in Roots)
+            {
+                var simplifiedClone = root.Call.Clone(true);
+                tmp.Add(simplifiedClone);
+            }
+
+            // Add roots to explorer
+            Roots.Clear();
+            foreach (var child in tmp)
+            {
+                Roots.Add(new FunctionCallViewModel(child));
+            }
+        }
+
+        public void Unfold(FunctionCallViewModel vm)
+        {
+            vm.Load();
+            foreach (var child in vm.Children)
+            {
+                Unfold((FunctionCallViewModel)child);
+            }
+
+            vm.IsExpanded = true;
         }
     }
 }

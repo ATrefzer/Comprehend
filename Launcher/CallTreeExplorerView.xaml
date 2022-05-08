@@ -56,7 +56,9 @@
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                 <MenuItem Header="Export"  Click="MenuItem_OnExport"/>
                                 <MenuItem Header="Export simplified"  Click="MenuItem_OnExportSimplified"/>
-                                <MenuItem Header="Deselect branch"  Click="MenuItem_OnClick"/>
+                                <MenuItem Header="Deselect branch"  Click="MenuItem_OnClickDeselectBranch"/>
+                                <MenuItem Header="Unfold branch"  Click="MenuItem_OnClickUnfold"/>
+                                <MenuItem Header="Remove all banned branches"  Click="MenuItem_OnClickRemoveAllBannedBranches"/>
                             </ContextMenu>
                         </StackPanel.ContextMenu>
 
