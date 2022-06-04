@@ -109,7 +109,7 @@ namespace Launcher
                 // Add a dummy caller if we have more than one trace with the given start function
                 if (_callTrace.SequenceVariations.Count > 1)
                 {
-                    var actor = FunctionCall.GetActor();
+                    var actor = TreeCall.GetActor();
                     foreach (var sequence in _callTrace.SequenceVariations)
                     {
                         actor.Children.Add(sequence);
@@ -121,7 +121,7 @@ namespace Launcher
 
                 // Open explorer view with all traces
                 var vm = new CallTreeExplorerViewModel();
-                vm.Roots.Add(new FunctionCallViewModel(funcCall));
+                vm.Roots.Add(new TreeCallViewModel(funcCall));
                 var view = new CallTreeExplorerView();
                 view.ExportAction = Export;
                 view.DataContext = vm;
@@ -225,7 +225,7 @@ namespace Launcher
         }
 
 
-        private void Export(FunctionCall root, bool simplify)
+        private void Export(TreeCall root, bool simplify)
         {
             var fullPath = Assembly.GetExecutingAssembly().Location;
             if (_callTrace != null)

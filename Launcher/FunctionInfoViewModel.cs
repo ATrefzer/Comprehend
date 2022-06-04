@@ -8,7 +8,7 @@ namespace Launcher
     internal sealed class FunctionInfoViewModel : INotifyPropertyChanged
     {
         public readonly FunctionInfo Info;
-        private bool _hidden = false;
+        private bool _hidden;
 
         public FunctionInfoViewModel(FunctionInfo info)
         {

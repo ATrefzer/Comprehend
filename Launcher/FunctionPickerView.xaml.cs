@@ -1,13 +1,11 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-
 
 namespace Launcher
 {
     /// <summary>
-    /// Interaction logic for MethodChooser.xaml
+    ///     Interaction logic for MethodChooser.xaml
     /// </summary>
     public sealed partial class FunctionPickerView : Window
     {
@@ -33,14 +31,16 @@ namespace Launcher
             {
                 // switch filter on
                 cv.Filter = obj =>
-                            {
-                                var vm = (obj as FunctionInfoViewModel);
-                                if (vm == null || vm.Hidden) return false;
+                {
+                    var vm = obj as FunctionInfoViewModel;
+                    if (vm == null || vm.Hidden)
+                    {
+                        return false;
+                    }
 
 
-                                return vm.FullName.ToUpper().Contains(text) && (!hideExcluded || vm.Included);
-                            };
-            
+                    return vm.FullName.ToUpper().Contains(text) && (!hideExcluded || vm.Included);
+                };
             }
         }
 

@@ -7,15 +7,19 @@ using GraphFormats;
 namespace Launcher.Models
 {
     /// <summary>
-    /// Selects the entry function and compacts all hidden calls.
+    /// Shows the selected functions and compacts all hidden calls in between.
     /// 
     /// Note:
-    /// The filter was applied already when processing the profiler events.
+    /// The pre-filter was applied already when processing the profiler events.
     /// When a hidden function has only hidden children it was removed immediately.
     /// </summary>
     internal class CallGraphExport
     {
         private readonly HashSet<(ulong, ulong)> _processed = new HashSet<(ulong, ulong)>();
+
+        /// <summary>
+        /// Selected by the user in the function picker dialog.
+        /// </summary>
         private HashSet<ulong> _included;
 
         internal void Export(CallGraph model, HashSet<ulong> included, IGraphBuilder builder)
@@ -27,17 +31,23 @@ namespace Launcher.Models
         }
 
 
-        private bool IsIncluded(FunctionCall call)
+        private bool IsIncluded(GraphCall call)
         {
             return _included.Contains(call.Id);
         }
 
+        /// <summary>
+        /// Algorithm.
+        /// Start with the selected functions. (Recursively) iterate all children. Regardless
+        /// if hidden or not. But we remember the last visible ancestor when we walk down the
+        /// call graph. We only draw edges from the last visible ancestor to visible functions.
+        /// </summary>
         private void Build(IGraphBuilder builder, CallGraph model)
         {
             _processed.Clear();
 
             // User visible functions
-            var selection = new HashSet<FunctionCall>();
+            var selection = new HashSet<GraphCall>();
             var starting = model.AllFunctions.Where(IsIncluded).ToList();
             selection.UnionWith(starting);
 
@@ -55,17 +65,12 @@ namespace Launcher.Models
             }
         }
 
-        /// <summary>
-        /// Algorithm.
-        /// Start with all visible functions. (Recursively) iterate all children. Regardless
-        /// if hidden or not. But we remember the last visible ancestor when we walk down the
-        /// call tree. We only draw edges from the last visible ancestor to visible functions.
-        /// </summary>
-        private void Build(IGraphBuilder builder, FunctionCall lastVisibleAncestor, FunctionCall target)
+       
+        private void Build(IGraphBuilder builder, GraphCall lastVisibleAncestor, GraphCall target)
         {
             // Assumption: We start with the first visible parent. Anything hidden above is ignored.
 
-            var toProcess = new Queue<(FunctionCall, FunctionCall)>();
+            var toProcess = new Queue<(GraphCall, GraphCall)>();
             toProcess.Enqueue((lastVisibleAncestor, target));
 
             while (toProcess.Any())
@@ -84,11 +89,17 @@ namespace Launcher.Models
                     _processed.Add(link);
                 }
 
+                if (lastVisibleAncestor == null && IsIncluded(target))
+                {
+                    // A single visible node.
+                    builder.AddNode(target.FullName);
+                }
+
                 // Display recursion
-                //if (lastVisibleAncestor != null && lastVisibleAncestor.Recursive)
-                //{
-                //    builder.AddEdge(lastVisibleAncestor.Name, lastVisibleAncestor.Name);
-                //}
+                    //if (lastVisibleAncestor != null && lastVisibleAncestor.Recursive)
+                    //{
+                    //    builder.AddEdge(lastVisibleAncestor.Name, lastVisibleAncestor.Name);
+                    //}
 
                 if (lastVisibleAncestor != null && IsIncluded(target))
                 {

@@ -10,28 +10,28 @@ namespace Launcher
 {
     public sealed class CallTreeExplorerViewModel : INotifyPropertyChanged
     {
-        private List<FunctionCallViewModel> _all;
+        private List<TreeCallViewModel> _all;
 
         public CallTreeExplorerViewModel()
         {
             SearchCommand = new DelegateCommand<string>(DoSearch);
         }
 
-        public ObservableCollection<FunctionCallViewModel> Roots { get; } =
-            new ObservableCollection<FunctionCallViewModel>();
+        public ObservableCollection<TreeCallViewModel> Roots { get; } =
+            new ObservableCollection<TreeCallViewModel>();
 
         public ICommand SearchCommand { get; set; }
 
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void Flatten(FunctionCallViewModel vm, ICollection<FunctionCallViewModel> result)
+        private void Flatten(TreeCallViewModel vm, ICollection<TreeCallViewModel> result)
         {
             vm.Load();
             result.Add(vm);
             foreach (var child in vm.Children)
             {
-                if (child is FunctionCallViewModel childVm)
+                if (child is TreeCallViewModel childVm)
                 {
                     Flatten(childVm, result);
                 }
@@ -43,7 +43,7 @@ namespace Launcher
             var searchFor = text.ToUpperInvariant();
             if (_all == null)
             {
-                _all = new List<FunctionCallViewModel>();
+                _all = new List<TreeCallViewModel>();
                 foreach (var root in Roots)
                 {
                     Flatten(root, _all);
@@ -102,7 +102,7 @@ namespace Launcher
         public void RemoveBannedBranches()
         {
             // Rebuild the tree
-            var tmp = new List<FunctionCall>();
+            var tmp = new List<TreeCall>();
             foreach (var root in Roots)
             {
                 var simplifiedClone = root.Call.Clone(true);
@@ -113,16 +113,16 @@ namespace Launcher
             Roots.Clear();
             foreach (var child in tmp)
             {
-                Roots.Add(new FunctionCallViewModel(child));
+                Roots.Add(new TreeCallViewModel(child));
             }
         }
 
-        public void Unfold(FunctionCallViewModel vm)
+        public void Unfold(TreeCallViewModel vm)
         {
             vm.Load();
             foreach (var child in vm.Children)
             {
-                Unfold((FunctionCallViewModel)child);
+                Unfold((TreeCallViewModel)child);
             }
 
             vm.IsExpanded = true;

@@ -92,6 +92,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CallTreeExplorerViewModel.cs" />
+    <Compile Include="Models\GraphCall.cs" />
+    <Compile Include="Models\TreeCall.cs" />
     <Compile Include="PlaceHolderTreeViewItem.cs" />
     <Compile Include="TreeItemViewModel.cs" />
     <Page Include="CallTreeExplorerView.xaml">
@@ -118,7 +120,7 @@
     <Compile Include="CallTreeExplorerView.xaml.cs">
       <DependentUpon>CallTreeExplorerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FunctionCallViewModel.cs" />
+    <Compile Include="TreeCallViewModel.cs" />
     <Compile Include="FunctionInfoViewModel.cs" />
     <Compile Include="GraphViewerWindow.xaml.cs">
       <DependentUpon>GraphViewerWindow.xaml</DependentUpon>
@@ -128,7 +130,6 @@
     <Compile Include="FunctionPickerView.xaml.cs">
       <DependentUpon>FunctionPickerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Profiler\Filter.cs" />
     <Compile Include="Models\CallGraphExport.cs" />
     <Compile Include="Profiler\Profile.cs" />

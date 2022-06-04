@@ -8,19 +8,17 @@ namespace Launcher.Models
     ///     Given a start function find all traces where this start function is called.
     ///     <see cref="SequenceVariations" />
     ///     The traces contain all(!) invocations from the starting point..
-    ///     This model requires new FunctionCall instances whenever a function is called. This is different
+    ///     This model requires new TreeCall instances whenever a function is called. This is different
     ///     in the call graph model.
-    ///
     ///     Noteworthy things:
     ///     - A tail call has no associated leave token.
     ///     - You cannot compare function names due to method overloading. Always use the Ids
     ///     - If a method is closed that is not the active function on the stack an exception or jump happened.
-    /// 
     /// </summary>
     internal class CallTree
     {
-        private readonly Dictionary<ulong, Stack<FunctionCall>> _tidToStack =
-            new Dictionary<ulong, Stack<FunctionCall>>();
+        private readonly Dictionary<ulong, Stack<TreeCall>> _tidToStack =
+            new Dictionary<ulong, Stack<TreeCall>>();
 
         private CallTree()
         {
@@ -30,7 +28,7 @@ namespace Launcher.Models
         ///     The final found sequences starting from the entry function.
         ///     Each entry is a trace of the start function.
         /// </summary>
-        public List<FunctionCall> SequenceVariations { get; private set; }
+        public List<TreeCall> SequenceVariations { get; private set; }
 
         public static CallTree FromEventStream(IEnumerable<ProfilerEvent> stream,
             FunctionInfo entryFunction)
@@ -43,14 +41,14 @@ namespace Launcher.Models
 
         private void FromEventStream_(IEnumerable<ProfilerEvent> eventStream, FunctionInfo entryFunction)
         {
-            var sequenceVariations = new List<FunctionCall>();
+            var sequenceVariations = new List<TreeCall>();
             Clear();
 
             foreach (var entry in eventStream)
             {
                 if (entry.Token == Tokens.TokenEnter || entry.Token == Tokens.TokenTailCall)
                 {
-                    var enterFunc = CreateNewFunctionCall(entry);
+                    var enterFunc = new TreeCall(entry.Func);
 
                     var stack = FindStackByThreadId(entry.ThreadId);
 
@@ -87,7 +85,7 @@ namespace Launcher.Models
                             // Exception handling!
                             stack.Pop();
                         }
-                        
+
                         var activeFunc = GetActiveFunction(stack);
                         if (activeFunc != null)
                         {
@@ -125,7 +123,7 @@ namespace Launcher.Models
             _tidToStack.Clear();
         }
 
-        private FunctionCall GetActiveFunction(Stack<FunctionCall> stack)
+        private TreeCall GetActiveFunction(Stack<TreeCall> stack)
         {
             if (stack == null)
             {
@@ -133,7 +131,7 @@ namespace Launcher.Models
             }
 
             // Find active function
-            FunctionCall activeFunc = null;
+            TreeCall activeFunc = null;
             if (stack.Count > 0)
             {
                 activeFunc = stack.Peek();
@@ -142,30 +140,23 @@ namespace Launcher.Models
             return activeFunc;
         }
 
-        private Stack<FunctionCall> GetOrCreateStackByThreadId(ulong threadId)
+        private Stack<TreeCall> GetOrCreateStackByThreadId(ulong threadId)
         {
             // Find the correct thread such that we find the correct parent function.
             if (!_tidToStack.TryGetValue(threadId, out var stack))
             {
-                stack = new Stack<FunctionCall>();
+                stack = new Stack<TreeCall>();
                 _tidToStack.Add(threadId, stack);
             }
 
             return stack;
         }
 
-        private Stack<FunctionCall> FindStackByThreadId(ulong threadId)
+        private Stack<TreeCall> FindStackByThreadId(ulong threadId)
         {
             // Find the correct thread such that we find the correct parent function.
             _tidToStack.TryGetValue(threadId, out var stack);
             return stack;
-        }
-
-        private FunctionCall CreateNewFunctionCall(ProfilerEvent entry)
-        {
-            FunctionCall newFunc;
-            newFunc = new FunctionCall(entry.Func);
-            return newFunc;
         }
     }
 }

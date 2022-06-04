@@ -20,6 +20,11 @@ namespace GraphFormats.Msagl
             _graph.AddEdge(sourceNode, string.Empty, targetNode);
         }
 
+        public void AddNode(string node)
+        {
+            _graph.AddNode(node);
+        }
+
         public void AddEdge(string sourceNode, string targetNode, string category)
         {
             //Debug.Assert(_edges.Add((sourceNode, targetNode)));

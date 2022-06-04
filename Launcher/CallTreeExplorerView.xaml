@@ -48,7 +48,7 @@
        
 
             <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type local:FunctionCallViewModel}" ItemsSource="{Binding Children}">
+                <HierarchicalDataTemplate DataType="{x:Type local:TreeCallViewModel}" ItemsSource="{Binding Children}">
 
                     <StackPanel Orientation="Horizontal">
 

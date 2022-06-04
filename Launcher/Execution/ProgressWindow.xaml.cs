@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Windows;
 
 namespace Launcher.Execution
 {
     /// <summary>
-    /// Interaction logic for ProgressWindow.xaml
+    ///     Interaction logic for ProgressWindow.xaml
     /// </summary>
     public partial class ProgressWindow : IProgress
     {
@@ -15,10 +14,7 @@ namespace Launcher.Execution
 
         public void Progress(string message, int percent)
         {
-            Dispatcher?.BeginInvoke(new Action(() =>
-                                               {
-                                                   _progressBar.Value = percent;
-                                               }));
+            Dispatcher?.BeginInvoke(new Action(() => { _progressBar.Value = percent; }));
         }
     }
 }

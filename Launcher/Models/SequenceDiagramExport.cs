@@ -17,24 +17,24 @@ namespace Launcher.Models
     internal class SequenceDiagramExport
     {
         private readonly ISequenceDiagramBuilder _builder;
-        private Stack<FunctionCall> _visibleParents;
+        private Stack<TreeCall> _visibleParents;
 
         public SequenceDiagramExport(string title, bool simplify)
         {
             _builder = new PlantUmlBuilder(title, simplify);
         }
 
-        public void Export(string outputPath, FunctionCall funcCall)
+        public void Export(string outputPath, TreeCall funcCall)
         {
             Export(funcCall);
             var text = _builder.Build();
             File.WriteAllText(outputPath, text);
         }
 
-        private void Export(FunctionCall funcCall)
+        private void Export(TreeCall funcCall)
         {
             // From last visible parent skipping hidden calls to another visible call.
-            _visibleParents = new Stack<FunctionCall>();
+            _visibleParents = new Stack<TreeCall>();
 
             _builder.AddCategory("indirect", "color", "#0000FF");
 
@@ -51,12 +51,12 @@ namespace Launcher.Models
 
 
             // Dummy Actor calling the traced function. Included for sure!
-            var actor = FunctionCall.GetActor();
+            var actor = TreeCall.GetActor();
             Call(actor, funcCall);
         }
 
 
-        private void Call(FunctionCall source, FunctionCall target)
+        private void Call(TreeCall source, TreeCall target)
         {
             if (source.IsIncluded && target.IsIncluded)
             {
@@ -77,17 +77,17 @@ namespace Launcher.Models
             EndFunction(target);
         }
 
-        private void InvokeTargetIndirectly(FunctionCall lastVisibleParent, FunctionCall target)
+        private void InvokeTargetIndirectly(TreeCall lastVisibleParent, TreeCall target)
         {
             InvokeFunction(lastVisibleParent, target, "indirect");
         }
 
-        private void InvokeTargetDirectly(IFunctionPresentation source, FunctionCall target)
+        private void InvokeTargetDirectly(IFunctionPresentation source, TreeCall target)
         {
             InvokeFunction(source, target);
         }
 
-        private void InvokeFunction(IFunctionPresentation source, FunctionCall target, string category = null)
+        private void InvokeFunction(IFunctionPresentation source, TreeCall target, string category = null)
         {
             if (target.IsCtor && source.TypeName != target.TypeName) // Static method calling ctor like DelegateCommand.New
             {
@@ -113,7 +113,7 @@ namespace Launcher.Models
             }
         }
 
-        private void EndFunction(FunctionCall target)
+        private void EndFunction(TreeCall target)
         {
             if (target.IsIncluded)
             {

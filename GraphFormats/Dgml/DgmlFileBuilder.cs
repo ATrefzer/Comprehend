@@ -53,6 +53,11 @@ namespace GraphFormats.Dgml
             }
         }
 
+        public void AddNode(string node)
+        {
+            var targetNodeId = GetOrCreateNodeId(node);
+        }
+
         /// <summary>
         /// Adds an edge to the output file. Node are collected automatically and don't need to be added separately.
         /// </summary>

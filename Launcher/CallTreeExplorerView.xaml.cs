@@ -16,13 +16,13 @@ namespace Launcher
             InitializeComponent();
         }
 
-        public Action<FunctionCall, bool> ExportAction { get; set; }
+        public Action<TreeCall, bool> ExportAction { get; set; }
 
         private void MenuItem_OnClickDeselectBranch(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem menuItem)
             {
-                if (menuItem.DataContext is FunctionCallViewModel vm)
+                if (menuItem.DataContext is TreeCallViewModel vm)
                 {
                     Deselect(vm);
                 }
@@ -32,7 +32,7 @@ namespace Launcher
         /// <summary>
         ///     Deselecting the view model propagates to the FunctionCall instancew.
         /// </summary>
-        private void Deselect(FunctionCallViewModel vm)
+        private void Deselect(TreeCallViewModel vm)
         {
             if (vm == null)
             {
@@ -46,7 +46,7 @@ namespace Launcher
             vm.Load();
             foreach (var child in vm.Children)
             {
-                Deselect(child as FunctionCallViewModel);
+                Deselect(child as TreeCallViewModel);
             }
         }
 
@@ -54,7 +54,7 @@ namespace Launcher
         {
             if (sender is MenuItem menuItem)
             {
-                if (menuItem.DataContext is FunctionCallViewModel dc)
+                if (menuItem.DataContext is TreeCallViewModel dc)
                 {
                     ExportAction?.Invoke(dc.Call, false);
                 }
@@ -73,7 +73,7 @@ namespace Launcher
         {
             if (sender is MenuItem menuItem)
             {
-                if (menuItem.DataContext is FunctionCallViewModel dc)
+                if (menuItem.DataContext is TreeCallViewModel dc)
                 {
                     ExportAction?.Invoke(dc.Call, true);
                 }
@@ -92,7 +92,7 @@ namespace Launcher
         {
             if (sender is MenuItem menuItem)
             {
-                if (menuItem.DataContext is FunctionCallViewModel dc)
+                if (menuItem.DataContext is TreeCallViewModel dc)
                 {
                     if (DataContext is CallTreeExplorerViewModel vm)
                     {
