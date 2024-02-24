@@ -238,7 +238,7 @@ namespace Launcher
 
                 var psi = new ProcessStartInfo();
                 psi.FileName = "java.exe";
-                psi.Arguments = "-jar " + Path.Combine(exeDir, "Dependencies", "plantuml.jar ") + GetOutputPlantumlFile(_selectedProfile) + " -tsvg";
+                psi.Arguments = "-jar " + "\"" + Path.Combine(exeDir, "Dependencies", "plantuml.jar") + "\" \"" + GetOutputPlantumlFile(_selectedProfile) + "\" -tsvg";
                 psi.CreateNoWindow = true;
                 psi.RedirectStandardError = true;
                 psi.RedirectStandardOutput = true;
@@ -252,7 +252,7 @@ namespace Launcher
 
                 process.WaitForExit();
 
-                if (process.ExitCode == -1)
+                if (process.ExitCode != 0)
                 {
                     var error = process.StandardError.ReadToEnd();
                     throw new Exception(error);
