@@ -88,6 +88,8 @@ namespace Launcher
                     continue;
                 }
 
+                // Note: Setting a node expanded or visible will also set all parents
+                // expanded or visible.
                 _all[index].IsExpanded = true;
                 _all[index].IsVisible = true;
                 _all[index].IsHighlighted = true;
