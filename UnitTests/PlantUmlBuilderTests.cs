@@ -1,12 +1,11 @@
 ﻿using Launcher.Profiler;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace UnitTests
 {
     [TestClass]
     public class PlantUmlBuilderTests
     {
+
         [TestMethod]
         public void SplitName_ModuleAvailable()
         {
@@ -24,6 +23,5 @@ namespace UnitTests
             Assert.AreEqual("unknown", parts.Module);
             Assert.AreEqual("namespace.class", parts.TypeName);
         }
-
     }
 }

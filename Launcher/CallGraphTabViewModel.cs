@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using GraphFormats.Dgml;
-using GraphFormats.Msagl;
 using Launcher.Execution;
 using Launcher.Models;
 using Launcher.Profiler;
@@ -94,9 +93,9 @@ namespace Launcher
                     dgml.WriteOutput(GetOutputDgmlFile(profile));
 
                     // Show graph in window
-                    var msagl = new MsaglGraphBuilder();
-                    exporter.Export(_callGraph, included, msagl);
-                    msagl.ShowResult();
+                    //var msagl = new MsaglGraphBuilder();
+                    //exporter.Export(_callGraph, included, msagl);
+                    //msagl.ShowResult();
                 }
             }
             catch (Exception ex)

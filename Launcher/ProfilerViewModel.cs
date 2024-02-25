@@ -5,12 +5,12 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 using Launcher.Profiler;
 
 using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 using Prism.Commands;
 
@@ -150,7 +150,7 @@ namespace Launcher
 
         private void ExecuteSelectTarget()
         {
-            var dialog = new OpenFileDialog();
+            var dialog = new Microsoft.Win32.OpenFileDialog();
             dialog.Filter = "Executables (*.exe)|*.exe";
             if (dialog.ShowDialog() == true)
             {
@@ -160,12 +160,11 @@ namespace Launcher
 
         private void ExecuteSelectOutputDirectory()
         {
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
+            var dialog = new OpenFolderDialog();            
             var result = dialog.ShowDialog();
-            if (result == CommonFileDialogResult.Ok)
+            if (result is true)
             {
-                OutputDirectory = dialog.FileName;
+                OutputDirectory = dialog.FolderName;
             }
         }
     }

@@ -55,3 +55,5 @@
 Binaries/*
 !Binaries/Dependencies/
 !Binaries/Dependencies/
+/Launcher/bin/Debug/net8.0-windows
+/UnitTests/obj
