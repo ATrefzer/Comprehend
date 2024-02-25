@@ -9,10 +9,7 @@ namespace Launcher.Models
 
         public FunctionCall(FunctionInfo info)
         {
-            Info = info;
-
-            // By default the pre-filtered functions are not included.
-            IsIncluded = !info.IsBanned;
+            Info = info;      
         }
 
         public bool IsRecursive { get; internal set; }
@@ -28,12 +25,6 @@ namespace Launcher.Models
         public bool IsPublic => Info.IsPublic;
 
         public bool IsCtor => Info.IsCtor;
-
-        /// <summary>
-        ///     Custom filtering.
-        ///     For sequence diagrams. Allow including banned functions!
-        /// </summary>
-        public bool IsIncluded { get; set; }
 
         public string TypeName => Info.TypeName;
 

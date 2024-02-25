@@ -51,20 +51,12 @@ namespace Launcher.Models
             var starting = model.AllFunctions.Where(IsIncluded).ToList();
             selection.UnionWith(starting);
 
-            // Visible parents are already in the list of included functions
-            // Include (visible) parents
-            //foreach (var func in starting)
-            //{
-            //    selection.UnionWith(func.GetAncestorChain().Where(f => IsIncluded(f)));
-            //}
-
             //Include children
             foreach (var func in selection)
             {
                 Build(builder, null, func);
             }
         }
-
        
         private void Build(IGraphBuilder builder, GraphCall lastVisibleAncestor, GraphCall target)
         {
@@ -93,13 +85,7 @@ namespace Launcher.Models
                 {
                     // A single visible node.
                     builder.AddNode(target.FullName);
-                }
-
-                // Display recursion
-                    //if (lastVisibleAncestor != null && lastVisibleAncestor.Recursive)
-                    //{
-                    //    builder.AddEdge(lastVisibleAncestor.Name, lastVisibleAncestor.Name);
-                    //}
+                }         
 
                 if (lastVisibleAncestor != null && IsIncluded(target))
                 {

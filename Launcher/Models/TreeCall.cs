@@ -13,23 +13,23 @@ namespace Launcher.Models
     [DebuggerDisplay("Func: {FullName} Banned={IsBanned}")]
     public class TreeCall : FunctionCall
     {
-        private static readonly Actor _actor;
-
-        static TreeCall()
-        {
-            _actor = new Actor();
-        }
-
         public TreeCall(FunctionInfo info) : base(info)
         {
+            // By default the pre-filtered functions are not included.
+            IsIncluded = !info.IsBanned;
         }
 
         public List<TreeCall> Children { get; } = new List<TreeCall>();
 
+        /// <summary>
+        ///     Custom filtering.
+        ///     For sequence diagrams. Allow including banned functions!
+        /// </summary>
+        public bool IsIncluded { get; set; }
 
-        public static TreeCall GetActor()
+        public static TreeCall CreateActor()
         {
-            return _actor;
+            return new Actor();
         }
 
         public TreeCall Clone(bool removeBannedBranches)

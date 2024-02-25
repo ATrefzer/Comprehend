@@ -109,7 +109,7 @@ namespace Launcher
                 // Add a dummy caller if we have more than one trace with the given start function
                 if (_callTrace.SequenceVariations.Count > 1)
                 {
-                    var actor = TreeCall.GetActor();
+                    var actor = TreeCall.CreateActor();
                     foreach (var sequence in _callTrace.SequenceVariations)
                     {
                         actor.Children.Add(sequence);
@@ -143,7 +143,6 @@ namespace Launcher
             // All functions that are included according to the pre filter file
             // These functions can be hidden or made visible
             var preSelection = _idToFunctionInfo.Values.Where(info => !info.IsBanned).Select(info => new FunctionInfoViewModel(info));
-
 
             var wnd = new FunctionPickerView();
 

@@ -1,0 +1,142 @@
+<mxfile host="Electron" modified="2024-02-25T10:55:27.152Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/23.1.5 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="-nilEkIvcDnZ3zRZmIsQ" version="23.1.5" type="device" pages="2">
+  <diagram name="CallStack" id="7MIbDpLLH43puHUzAuJV">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;noEdgeStyle=1;orthogonal=1;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-1" target="wcoxp5BnGuh-3i_w4Flq-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-1" value="Filter.txt" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" vertex="1" parent="1">
+          <mxGeometry x="218.32999999999998" y="40" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-2" target="wcoxp5BnGuh-3i_w4Flq-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-2" value="Profile" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="530" y="417" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-3" target="wcoxp5BnGuh-3i_w4Flq-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-3" value="Index" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" vertex="1" parent="1">
+          <mxGeometry x="520" y="190" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-4" value="Functions&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;(IsBanned initialized)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="198.32666666666665" y="210" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-9" target="wcoxp5BnGuh-3i_w4Flq-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-9" value="FunctionInfo&lt;br&gt;(StartFunction)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="214.33" y="437" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-11" value="Select Start Function (Ony not banned functions are presented." style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="188.33333333333331" y="310" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-12" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-4" target="wcoxp5BnGuh-3i_w4Flq-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="177" y="260" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.367;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;orthogonal=1;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-11" target="wcoxp5BnGuh-3i_w4Flq-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-15" target="wcoxp5BnGuh-3i_w4Flq-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-15" value="CallTree&lt;br&gt;(All Variations with Actor node)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="540" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-19" target="wcoxp5BnGuh-3i_w4Flq-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=none;endArrow=none;endFill=0;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-19" target="wcoxp5BnGuh-3i_w4Flq-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-19" value="&lt;b&gt;RULES&lt;br&gt;&lt;/b&gt;&lt;br&gt;Present all calls from the start function, including the banned ones.&lt;br&gt;&lt;br&gt;Output to diagram is done by the Included flag.&lt;br&gt;Initially these are all not banned functions&lt;br&gt;&lt;br&gt;User can include banned functions." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;align=left;" vertex="1" parent="1">
+          <mxGeometry x="300" y="760" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-21" value="CallTreeExplorer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="640" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=none;endFill=0;" edge="1" parent="1" source="wcoxp5BnGuh-3i_w4Flq-26" target="wcoxp5BnGuh-3i_w4Flq-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wcoxp5BnGuh-3i_w4Flq-26" value="Present all functions that are not banned." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="30" y="290" width="110" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="CallGraph" id="WgbikarGFhWu7aPjvUKr">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-0" />
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-1" parent="Gp-gg_57E9rPs-xaG27c-0" />
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;noEdgeStyle=1;orthogonal=1;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-3" target="Gp-gg_57E9rPs-xaG27c-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-3" value="Filter.txt" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="218.32999999999998" y="40" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-5" target="Gp-gg_57E9rPs-xaG27c-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-5" value="Profile" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="590" y="395" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-7" target="Gp-gg_57E9rPs-xaG27c-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-7" value="Index" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="570" y="190" width="80" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-8" value="Functions&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;(IsBanned initialized)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="198.32666666666665" y="210" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-11" target="Gp-gg_57E9rPs-xaG27c-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-11" value="FunctionInfo&lt;br&gt;(All start functions)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="214.33" y="437" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-12" value="Select included functions in call graph" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="188.33333333333331" y="310" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-13" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;orthogonal=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-8" target="Gp-gg_57E9rPs-xaG27c-12">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="177" y="260" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.367;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;orthogonal=1;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-12" target="Gp-gg_57E9rPs-xaG27c-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-16" target="Gp-gg_57E9rPs-xaG27c-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-16" value="Export" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="370" y="540" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0;exitDx=115;exitDy=0;exitPerimeter=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-19" target="Gp-gg_57E9rPs-xaG27c-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=none;endArrow=none;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-19" target="Gp-gg_57E9rPs-xaG27c-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-19" value="&lt;b&gt;RULES&lt;br&gt;&lt;/b&gt;&lt;br&gt;Start with the user selected functions (The banned functions further restricted)&lt;br&gt;&lt;br&gt;Process all children. Include only the selected nodes.&lt;br&gt;&lt;br&gt;If hidden nodes are between two selected functions they are shown dotted. This indicates we can call from A to B with something hidden in between." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;align=left;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="520" y="630" width="260" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-20" value="Dgml" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="370" y="640" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=none;endFill=0;" edge="1" parent="Gp-gg_57E9rPs-xaG27c-1" source="Gp-gg_57E9rPs-xaG27c-22" target="Gp-gg_57E9rPs-xaG27c-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Gp-gg_57E9rPs-xaG27c-22" value="Present all functions that are not banned.&lt;br&gt;&lt;br&gt;User can include or exclude them." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="Gp-gg_57E9rPs-xaG27c-1">
+          <mxGeometry x="30" y="295" width="110" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

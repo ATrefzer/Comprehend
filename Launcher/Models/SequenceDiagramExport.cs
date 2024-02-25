@@ -51,7 +51,7 @@ namespace Launcher.Models
 
 
             // Dummy Actor calling the traced function. Included for sure!
-            var actor = TreeCall.GetActor();
+            var actor = TreeCall.CreateActor();
             Call(actor, funcCall);
         }
 
