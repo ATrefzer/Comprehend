@@ -10,11 +10,11 @@ namespace Launcher.Profiler
 {
     internal class Process
     {
-        public static Task StartAsync(string target, string profilerDirectory, string outputDirectory)
+        public static Task StartAsync(string target, string profilerDirectory, string outputDirectory, bool isX64)
         {
             // Select correct profiler dll.
             string profilerDll;
-            if (Is64Bit(target))
+            if (isX64)
             {
                 profilerDll = Path.Combine(profilerDirectory, "MiniProfiler_x64.dll");
             }
@@ -22,6 +22,8 @@ namespace Launcher.Profiler
             {
                 profilerDll = Path.Combine(profilerDirectory, "MiniProfiler_x86.dll");
             }
+
+            Debug.Assert(File.Exists(profilerDll));
 
             // .NET 4.xx
             // Setup environment variables passed to the profiled process

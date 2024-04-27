@@ -53,6 +53,7 @@
                             <RowDefinition />
                             <RowDefinition />
                             <RowDefinition />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -89,6 +90,11 @@
                         <Label Grid.Row="2" Grid.Column="0" Content="Enable Profiling" />
                         <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"
                                   IsChecked="{Binding IsProfilingEnabled}" />
+
+
+                        <Label Grid.Row="3" Grid.Column="0" Content="X64" />
+                        <CheckBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center"
+                                  IsChecked="{Binding IsX64}" />
                     </Grid>
                 </StackPanel>
 

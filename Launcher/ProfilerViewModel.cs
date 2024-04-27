@@ -26,6 +26,7 @@ namespace Launcher
         private string _outputDirectory;
 
         private bool _isProfilingEnabled;
+        private bool _isX64;
 
         public ProfilerViewModel()
         {
@@ -69,6 +70,17 @@ namespace Launcher
             set
             {
                 _target = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public bool IsX64
+        {
+            get => _isX64;
+            set
+            {
+                _isX64 = value;
                 OnPropertyChanged();
             }
         }
@@ -142,7 +154,7 @@ namespace Launcher
         {
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            await Process.StartAsync(Target, directory, OutputDirectory);
+            await Process.StartAsync(Target, directory, OutputDirectory, IsX64);
 
             // Update trace list
             AvailableTracesChanged?.Invoke(this, new TracesArg { Path = OutputDirectory });
